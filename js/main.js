@@ -39,7 +39,6 @@
     app.cam = RTS.camera.create(app.world.map.width, app.world.map.height);
     app.selection = [];
     app.groups = RTS.groups.create();
-    app.lastIdle = 0;
     app.placement = app.mode = app.drag = null;
     app.hud.reset();
     resize();
@@ -85,14 +84,13 @@
     app.hud.showOverlay('restart');
   };
 
-  // 選取下一位閒置村民並把鏡頭移過去
+  // 一次選取全部閒置村民並把鏡頭移過去
   app.selectIdle = function () {
-    var u = RTS.groups.nextIdle(app.world, app.human, app.lastIdle);
-    if (!u) return;
-    app.lastIdle = u.id;
-    app.selection = [u.id];
+    var idle = RTS.groups.allIdle(app.world, app.human);
+    if (!idle) return;
+    app.selection = idle.ids;
     app.placement = app.mode = null;
-    RTS.camera.centerOn(app.cam, u.x, u.y);
+    RTS.camera.centerOn(app.cam, idle.focus.x, idle.focus.y);
   };
 
   function click(id, handler) {

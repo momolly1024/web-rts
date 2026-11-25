@@ -55,12 +55,18 @@
     }).sort(function (a, b) { return a.id - b.id; });
   }
 
-  // 輪流挑下一位：id 比上次大的第一位，沒有就回到開頭
-  function nextIdle(world, owner, lastId) {
+  // 全部閒置村民，以及鏡頭落點：離群體中心最近的那一位（避免停在沒人的空地）
+  function allIdle(world, owner) {
     var list = idleVillagers(world, owner);
-    return list.filter(function (u) { return u.id > (lastId || 0); })[0] || list[0] || null;
+    if (!list.length) return null;
+    var cx = 0, cy = 0;
+    list.forEach(function (u) { cx += u.x / list.length; cy += u.y / list.length; });
+    var focus = list.slice().sort(function (a, b) {
+      return RTS.util.dist(a.x, a.y, cx, cy) - RTS.util.dist(b.x, b.y, cx, cy);
+    })[0];
+    return { ids: list.map(function (u) { return u.id; }), focus: { x: focus.x, y: focus.y } };
   }
 
   RTS.groups = { create: create, assign: assign, recall: recall, boxSelection: boxSelection,
-    idleVillagers: idleVillagers, nextIdle: nextIdle };
+    idleVillagers: idleVillagers, allIdle: allIdle };
 })();

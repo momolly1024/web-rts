@@ -141,7 +141,7 @@ English). Your choice is saved in `localStorage`. Where that is unavailable (som
 | Q, E, R, F | Blacksmith: melee attack, ranged attack, melee armor, ranged armor |
 | G, U | Shelter in the Town Center, release everyone |
 | Ctrl / Alt + digit, digit | Save and select a control group (twice to jump there) |
-| `.` (period) or the Idle villagers button | Select the next idle villager and center on them |
+| `.` (period) or the All idle villagers button | Select every idle villager and center the camera among them |
 | F | Attack move |
 | X | Stop, or cancel a building site |
 | Esc | Cancel placement or order, clear selection, close a dialog |
