@@ -12,6 +12,13 @@
     });
   }
 
+  // 己方認領的牲畜：只接受移動與停止
+  function ownAnimals(world, pid, ids) {
+    return (ids || []).map(function (id) { return RTS.world.get(world, id); }).filter(function (a) {
+      return a && a.kind === 'animal' && a.owner === pid;
+    });
+  }
+
   function villagersIn(units) {
     return units.filter(function (u) { return RTS.data.units[u.type].canBuild; });
   }
@@ -32,20 +39,23 @@
       return RTS.util.dist(a.x, a.y, tx, ty) - RTS.util.dist(b.x, b.y, tx, ty);
     }).forEach(function (u, i) {
       var t = tiles[Math.min(i, tiles.length - 1)];
-      RTS.orders.set(u, { type: type || 'move', x: t.x, y: t.y });
+      if (u.kind === 'animal') RTS.animals.walk(u, t.x, t.y);
+      else RTS.orders.set(u, { type: type || 'move', x: t.x, y: t.y });
     });
     return done(type || 'move');
   }
 
   var handlers = {
-    move: function (world, pid, c, units) {
-      return units.length ? moveUnits(world, units, c.x, c.y) : fail('noUnits');
+    move: function (world, pid, c, units, herd) {
+      var all = units.concat(herd || []);
+      return all.length ? moveUnits(world, all, c.x, c.y) : fail('noUnits');
     },
     attackMove: function (world, pid, c, units) {
       return units.length ? moveUnits(world, units, c.x, c.y, 'attackMove') : fail('noUnits');
     },
-    stop: function (world, pid, c, units) {
+    stop: function (world, pid, c, units, herd) {
       units.forEach(function (u) { RTS.orders.set(u, { type: 'idle' }); });
+      (herd || []).forEach(RTS.animals.stand);
       return done('stop');
     },
     gather: function (world, pid, c, units) {
@@ -56,6 +66,13 @@
       workers.forEach(function (u) { RTS.orders.set(u, RTS.gather.makeOrder(node)); });
       return done('gather');
     },
+    hunt: function (world, pid, c, units) {
+      var t = RTS.world.get(world, c.targetId), workers = villagersIn(units);
+      if (!t || t.kind !== 'animal') return fail('noHuntTarget');
+      if (!workers.length) return fail('villagersOnlyHunt');
+      workers.forEach(function (u) { RTS.orders.set(u, { type: 'hunt', targetId: t.id, fails: 0 }); });
+      return done('hunt');
+    },
     deposit: function (world, pid, c, units) {
       var carriers = units.filter(function (u) { return u.carry.amount > 0; });
       carriers.forEach(function (u) { RTS.orders.set(u, { type: 'deposit' }); });
@@ -63,7 +80,8 @@
     },
     attack: function (world, pid, c, units) {
       var t = RTS.world.get(world, c.targetId);
-      if (!t || t.owner === null || t.owner === pid) return fail('cannotAttack');
+      var wild = t && t.kind === 'animal' && t.owner !== pid;
+      if (!t || (!wild && (t.owner === null || t.owner === pid))) return fail('cannotAttack');
       if (!units.length) return fail('noUnits');
       units.forEach(function (u) { RTS.orders.set(u, { type: 'attack', targetId: t.id, auto: false }); });
       return done('attack');
@@ -130,10 +148,11 @@
       return b ? RTS.research.enqueue(world, b, c.track) : fail('buildingNotFound');
     },
     // 右鍵智慧指令：依目標決定移動、採集、攻擊、施工或交付
-    smart: function (world, pid, c, units) {
-      if (!units.length) return fail('noUnits');
+    smart: function (world, pid, c, units, herd) {
+      if (!units.length) return handlers.move(world, pid, c, units, herd);
       var t = c.targetId ? RTS.world.get(world, c.targetId) : null;
-      if (t && t.owner !== null && t.owner !== pid) return handlers.attack(world, pid, c, units);
+      var animal = t && t.kind === 'animal';
+      if (t && !animal && t.owner !== null && t.owner !== pid) return handlers.attack(world, pid, c, units);
       var left = units.slice(), result = null;
       // 把符合條件的單位分去做特定工作，其餘的照常移動
       function dispatch(type, takers) {
@@ -141,7 +160,13 @@
         result = handlers[type](world, pid, c, takers);
         left = left.filter(function (u) { return takers.indexOf(u) < 0; });
       }
-      if (t && t.kind === 'node' && RTS.data.nodes[t.type].resource) {
+      if (animal) {
+        dispatch('hunt', villagersIn(left));
+        // 士兵會攻擊敵方牲畜與野生的獵物、猛獸，但不殺中立或己方牲畜
+        var hostile = t.owner !== pid &&
+          (t.owner !== null || RTS.data.animals[t.type].behavior !== 'herd');
+        if (hostile) dispatch('attack', left.slice());
+      } else if (t && t.kind === 'node' && RTS.data.nodes[t.type].resource) {
         dispatch('gather', villagersIn(left));
       } else if (t && t.kind === 'building' && !t.complete) {
         dispatch('assist', villagersIn(left));
@@ -152,8 +177,9 @@
         if (RTS.repair.canRepair(t)) dispatch('repair', villagersIn(left));
         if (RTS.garrison.hasRoom(t)) dispatch('garrison', left);
       }
-      if (left.length) {
-        var moved = moveUnits(world, left, c.x, c.y);
+      var followers = left.concat((herd || []).filter(function (a) { return a !== t; }));
+      if (followers.length) {
+        var moved = moveUnits(world, followers, c.x, c.y);
         result = result || moved;
       }
       return result;
@@ -171,7 +197,8 @@
     if (world.over) return fail('gameOver');
     var handler = command && Object.prototype.hasOwnProperty.call(handlers, command.type) && handlers[command.type];
     if (!handler) return fail('unknownCommand');
-    return handler(world, pid, command, ownUnits(world, pid, command.unitIds));
+    return handler(world, pid, command,
+      ownUnits(world, pid, command.unitIds), ownAnimals(world, pid, command.unitIds));
   }
 
   RTS.commands = { issue: issue };

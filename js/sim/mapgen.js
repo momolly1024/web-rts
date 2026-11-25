@@ -82,6 +82,25 @@
     scatter(10, 1, 4, node('rock'));
   }
 
+  // 在出生點周圍的環帶放動物，另一方取對稱位置
+  function placeWildlife(world, rand) {
+    var map = world.map, taken = {};
+    RTS.data.wildlife.forEach(function (spec) {
+      var placed = 0;
+      for (var tries = 0; tries < 600 && placed < spec[1]; tries++) {
+        var a = rand() * Math.PI * 2, r = spec[2] + rand() * (spec[3] - spec[2]);
+        var x = Math.floor(START.x + 1.5 + Math.cos(a) * r), y = Math.floor(START.y + 1.5 + Math.sin(a) * r);
+        var mx = map.width - 1 - x, my = map.height - 1 - y;
+        if (x + y >= map.width - 1 || taken[x + ',' + y]) continue;
+        if (!RTS.map.isWalkable(map, x, y) || !RTS.map.isWalkable(map, mx, my)) continue;
+        taken[x + ',' + y] = true;
+        RTS.world.addAnimal(world, spec[0], x + 0.5, y + 0.5);
+        RTS.world.addAnimal(world, spec[0], mx + 0.5, my + 0.5);
+        placed++;
+      }
+    });
+  }
+
   // 四方向洪水填充，回傳可達格
   function flood(map, from) {
     var seen = new Uint8Array(map.width * map.height);
@@ -130,8 +149,10 @@
       starts.forEach(function (p, pid) {
         RTS.world.addBuilding(world, 'townCenter', pid, p.x, p.y, true);
       });
-      populate(world, RTS.util.rng(seed + attempt * 7919));
+      var rand = RTS.util.rng(seed + attempt * 7919);
+      populate(world, rand);
       if (!isPlayable(world)) continue;
+      placeWildlife(world, rand);
       starts.forEach(function (p, pid) {
         var sx = pid === 0 ? p.x + size : p.x - 1;
         var sy = pid === 0 ? p.y + size : p.y - 1;

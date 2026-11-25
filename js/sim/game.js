@@ -35,6 +35,7 @@
       var e = all[(i + offset) % all.length];
       if (!world.entities.has(e.id)) continue;      // 本步稍早已被摧毀
       if (e.kind === 'unit') RTS.orders.update(world, e, dt);
+      else if (e.kind === 'animal') RTS.animals.update(world, e, dt);
       else if (e.kind === 'building') {
         RTS.production.update(world, e, dt);
         RTS.garrison.heal(e, dt);

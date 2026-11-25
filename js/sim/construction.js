@@ -23,7 +23,7 @@
   function place(world, owner, type, tx, ty) {
     var b = RTS.world.addBuilding(world, type, owner, tx, ty, false);
     world.entities.forEach(function (u) {
-      if (u.kind === 'unit') RTS.move.rescue(world, u);
+      if (u.w === undefined) RTS.move.rescue(world, u);
     });
     return b;
   }

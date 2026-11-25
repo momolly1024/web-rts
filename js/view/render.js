@@ -49,6 +49,11 @@
         if (e.complete) RTS.sprites.buildings[e.type](ctx, e.w, players[e.owner]);
         else RTS.sprites.construction(ctx, e.w, e.progress);
       });
+    } else if (e.kind === 'animal') {
+      local(ctx, cam, e.x, e.y, function () {
+        ctx.scale(e.facing, 1);
+        RTS.sprites.animals[e.type](ctx, e.owner === null ? null : players[e.owner].color);
+      });
     } else {
       local(ctx, cam, e.x, e.y, function () {
         ctx.scale(e.facing, 1);
@@ -61,7 +66,7 @@
   function selectionMark(ctx, cam, e, human) {
     ctx.strokeStyle = e.owner === human ? '#fff3b0' : e.owner === null ? '#ffffff' : '#ff8a7a';
     ctx.lineWidth = 2;
-    if (e.kind === 'unit') {
+    if (e.w === undefined) {
       var p = RTS.camera.worldToScreen(cam, e.x, e.y + 0.14);
       ctx.beginPath();
       ctx.ellipse(p.x, p.y, cam.scale * 0.38, cam.scale * 0.2, 0, 0, Math.PI * 2);
@@ -73,7 +78,7 @@
   }
 
   function healthBar(ctx, cam, e) {
-    var unit = e.kind === 'unit';
+    var unit = e.w === undefined;
     var width = cam.scale * (unit ? 0.7 : e.w * 0.8);
     var top = unit
       ? RTS.camera.worldToScreen(cam, e.x, e.y - 0.78)
@@ -185,7 +190,7 @@
 
     // 依腳底的螢幕高度排序，靠下的蓋住靠上的
     function depth(e) {
-      var c = e.kind === 'unit' ? e : { x: e.x + e.w / 2, y: e.y + e.h - 0.3 };
+      var c = e.w === undefined ? e : { x: e.x + e.w / 2, y: e.y + e.h - 0.3 };
       return RTS.camera.worldToScreen(cam, c.x, c.y).y;
     }
     visible.sort(function (a, b) { return depth(a) - depth(b); });

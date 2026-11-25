@@ -94,7 +94,8 @@ test('資料表的每個代號都有名稱', () => {
     ...Object.keys(d.damageBonus).map(k => 'attackType.' + k),
     ...Object.values(d.damageBonus).flatMap(Object.keys).map(k => 'armorType.' + k),
     ...d.difficultyOrder.map(k => 'difficulty.' + k),
-    ...Object.keys(d.upgrades).map(k => 'upgrade.' + k)
+    ...Object.keys(d.upgrades).map(k => 'upgrade.' + k),
+    ...Object.keys(d.animals).flatMap(k => ['animal.' + k, 'info.animal.' + d.animals[k].behavior])
   ];
   need.forEach(k => assert.ok(k in zh && k in en, '缺少 ' + k));
   // 指令狀態機認得的每種狀態

@@ -21,7 +21,7 @@
   function pick(app, sx, sy) {
     var best = null, bestD = app.cam.scale * 0.5;
     app.world.entities.forEach(function (e) {
-      if (e.kind !== 'unit') return;
+      if (e.w !== undefined) return;
       var p = RTS.camera.worldToScreen(app.cam, e.x, e.y - 0.15);
       var d = Math.hypot(p.x - sx, p.y - sy);
       if (d < bestD) { bestD = d; best = e; }
@@ -31,12 +31,15 @@
     return RTS.world.get(app.world, RTS.map.occupantAt(app.world.map, Math.floor(w.x), Math.floor(w.y)));
   }
 
+  // 框內的己方單位；一個單位都沒有時才選牲畜
   function ownUnitsInRect(app, x0, y0, x1, y1, type) {
-    return RTS.world.list(app.world, function (e) {
-      if (e.kind !== 'unit' || e.owner !== app.human || (type && e.type !== type)) return false;
+    var found = RTS.world.list(app.world, function (e) {
+      if (e.w !== undefined || e.owner !== app.human || (type && e.type !== type)) return false;
       var p = RTS.camera.worldToScreen(app.cam, e.x, e.y - 0.15);
       return p.x >= x0 && p.x <= x1 && p.y >= y0 && p.y <= y1;
-    }).map(function (e) { return e.id; });
+    });
+    var units = found.filter(function (e) { return e.kind === 'unit'; });
+    return (units.length ? units : found).map(function (e) { return e.id; });
   }
 
   function finishSelection(app, drag, shift) {
@@ -81,7 +84,7 @@
   function rightClick(app, x, y) {
     if (app.placement || app.mode) { app.placement = null; app.mode = null; return; }
     var hasUnits = RTS.actions.selected(app).some(function (e) {
-      return e.kind === 'unit' && e.owner === app.human;
+      return e.w === undefined && e.owner === app.human;
     });
     // 沒選單位、只選一座生產建築時，右鍵設定集結點
     var sel = RTS.actions.selected(app);
@@ -173,7 +176,7 @@
     });
     canvas.addEventListener('dblclick', function (ev) {
       var e = pick(app, ev.clientX, ev.clientY);
-      if (e && e.kind === 'unit' && e.owner === app.human) {
+      if (e && e.w === undefined && e.owner === app.human) {
         app.selection = ownUnitsInRect(app, 0, 0, app.cam.viewW, app.cam.viewH, e.type);
       }
     });

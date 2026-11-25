@@ -56,7 +56,7 @@
 
   function follow(world, unit, dt) {
     var path = unit.nav.path;
-    var step = RTS.data.units[unit.type].speed * dt;
+    var step = RTS.world.defOf(unit).speed * dt;
     while (step > 1e-9 && path.length) {
       var next = path[0];
       if (!RTS.map.isWalkable(world.map, next.x, next.y)) { unit.nav = null; return; }
@@ -105,7 +105,7 @@
 
   // 靠近某個實體所需的目標矩形
   function entityGoal(target, range) {
-    if (target.kind === 'unit') {
+    if (target.w === undefined) {
       return { x: target.x - 0.2, y: target.y - 0.2, w: 0.4, h: 0.4, range: Math.max(0.6, range - 0.2) };
     }
     return { x: target.x, y: target.y, w: target.w, h: target.h, range: range };

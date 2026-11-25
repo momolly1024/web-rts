@@ -26,6 +26,7 @@
       case 'build': RTS.construction.update(world, u, dt); break;
       case 'repair': RTS.repair.update(world, u, dt); break;
       case 'garrison': RTS.garrison.update(world, u, dt); break;
+      case 'hunt': RTS.animals.updateHunt(world, u, dt); break;
       case 'attack': RTS.combat.updateAttack(world, u, dt); break;
       case 'attackMove': RTS.combat.updateAttackMove(world, u, dt); break;
       default: RTS.combat.updateIdle(world, u, dt);

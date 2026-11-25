@@ -61,10 +61,19 @@
     });
   }
 
+  function addAnimal(world, type, x, y) {
+    var def = RTS.data.animals[type];
+    return add(world, {
+      kind: 'animal', type: type, owner: null, x: x, y: y, hp: def.hp, maxHp: def.hp,
+      home: { x: x, y: y }, order: { type: 'idle' }, nav: null, targetId: 0, threat: 0,
+      cooldown: 0, timer: 0, rest: 0, fleeing: false, facing: 1, swing: 0
+    });
+  }
+
   function remove(world, e) {
     if (!world.entities.has(e.id)) return;
     world.entities.delete(e.id);
-    if (e.kind !== 'unit') RTS.map.setOccupant(world.map, e, 0);
+    if (e.kind === 'node' || e.kind === 'building') RTS.map.setOccupant(world.map, e, 0);
     if (e.kind === 'building') RTS.garrison.onDestroyed(world, e);
   }
 
@@ -88,18 +97,18 @@
     });
   }
 
-  function defOf(e) {
-    var d = RTS.data;
-    return e.kind === 'unit' ? d.units[e.type] : e.kind === 'building' ? d.buildings[e.type] : d.nodes[e.type];
+  function defOf(e) {      // units / buildings / nodes / animals
+    return RTS.data[e.kind + 's'][e.type];
   }
 
+  // 沒有占地寬度者（單位、動物）以點座標表示
   function center(e) {
-    return e.kind === 'unit' ? { x: e.x, y: e.y } : { x: e.x + e.w / 2, y: e.y + e.h / 2 };
+    return e.w === undefined ? { x: e.x, y: e.y } : { x: e.x + e.w / 2, y: e.y + e.h / 2 };
   }
 
   // 點到實體外緣的距離
   function distTo(x, y, e) {
-    if (e.kind === 'unit') return RTS.util.dist(x, y, e.x, e.y);
+    if (e.w === undefined) return RTS.util.dist(x, y, e.x, e.y);
     return RTS.util.distToRect(x, y, e);
   }
 
@@ -146,7 +155,7 @@
   }
 
   RTS.world = {
-    create: create, addNode: addNode, addBuilding: addBuilding, addUnit: addUnit,
+    create: create, addNode: addNode, addBuilding: addBuilding, addUnit: addUnit, addAnimal: addAnimal,
     remove: remove, get: get, list: list, unitsOf: unitsOf, buildingsOf: buildingsOf,
     defOf: defOf, center: center, distTo: distTo, nearest: nearest,
     canAfford: canAfford, pay: pay, refund: refund, population: population

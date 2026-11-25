@@ -6,6 +6,7 @@
 
   function gathererResource(u) {
     if (u.order.type === 'gather') return u.order.resource;
+    if (u.order.type === 'hunt') return 'food';
     if (u.order.resume) return u.order.resume.resource;
     return null;
   }
@@ -92,7 +93,7 @@
 
   function pickBuilder(ctx, x, y) {
     var free = ctx.villagers.filter(function (u) {
-      return ['build', 'repair', 'garrison'].indexOf(u.order.type) < 0;
+      return ['build', 'repair', 'garrison', 'hunt'].indexOf(u.order.type) < 0;
     });
     free.sort(function (a, b) {
       return RTS.util.dist(a.x, a.y, x, y) - RTS.util.dist(b.x, b.y, x, y);

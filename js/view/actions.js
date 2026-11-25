@@ -40,9 +40,11 @@
     }];
   }
 
-  function unitActions(app, units) {
+  // movers 含己方牲畜；建造、戰鬥等指令只看單位
+  function unitActions(app, movers) {
     var data = RTS.data, out = [];
-    var ids = units.map(function (u) { return u.id; });
+    var ids = movers.map(function (u) { return u.id; });
+    var units = movers.filter(function (u) { return u.kind === 'unit'; });
     if (units.some(function (u) { return data.units[u.type].canBuild; })) {
       data.buildOrderList.forEach(function (type) {
         var def = data.buildings[type];
@@ -63,7 +65,7 @@
         run: function () { app.mode = 'attackMove'; app.placement = null; }
       });
     }
-    var shelter = nearestShelter(app, units[0]);
+    var shelter = units.length && nearestShelter(app, units[0]);
     if (shelter) {
       out.push({
         id: 'garrison', label: t('action.garrison'), hotkey: 'G', cost: '', enabled: true,
@@ -121,7 +123,7 @@
   function list(app) {
     var sel = selected(app);
     var own = sel.filter(function (e) { return e.owner === app.human; });
-    var units = own.filter(function (e) { return e.kind === 'unit'; });
+    var units = own.filter(function (e) { return e.w === undefined; });
     var out = units.length ? unitActions(app, units)
       : own.length === 1 && own[0].kind === 'building' ? buildingActions(app, own[0]) : [];
     if (app.placement || app.mode) {
@@ -158,6 +160,12 @@
     return lines;
   }
 
+  function describeAnimal(app, e, def) {
+    var owner = e.owner === null ? 'info.animal.' + def.behavior
+      : e.owner === app.human ? 'info.animalOwn' : 'info.animalEnemy';
+    return [t(owner), t('info.food', { amount: def.food })];
+  }
+
   function describeBuilding(e, def, human) {
     var lines = [];
     if (!e.complete) lines.push(t('info.progress', { percent: Math.floor(e.progress * 100) }));
@@ -181,7 +189,8 @@
       return {
         title: t('selection.many', { count: sel.length }),
         lines: Object.keys(counts).map(function (type) {
-          return t('selection.countLine', { name: t('unit.' + type), count: counts[type] });
+          var kind = RTS.data.units[type] ? 'unit.' : 'animal.';
+          return t('selection.countLine', { name: t(kind + type), count: counts[type] });
         })
       };
     }
@@ -194,11 +203,13 @@
           : t('info.impassable')]
       };
     }
-    var title = e.owner === app.human ? nameOf(e) : t('selection.enemy', { name: nameOf(e) });
+    var enemy = e.owner !== app.human && e.owner !== null;
+    var title = enemy ? t('selection.enemy', { name: nameOf(e) }) : nameOf(e);
     var lines = [t('info.hp', { hp: Math.ceil(e.hp), max: e.maxHp })];
     return {
       title: title,
-      lines: lines.concat(e.kind === 'unit' ? describeUnit(app, e, def) : describeBuilding(e, def, app.human))
+      lines: lines.concat(e.kind === 'unit' ? describeUnit(app, e, def)
+        : e.kind === 'animal' ? describeAnimal(app, e, def) : describeBuilding(e, def, app.human))
     };
   }
 

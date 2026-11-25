@@ -40,7 +40,9 @@
       x1: u.x, y1: u.y, x2: to.x, y2: to.y, age: 0, life: 0.25
     });
     var armor = target.kind === 'unit' ? RTS.research.bonus(world, target.owner, target.type, 'armor') : 0;
-    target.hp -= damageOf(u.type, def, RTS.research.bonus(world, u.owner, u.type, 'attack'), armor);
+    var damage = damageOf(u.type, def, RTS.research.bonus(world, u.owner, u.type, 'attack'), armor);
+    if (target.kind === 'animal') { RTS.animals.hurt(world, target, u, damage); return; }
+    target.hp -= damage;
     if (target.kind === 'building') target.lastHit = world.time;
     if (target.hp <= 0) {
       world.effects.push({ type: 'death', x1: to.x, y1: to.y, x2: to.x, y2: to.y, age: 0, life: 0.8 });
