@@ -139,6 +139,15 @@
       poly(ctx, [-0.55, -0.4, 0.5, -0.4, 0.3, -0.62, -0.35, -0.62], c.color);
       [-0.32, 0.28].forEach(function (x) { disc(ctx, x, 0.1, 0.12, 0.12, '#4a3220'); });
     },
+    // 標槍兵：輕裝、背著一束標槍，攻擊時把標槍舉過肩
+    skirmisher: function (ctx, c, swing) {
+      body(ctx, c, '#8a6a3a');
+      line(ctx, [-0.13, -0.13, 0.13, 0.04], c.color, 0.09);
+      [-0.2, -0.15, -0.1].forEach(function (x) { line(ctx, [x, 0.05, x - 0.06, -0.55], '#6b4a2b', 0.03); });
+      var a = swing > 0 ? 0.2 : 0;
+      line(ctx, [0.12, -0.1 - a, 0.42, -0.5 - a], '#6b4a2b', 0.04);
+      poly(ctx, [0.42, -0.5 - a, 0.38, -0.42 - a, 0.47, -0.43 - a], '#e4e8ec');
+    },
     archer: function (ctx, c, swing) {
       body(ctx, c, '#4f6b3a');
       poly(ctx, [-0.18, -0.28, 0, -0.55, 0.18, -0.28, 0, -0.4], c.color);

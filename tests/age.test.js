@@ -66,7 +66,8 @@ test('兵種相剋：長槍兵剋騎兵、騎兵剋弓箭手、弓箭手剋長�
     const w = arena(16);
     RTS.world.addBuilding(w, 'townCenter', 0, 0, 0, true);
     RTS.world.addBuilding(w, 'townCenter', 1, 13, 13, true);
-    const x = unit(w, a, 0, 6, 8), y = unit(w, b, 1, a === 'archer' || b === 'archer' ? 11 : 7, 8);
+    const ranged = [a, b].some(t => RTS.data.units[t].attack.range > 1.5);
+    const x = unit(w, a, 0, 6, 8), y = unit(w, b, 1, ranged ? 11 : 7, 8);
     RTS.commands.issue(w, 0, { type: 'attack', unitIds: [x.id], targetId: y.id });
     RTS.commands.issue(w, 1, { type: 'attack', unitIds: [y.id], targetId: x.id });
     runUntil(w, () => !RTS.world.get(w, x.id) || !RTS.world.get(w, y.id), 3000);
@@ -77,6 +78,9 @@ test('兵種相剋：長槍兵剋騎兵、騎兵剋弓箭手、弓箭手剋長�
   assert.strictEqual(duel('archer', 'spearman'), 'archer');
   assert.strictEqual(duel('swordsman', 'archer'), 'swordsman');
   assert.strictEqual(duel('swordsman', 'spearman'), 'swordsman');
+  assert.strictEqual(duel('skirmisher', 'archer'), 'skirmisher');
+  assert.strictEqual(duel('swordsman', 'skirmisher'), 'swordsman');
+  assert.strictEqual(duel('cavalry', 'skirmisher'), 'cavalry');
 });
 
 test('AI 會升到封建時代並訓練新兵種', () => {

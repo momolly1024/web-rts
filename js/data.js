@@ -54,7 +54,7 @@
       },
       // 長槍兵：便宜、對騎兵傷害極高，但打不過劍士與弓箭手
       spearman: {
-        cost: { food: 35, wood: 25 }, trainTime: 12, pop: 1, hotkey: 'E', age: 1,
+        cost: { food: 35, wood: 25 }, trainTime: 12, pop: 1, hotkey: 'F', age: 1,
         hp: 45, speed: 2.4, vision: 5, armorType: 'infantry', armor: { melee: 0, pierce: 0 },
         attack: { type: 'melee', damage: 4, range: 0.9, cooldown: 1.2, bonus: { cavalry: 5.5 } },
         military: true, upgradeClass: 'melee'
@@ -79,8 +79,15 @@
         attack: { type: 'melee', damage: 3, range: 0.9, cooldown: 3, bonus: { building: 40 }, buildingsOnly: true },
         military: true, noHeal: true
       },
+      // 標槍兵：便宜、不用黃金，對弓箭手傷害極高、穿刺護甲高，但很怕近戰
+      skirmisher: {
+        cost: { food: 25, wood: 35 }, trainTime: 14, pop: 1, hotkey: 'Q', age: 1,
+        hp: 35, speed: 2.4, vision: 6, armorType: 'ranged', armor: { melee: 0, pierce: 3 },
+        attack: { type: 'pierce', damage: 3, range: 4, cooldown: 2, bonus: { ranged: 3.5 } },
+        military: true, upgradeClass: 'ranged'
+      },
       archer: {
-        cost: { wood: 40, gold: 35 }, trainTime: 16, pop: 1, hotkey: 'Q', age: 1,
+        cost: { wood: 40, gold: 35 }, trainTime: 16, pop: 1, hotkey: 'E',
         hp: 45, speed: 2.4, vision: 7, armorType: 'ranged', armor: { melee: 0, pierce: 0 },
         attack: { type: 'pierce', damage: 6, range: 4.5, cooldown: 1.6 },
         military: true, upgradeClass: 'ranged'
@@ -133,7 +140,7 @@
       },
       barracks: {
         cost: { wood: 150 }, size: 3, hp: 600, buildTime: 30,
-        pop: 0, vision: 4, trains: ['swordsman', 'spearman'], dropoff: false, hotkey: 'B', researches: ['swordLine'],
+        pop: 0, vision: 4, trains: ['swordsman', 'archer', 'spearman'], dropoff: false, hotkey: 'B', researches: ['swordLine'],
         armorType: 'building', armor: { melee: 1, pierce: 1 }
       },
       blacksmith: {
@@ -144,7 +151,7 @@
       },
       archeryRange: {
         cost: { wood: 150 }, size: 3, hp: 600, buildTime: 30, age: 1,
-        pop: 0, vision: 4, trains: ['archer'], dropoff: false, hotkey: 'R', researches: ['archerLine'],
+        pop: 0, vision: 4, trains: ['skirmisher', 'archer'], dropoff: false, hotkey: 'R', researches: ['archerLine'],
         armorType: 'building', armor: { melee: 1, pierce: 1 }
       },
       stable: {
@@ -290,7 +297,7 @@
           { age: 2, tier: { hp: 20, attack: 2, armor: 1 }, cost: { food: 200, gold: 100 }, time: 45 }]
       },
       archerLine: {
-        unitType: 'archer', hotkey: 'E', levels: [
+        unitType: 'archer', hotkey: 'R', levels: [
           { age: 2, tier: { hp: 10, attack: 1, range: 1 }, cost: { food: 150, gold: 100 }, time: 40 }]
       },
       cavalryLine: {
@@ -365,7 +372,7 @@
       graceTime: 300,        // 開局緩衝（秒），此前 AI 不進攻
       villagerTarget: 14,
       gatherRatio: { food: 0.42, wood: 0.32, gold: 0.18, stone: 0.08 },   // 封建以後也採石材（箭塔）
-      gatherRatioDark: { food: 0.6, wood: 0.3, gold: 0.1 },   // 黑暗時代只有劍士能訓練，多採食物
+      gatherRatioDark: { food: 0.45, wood: 0.35, gold: 0.2 },  // 黑暗時代用不到石材
       attackSize: 6,         // 第一波人數
       waveGrowth: 2,
       attackSizeMax: 14,

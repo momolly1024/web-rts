@@ -26,8 +26,8 @@ mouse and keyboard is recommended.
 |------|------|------|
 | Town Center | 300 wood, 100 gold | Trains villagers, receives every resource, researches Handcarts, +5 population |
 | House | 50 wood | +5 population (total limit 50) |
-| Barracks | 150 wood | Trains swordsmen and spearmen (Feudal) |
-| Archery Range (Feudal) | 150 wood | Trains archers |
+| Barracks | 150 wood | Trains swordsmen, archers and spearmen (Feudal) |
+| Archery Range (Feudal) | 150 wood | Trains skirmishers and archers; researches the archer upgrade |
 | Stable (Feudal) | 150 wood | Trains cavalry |
 | Arrow Tower (Feudal) | 25 wood, 125 stone | One tile; shoots enemy units within 7 tiles |
 | Stone Wall (Feudal) | 5 stone per tile | Blocks the way; click the start, then the end, to lay a whole line |
@@ -48,9 +48,10 @@ mouse and keyboard is recommended.
 | Swordsman | 60 food, 20 gold | Tough melee unit; x1.4 damage against ranged units |
 | Spearman (Feudal) | 35 food, 25 wood | Cheap; x5.5 damage against cavalry, loses to swordsmen and archers |
 | Cavalry (Feudal) | 80 food, 50 gold | Fast, tough, high pierce armor; runs down archers |
+| Skirmisher (Feudal) | 25 food, 35 wood | No gold; x3.5 damage against archers, high pierce armor; weak in melee |
 | Healer (Castle) | 100 gold | Cannot attack; heals nearby wounded allies when idle (1.5 HP/s) |
 | Battering Ram (Castle) | 160 wood, 75 gold | Attacks buildings only and tears them down fast; arrows barely hurt it; slow |
-| Archer (Feudal) | 40 wood, 35 gold | Range 4.5; x1.25 damage against infantry, slow against buildings |
+| Archer | 40 wood, 35 gold | Range 4.5; x1.25 damage against infantry, slow against buildings |
 
 Other rules: every builder after the first works at half speed; villagers who finish a building
 help at a nearby site or return to gathering; a villager carrying a load who is told to gather
@@ -81,12 +82,12 @@ your current and future units of that class (villagers are unaffected).
   the Castle Age) and time, and the Town Center cannot train villagers meanwhile.
 - Feudal Age: needs two of Barracks, Lumber Camp, Mining Camp and Mill; 400 food, 60 s.
 - Castle Age: needs two of Blacksmith, Archery Range, Stable and Market; 700 food, 200 gold, 90 s.
-- Feudal unlocks the Blacksmith, Market, Archery Range, Stable, Spearmen and Handcarts, plus level 2
+- Feudal unlocks the Blacksmith, Market, Archery Range, Stable, Spearmen, Skirmishers and Handcarts, plus level 2
   economy upgrades and level 1 Blacksmith upgrades.
 - Castle unlocks level 3 economy upgrades and level 2 Handcarts and Blacksmith upgrades.
 - The top bar shows your age; select the Town Center to see what the next age needs.
-- Counters: cavalry beat archers, archers beat spearmen, spearmen beat cavalry; swordsmen beat
-  archers up close and also beat spearmen.
+- Counters: cavalry beat archers, archers beat spearmen, spearmen beat cavalry, skirmishers beat
+  archers; swordsmen beat archers and skirmishers up close and also beat spearmen.
 
 ### Defense and siege
 
@@ -109,7 +110,7 @@ name and wear a plume (white for the first level, gold for the second).
 |------|------|------|------|
 | Swordsman → Heavy Swordsman (Barracks R) | Feudal | +15 HP, +2 attack, +1 armor | 100 food, 40 gold, 30 s |
 | Heavy Swordsman → Elite Swordguard (Barracks R) | Castle | +20 HP, +2 attack, +1 armor | 200 food, 100 gold, 45 s |
-| Archer → Longbowman (Archery Range E) | Castle | +10 HP, +1 attack, +1 range | 150 food, 100 gold, 40 s |
+| Archer → Longbowman (Archery Range R) | Castle | +10 HP, +1 attack, +1 range | 150 food, 100 gold, 40 s |
 | Cavalry → Heavy Cavalry (Stable E) | Castle | +40 HP, +3 attack, +1 armor | 250 food, 150 gold, 50 s |
 
 ### Economy
@@ -262,7 +263,7 @@ English). Your choice is saved in `localStorage`. Where that is unavailable (som
 | H, T, L, N, M, C, O, Y | With villagers (Economy page): House, Town Center, Lumber Camp, Mining Camp, Mill, Farm, Pen, Market (Shift + click to keep placing) |
 | B, R, V, K, I, Z, U, J, E | With villagers (Military page): Barracks, Archery Range, Stable, Blacksmith, Arrow Tower, Stone Wall, Gate, Temple, Siege Workshop |
 | Tab | With villagers: switch the build menu between Economy and Military (hotkeys work on both) |
-| Q, E, R | Town Center: Villager, Handcarts, next age. Barracks: Swordsman, Spearman. Archery Range Q: Archer. Stable Q: Cavalry. Lumber Camp Q: Keen axes. Mining Camp: Gold digging, Stone cutting |
+| Q, E, R | Town Center: Villager, Handcarts, next age. Barracks: Swordsman Q, Archer E, Spearman F. Archery Range: Skirmisher Q, Archer E. Stable Q: Cavalry. Lumber Camp Q: Keen axes. Mining Camp: Gold digging, Stone cutting |
 | Q, E, X | Mill: Rich harvest, queue a reseed, cancel one reseed |
 | Q, E, R / Z, C, V | Market: buy food, wood, stone / sell food, wood, stone |
 | Q, E, R, F | Blacksmith: melee attack, ranged attack, melee armor, ranged armor |

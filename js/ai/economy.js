@@ -189,12 +189,14 @@
     var training = 0, queued = [];
     trainers.forEach(function (b) { training += b.queue.length; queued = queued.concat(b.queue); });
     function count(type) { return countType(ctx.army, type) + countType(queued, type); }
-    // 長槍兵打不過劍士與弓箭手：看到敵方騎兵時才訓練，人數不超過對方騎兵
-    var enemyCavalry = RTS.fog.perceived(ctx.world, ctx.pid).filter(function (e) {
-      return e.kind === 'unit' && e.owner !== ctx.pid && e.type === 'cavalry';
-    }).length;
+    // 長槍兵、標槍兵是專門剋制用的：看到敵方騎兵／弓箭手才訓練，人數不超過對方
+    var seen = {};
+    RTS.fog.perceived(ctx.world, ctx.pid).forEach(function (e) {
+      if (e.kind === 'unit' && e.owner !== ctx.pid) seen[e.type] = (seen[e.type] || 0) + 1;
+    });
     function wanted(type) {
-      if (type === 'spearman') return count(type) < enemyCavalry;
+      if (type === 'spearman') return count(type) < (seen.cavalry || 0);
+      if (type === 'skirmisher') return count(type) < (seen.archer || 0);
       if (type === 'ram') return count(type) < cfg.military.rams;
       return !RTS.data.units[type].heal;          // AI 不訓練治療者
     }
