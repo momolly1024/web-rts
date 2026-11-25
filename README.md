@@ -71,6 +71,12 @@ gathering. If no free space exists around the building, units stay inside. If th
 destroyed, they escape onto its rubble with their current health. A villager carrying resources
 delivers them first, and one right-clicking a damaged Town Center repairs it instead.
 
+### Minimap
+
+The bottom-right minimap shows terrain, resources, buildings, units and the current view. Left-click
+or drag to move the camera; right-click to move the selected units (press F first to attack-move),
+or to set the rally point of a selected training building.
+
 ### Rally points
 
 With a Town Center or Barracks selected, right-click the ground or a resource. New units go there;
@@ -210,6 +216,7 @@ js/view/                Rendering and input
   camera.js             The only place that converts world and screen coordinates
   sprites.js            Original vector art
   sprites-animals.js    Animal art
+  minimap.js            Minimap
   groups.js             Control groups
   render.js             Drawing
   actions.js            Command buttons and selection details

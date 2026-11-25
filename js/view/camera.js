@@ -1,24 +1,32 @@
-// 鏡頭與座標轉換。全專案只有這裡知道「世界座標怎麼對應到螢幕」。
-// 日後改等角視角：改 worldToScreen / screenToWorld / clamp，再調整繪圖。
+// 鏡頭與座標轉換。全專案只有這裡知道「世界座標怎麼對應到螢幕」：
+// 世界（格） -> project -> 投影平面 -> 減鏡頭位置、乘縮放 -> 螢幕像素。換視角只改 project/unproject。
 (function () {
   'use strict';
   var RTS = globalThis.RTS || (globalThis.RTS = {});
 
-  var TILE = 36;          // 一格的像素大小
+  var SCALE = 36;         // 投影平面一單位的像素大小
   var INSET_TOP = 48;     // 被上方資源列蓋住的高度
   var INSET_BOTTOM = 180; // 被下方面板蓋住的高度
-  var MARGIN = 24;
+
+  function project(wx, wy) {
+    return { x: wx, y: wy };
+  }
+
+  function unproject(px, py) {
+    return { x: px, y: py };
+  }
 
   function create(mapW, mapH) {
-    return { x: 0, y: 0, viewW: 800, viewH: 600, scale: TILE, mapW: mapW, mapH: mapH };
+    return { x: 0, y: 0, viewW: 800, viewH: 600, scale: SCALE, mapW: mapW, mapH: mapH };
   }
 
   function worldToScreen(cam, wx, wy) {
-    return { x: (wx - cam.x) * cam.scale, y: (wy - cam.y) * cam.scale };
+    var p = project(wx, wy);
+    return { x: (p.x - cam.x) * cam.scale, y: (p.y - cam.y) * cam.scale };
   }
 
   function screenToWorld(cam, sx, sy) {
-    return { x: sx / cam.scale + cam.x, y: sy / cam.scale + cam.y };
+    return unproject(sx / cam.scale + cam.x, sy / cam.scale + cam.y);
   }
 
   // 地面矩形的四個螢幕頂點（左上起順時針）
@@ -29,15 +37,20 @@
     ];
   }
 
-  function clampAxis(v, lo, hi) {
-    return lo > hi ? (lo + hi) / 2 : RTS.util.clamp(v, lo, hi);
+  // 沒被上下面板蓋住的區域中心
+  function focusPoint(cam) {
+    return { x: cam.viewW / 2, y: (cam.viewH - INSET_BOTTOM + INSET_TOP) / 2 };
   }
 
+  // 邊界：可視區域中心必須落在地圖上，任何投影下都適用
   function clamp(cam) {
-    var s = cam.scale;
-    cam.x = clampAxis(cam.x, -MARGIN / s, cam.mapW - (cam.viewW - MARGIN) / s);
-    cam.y = clampAxis(cam.y, -(INSET_TOP + MARGIN) / s,
-      cam.mapH - (cam.viewH - INSET_BOTTOM - MARGIN) / s);
+    var f = focusPoint(cam);
+    var w = screenToWorld(cam, f.x, f.y);
+    var cx = RTS.util.clamp(w.x, 0, cam.mapW), cy = RTS.util.clamp(w.y, 0, cam.mapH);
+    if (cx === w.x && cy === w.y) return;
+    var p = project(cx, cy);
+    cam.x = p.x - f.x / cam.scale;
+    cam.y = p.y - f.y / cam.scale;
   }
 
   function pan(cam, dxPixels, dyPixels) {
@@ -47,8 +60,9 @@
   }
 
   function centerOn(cam, wx, wy) {
-    cam.x = wx - cam.viewW / 2 / cam.scale;
-    cam.y = wy - (cam.viewH - INSET_BOTTOM + INSET_TOP) / 2 / cam.scale;
+    var p = project(wx, wy), f = focusPoint(cam);
+    cam.x = p.x - f.x / cam.scale;
+    cam.y = p.y - f.y / cam.scale;
     clamp(cam);
   }
 
@@ -58,7 +72,7 @@
     clamp(cam);
   }
 
-  // 畫面內可能看得到的格子範圍
+  // 畫面內可能看得到的格子範圍（世界座標的外接矩形）
   function visibleTiles(cam) {
     var pts = [[0, 0], [cam.viewW, 0], [0, cam.viewH], [cam.viewW, cam.viewH]].map(function (p) {
       return screenToWorld(cam, p[0], p[1]);
@@ -73,7 +87,8 @@
   }
 
   RTS.camera = {
-    create: create, worldToScreen: worldToScreen, screenToWorld: screenToWorld, quad: quad,
+    project: project, unproject: unproject, create: create,
+    worldToScreen: worldToScreen, screenToWorld: screenToWorld, quad: quad, focusPoint: focusPoint,
     pan: pan, centerOn: centerOn, resize: resize, visibleTiles: visibleTiles
   };
 })();

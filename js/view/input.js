@@ -204,7 +204,7 @@
       dx += SCROLL_KEYS[code][0];
       dy += SCROLL_KEYS[code][1];
     });
-    if (m.inside && !app.drag) {
+    if (m.inside && !app.drag && !app.miniDrag) {
       if (m.x <= EDGE) dx -= 1;
       if (m.x >= app.cam.viewW - EDGE) dx += 1;
       if (m.y <= EDGE) dy -= 1;

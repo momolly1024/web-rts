@@ -104,6 +104,13 @@ h2 { font-size: 22px; color: var(--brass); }
 #toast.show { visibility: visible; }
 #toast.info { color: var(--vellum); }
 
+/* 小地圖浮在右下角、面板上方 */
+#minimap {
+  position: fixed; right: 12px; bottom: 188px; width: 224px; height: 132px; cursor: crosshair;
+  background: rgba(20, 32, 43, 0.92); border: 2px solid var(--brass); border-radius: 3px;
+}
+#toast { max-width: calc(100% - 500px); }
+
 #btn-idle { position: fixed; left: 12px; bottom: 188px; background: rgba(34, 50, 64, 0.94); }
 #btn-idle:disabled { opacity: 0.6; }
 #btn-idle b { color: var(--brass); margin-left: 4px; }
@@ -158,6 +165,8 @@ h2 { font-size: 22px; color: var(--brass); }
 }
 
 @media (max-width: 1040px) {
+  #minimap { width: 170px; height: 102px; }
+  #toast { bottom: 300px; max-width: calc(100% - 32px); }
   #topbar dt { font-size: 0; }
   #difficulty .prefix { display: none; }
   #panel { grid-template-columns: minmax(230px, 1.3fr) minmax(80px, 0.35fr) minmax(0, 2fr); gap: 10px; }
@@ -190,7 +199,8 @@ h2 { font-size: 22px; color: var(--brass); }
   }
   #difficulty .prefix { display: inline; }
   #hint { top: 86px; }
-  #toast { bottom: 230px; }      /* 讓開左下角的閒置村民按鈕 */
+  #toast { bottom: 270px; }      /* 讓開左下角的閒置村民按鈕與右下角小地圖 */
+  #minimap { width: 124px; height: 76px; right: 8px; }
   #panel { grid-template-columns: minmax(0, 1fr); grid-template-rows: auto minmax(0, 1fr); gap: 4px; }
   #sel-body { display: none; }
   h2 { font-size: 17px; }

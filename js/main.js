@@ -42,6 +42,7 @@
     app.lastIdle = 0;
     app.placement = app.mode = app.drag = null;
     app.hud.reset();
+    if (app.minimap) app.minimap.refresh();
     resize();
     var tc = RTS.world.buildingsOf(app.world, app.human, 'townCenter')[0];
     var c = RTS.world.center(tc);
@@ -112,6 +113,7 @@
     });
   }
 
+  app.minimap = RTS.minimap.create(document.getElementById('minimap'), app);
   click('btn-pause', app.togglePause);
   // 按鈕：點一下全選，Shift + 點擊逐一選
   document.getElementById('btn-idle').addEventListener('click', function (ev) {
@@ -161,6 +163,7 @@
     RTS.input.scroll(app, dt);
     RTS.render.draw(ctx, app);
     app.hud.update(dt);
+    app.minimap.update(dt);
     window.requestAnimationFrame(frame);
   }
   window.requestAnimationFrame(frame);
