@@ -12,11 +12,19 @@
   function walk(a, x, y) {
     a.order = { type: 'move', x: x, y: y };
     a.nav = null;
+    a.stroll = null;
   }
 
   function stand(a) {
     a.order = { type: 'idle' };
     a.nav = null;
+    a.stroll = null;
+  }
+
+  // 停止指令：停在原地並以此為新的活動定點
+  function halt(a) {
+    stand(a);
+    RTS.wander.anchor(a);
   }
 
   // 走向目前的移動目的地；回傳是否仍在走
@@ -41,15 +49,19 @@
       var radius = def(a).claimRadius;
       if (a.owner === null || !nearestUnit(world, a, radius, a.owner)) {
         var u = nearestUnit(world, a, radius);
-        if (u && u.owner !== a.owner) { a.owner = u.owner; stand(a); }
+        if (u && u.owner !== a.owner) { a.owner = u.owner; halt(a); }
       }
     }
-    travel(world, a, dt);
+    // 走到主人指定處後，就在那附近活動
+    var commanded = a.order.type === 'move' && !a.order.speed;    // 自己慢走回定點不算
+    if (!travel(world, a, dt) && commanded) RTS.wander.anchor(a);
   }
 
   // 獵物：受驚就跑一段，之後要喘息，這段空檔追得上
   function updateFlee(world, a, dt) {
     var d = def(a);
+    // 慢走回定點的路上一樣會受驚
+    if (a.order.speed && (a.threat || nearestUnit(world, a, d.fleeRadius))) stand(a);
     if (travel(world, a, dt)) return;
     if (a.fleeing) { a.fleeing = false; a.rest = d.rest; a.threat = 0; }
     if (a.rest > 0) { a.rest -= dt; return; }
@@ -122,7 +134,7 @@
   function hurt(world, a, attacker, damage) {
     a.hp -= damage;
     if (a.hp <= 0) { die(world, a); return; }
-    if (def(a).behavior === 'fight') { a.targetId = attacker.id; a.nav = null; a.order = { type: 'idle' }; }
+    if (def(a).behavior === 'fight') { a.targetId = attacker.id; stand(a); }
     else if (def(a).behavior === 'flee') a.threat = attacker.id;
   }
 
@@ -133,6 +145,10 @@
     if (behavior === 'herd') updateHerd(world, a, dt);
     else if (behavior === 'flee') updateFlee(world, a, dt);
     else updateFight(world, a, dt);
+    // 沒有指令、沒受驚也不在戰鬥或喘息時才閒逛
+    if (a.order.type === 'idle' && !a.targetId && !a.threat && !a.fleeing && !(a.rest > 0)) {
+      RTS.wander.update(world, a, dt);
+    }
   }
 
   // 村民狩獵指令：投擲攻擊，打倒後自動轉為採肉
@@ -155,5 +171,7 @@
     }
   }
 
-  RTS.animals = { update: update, hurt: hurt, die: die, walk: walk, stand: stand, updateHunt: updateHunt };
+  RTS.animals = {
+    update: update, hurt: hurt, die: die, walk: walk, stand: stand, halt: halt, updateHunt: updateHunt
+  };
 })();

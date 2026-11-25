@@ -66,7 +66,8 @@
     return add(world, {
       kind: 'animal', type: type, owner: null, x: x, y: y, hp: def.hp, maxHp: def.hp,
       home: { x: x, y: y }, order: { type: 'idle' }, nav: null, targetId: 0, threat: 0,
-      cooldown: 0, timer: 0, rest: 0, fleeing: false, facing: 1, swing: 0
+      cooldown: 0, timer: 0, rest: 0, fleeing: false, facing: 1, swing: 0,
+      stroll: null, pause: 1, strolls: 0
     });
   }
 

@@ -56,7 +56,7 @@
 
   function follow(world, unit, dt) {
     var path = unit.nav.path;
-    var step = RTS.world.defOf(unit).speed * dt;
+    var step = (unit.order.speed || RTS.world.defOf(unit).speed) * dt;    // order.speed：慢走
     while (step > 1e-9 && path.length) {
       var next = path[0];
       if (!RTS.map.isWalkable(world.map, next.x, next.y)) { unit.nav = null; return; }

@@ -55,7 +55,7 @@
     },
     stop: function (world, pid, c, units, herd) {
       units.forEach(function (u) { RTS.orders.set(u, { type: 'idle' }); });
-      (herd || []).forEach(RTS.animals.stand);
+      (herd || []).forEach(RTS.animals.halt);
       return done('stop');
     },
     gather: function (world, pid, c, units) {

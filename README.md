@@ -87,6 +87,9 @@ Each side gets the same animals in mirrored positions.
 | Deer | 130 food | Runs when startled, then needs a rest |
 | Wild boar | 260 food | Fights back; one villager will lose, hunt it in a group |
 
+Idle animals stroll slowly near where they started and pause often. Your own sheep stay close to
+where you last sent them.
+
 Right-click an animal with villagers to hunt it. The carcass is a food source that they carry home.
 
 ## Difficulty
@@ -184,6 +187,7 @@ js/sim/                 Simulation (no DOM, no display text)
   rally.js              Rally points
   research.js           Upgrades
   animals.js            Animal behaviour and hunting
+  wander.js             Idle strolling
   production.js         Training and research queues
   combat.js             Damage, chasing, retaliation, attack move
   orders.js             Unit order state machine

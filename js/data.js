@@ -57,18 +57,22 @@
     },
 
     // 動物：herd 可認領帶走、flee 受驚逃跑、fight 受攻擊反擊。food 為打倒後的獸肉量
+    // wander：閒逛速度、離定點最遠距離（ownedRadius 為歸玩家後）、單次步長、停留秒數範圍
     animals: {
       sheep: {
         behavior: 'herd', hp: 14, speed: 1.6, food: 90, vision: 3, claimRadius: 3,
+        wander: { speed: 0.5, radius: 2.5, ownedRadius: 1.2, step: 1.2, pause: [3, 8] },
         armorType: 'animal', armor: { melee: 0, pierce: 0 }
       },
       deer: {
         behavior: 'flee', hp: 24, speed: 3.0, food: 130, vision: 5,
         fleeRadius: 3, fleeDistance: 5, rest: 2.5, leash: 10,
+        wander: { speed: 0.8, radius: 3.5, step: 1.5, pause: [2, 6] },
         armorType: 'animal', armor: { melee: 0, pierce: 0 }
       },
       boar: {
         behavior: 'fight', hp: 65, speed: 2.2, food: 260, vision: 4, leash: 9,
+        wander: { speed: 0.6, radius: 3, step: 1.2, pause: [3, 7] },
         attack: { type: 'melee', damage: 7, range: 0.9, cooldown: 1.5 },
         armorType: 'animal', armor: { melee: 0, pierce: 0 }
       }
