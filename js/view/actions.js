@@ -16,6 +16,11 @@
       .join(t('list.separator'));
   }
 
+  // 時代還不夠的東西先不顯示，升級後才出現（快捷鍵仍會提示需要哪個時代）
+  function ageLocked(reason) {
+    return reason === 'needsFeudal' || reason === 'needsCastle';
+  }
+
   function issue(app, command) {
     var result = RTS.commands.issue(app.world, app.human, command);
     if (!result.ok) app.notify(result.reason);
@@ -60,7 +65,7 @@
           id: 'build:' + type, label: t('action.build', { name: t('building.' + type) }),
           hotkey: def.hotkey, cost: costText(def.cost),
           enabled: !reason, reason: reason, active: app.placement === type,
-          hidden: data.buildPages[page].indexOf(type) < 0,
+          hidden: data.buildPages[page].indexOf(type) < 0 || ageLocked(reason),
           run: function () { app.placement = type; app.mode = null; app.wallStart = null; }
         });
       });
@@ -103,7 +108,7 @@
       return {
         id: 'train:' + type, label: t('action.train', { name: unitName(app.world, app.human, type) }),
         hotkey: def.hotkey, cost: costText(def.cost),
-        enabled: check.ok, reason: check.reason || '',
+        enabled: check.ok, reason: check.reason || '', hidden: ageLocked(check.reason),
         run: function () { issue(app, { type: 'train', buildingId: b.id, unit: type }); }
       };
     }), garrisonActions(app, b));
@@ -174,6 +179,7 @@
         label: next ? t('action.research', { name: upgradeName(track, level + 1) })
           : t('action.maxed', { name: t('upgrade.' + track) }),
         cost: next ? costText(next.cost) : '', enabled: check.ok, reason: check.reason || '',
+        hidden: ageLocked(check.reason),
         run: function () { issue(app, { type: 'research', buildingId: b.id, track: track }); }
       };
     });
