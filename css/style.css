@@ -1,0 +1,118 @@
+/* 色盤取自紋章配色：深靛、橡木、黃銅、羊皮白。字型用系統內建，離線可用。 */
+:root {
+  --ink: #14202b;
+  --slate: #223240;
+  --oak: #4a3524;
+  --brass: #c9a24a;
+  --vellum: #ece5d0;
+  --alert: #ff8a6a;
+  --display: "DFKai-SB", "BiauKai", "Noto Serif TC", serif;
+  --body: "Microsoft JhengHei", "PingFang TC", "Noto Sans TC", sans-serif;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+html, body { height: 100%; overflow: hidden; background: var(--ink); color: var(--vellum); }
+body { font: 14px/1.5 var(--body); user-select: none; }
+
+#game { position: fixed; inset: 0; width: 100%; height: 100%; display: block; }
+
+button {
+  font: inherit; color: var(--vellum); background: var(--slate); cursor: pointer;
+  border: 1px solid var(--brass); border-radius: 3px; padding: 4px 12px;
+}
+button:hover:not(:disabled) { background: var(--oak); }
+button:focus-visible { outline: 2px solid var(--vellum); outline-offset: 2px; }
+button:disabled { opacity: 0.45; cursor: not-allowed; border-color: #6d7a84; }
+
+#topbar {
+  position: fixed; top: 0; left: 0; right: 0; height: 48px; display: flex; align-items: center;
+  gap: 24px; padding: 0 16px; background: var(--oak); border-bottom: 3px solid var(--brass);
+}
+#topbar dl { display: flex; gap: 22px; }
+#topbar dl div { display: flex; align-items: center; gap: 6px; }
+#topbar dt::before {
+  content: ""; display: inline-block; width: 10px; height: 10px; margin-right: 6px;
+  transform: rotate(45deg); background: var(--dot, var(--vellum)); border: 1px solid #1c1a17;
+}
+.food { --dot: #d0477a; }
+.wood { --dot: #a9764a; }
+.gold { --dot: #ffd84a; }
+.pop  { --dot: #6fb4f0; }
+#topbar dd { min-width: 3.2em; font-size: 18px; font-weight: 700; font-variant-numeric: tabular-nums; }
+#res-pop.warn { color: var(--alert); }
+#clock { margin-left: auto; font-variant-numeric: tabular-nums; }
+#topbar nav { display: flex; gap: 8px; }
+
+#panel {
+  position: fixed; left: 0; right: 0; bottom: 0; height: 180px; display: grid;
+  grid-template-columns: minmax(220px, 1fr) minmax(150px, 0.7fr) minmax(330px, 1.5fr);
+  gap: 16px; padding: 12px 16px; background: var(--ink); border-top: 3px solid var(--brass);
+}
+#panel section { min-width: 0; overflow: auto; }
+h1, h2 { font-family: var(--display); font-weight: 700; letter-spacing: 0.06em; }
+h2 { font-size: 22px; color: var(--brass); }
+#sel-body { white-space: pre-line; }
+
+#queue { display: flex; flex-wrap: wrap; gap: 6px; }
+.queued { position: relative; overflow: hidden; min-width: 72px; padding-bottom: 9px; }
+.queued i { position: absolute; left: 0; bottom: 0; height: 5px; width: 0; background: #7fd0ff; }
+#queue-note { font-size: 12px; opacity: 0.8; margin-top: 6px; }
+
+#actions { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; align-content: start; }
+.action {
+  display: grid; grid-template-columns: auto 1fr; column-gap: 8px; text-align: left;
+  padding: 6px 8px !important; min-height: 52px;
+}
+.action kbd {
+  grid-row: span 2; align-self: start; min-width: 24px; padding: 1px 4px; text-align: center;
+  font: 700 12px/1.6 var(--body); color: var(--ink); background: var(--brass); border-radius: 2px;
+}
+.action .label { font-weight: 700; }
+.action .cost { font-size: 12px; opacity: 0.85; }
+.action.active { background: var(--oak); outline: 2px solid var(--vellum); }
+
+#hint, #toast {
+  position: fixed; left: 50%; transform: translateX(-50%); pointer-events: none;
+  white-space: nowrap; padding: 4px 14px; border-radius: 3px; background: rgba(20, 32, 43, 0.88);
+}
+#hint { top: 60px; }
+#hint:empty { display: none; }
+#toast { bottom: 192px; color: var(--alert); font-weight: 700; visibility: hidden; }
+#toast.show { visibility: visible; }
+
+#overlay {
+  position: fixed; inset: 0; display: grid; place-items: center; padding: 16px;
+  background: rgba(10, 16, 22, 0.66); z-index: 10;
+}
+#overlay[hidden], [hidden] { display: none !important; }
+.dialog {
+  width: min(600px, 100%); max-height: 100%; overflow: auto; padding: 24px 28px;
+  background: var(--slate); border: 3px double var(--brass); border-radius: 6px;
+}
+.dialog h1 { font-size: 34px; color: var(--brass); margin-bottom: 8px; }
+.dialog p { margin-bottom: 12px; }
+.dialog table { border-collapse: collapse; margin-bottom: 12px; width: 100%; }
+.dialog th, .dialog td { text-align: left; vertical-align: top; padding: 3px 0; }
+.dialog th { white-space: nowrap; padding-right: 18px; color: var(--brass); }
+.buttons { display: flex; gap: 10px; }
+#overlay-primary { background: var(--brass); color: var(--ink); font-weight: 700; padding: 7px 24px; }
+#overlay-primary:hover { background: var(--vellum) !important; }
+
+@media (max-width: 800px) {
+  #topbar { gap: 10px; padding: 0 8px; }
+  #topbar dl { gap: 8px; }
+  #topbar dt { font-size: 0; }
+  #clock, #btn-help { display: none; }
+  #panel { grid-template-columns: 1fr 1.4fr; gap: 8px; padding: 8px; }
+  #production { display: none; }
+  #actions { grid-template-columns: repeat(2, 1fr); }
+}
+
+@media (max-width: 560px) {
+  #topbar dd { min-width: 0; font-size: 14px; }
+  #topbar nav { margin-left: auto; }
+  #topbar nav button { white-space: nowrap; padding: 2px 6px; font-size: 12px; }
+  #btn-restart { display: none; }
+  #hint, #toast { white-space: normal; width: calc(100% - 32px); text-align: center; }
+}

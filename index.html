@@ -1,0 +1,93 @@
+<!doctype html>
+<html lang="zh-Hant-TW">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>烽土領主</title>
+  <link rel="icon" href="data:,">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <canvas id="game" aria-label="戰場"></canvas>
+
+  <header id="topbar">
+    <dl>
+      <div class="food"><dt>食物</dt><dd id="res-food">0</dd></div>
+      <div class="wood"><dt>木材</dt><dd id="res-wood">0</dd></div>
+      <div class="gold"><dt>黃金</dt><dd id="res-gold">0</dd></div>
+      <div class="pop"><dt>人口</dt><dd id="res-pop">0 / 0</dd></div>
+    </dl>
+    <span id="clock">0:00</span>
+    <nav>
+      <button type="button" id="btn-pause">暫停 (P)</button>
+      <button type="button" id="btn-help">說明 (F1)</button>
+      <button type="button" id="btn-restart">重新開始</button>
+    </nav>
+  </header>
+
+  <div id="hint" aria-live="polite"></div>
+  <div id="toast" role="status"></div>
+
+  <footer id="panel">
+    <section id="selection">
+      <h2 id="sel-title">尚未選取</h2>
+      <p id="sel-body"></p>
+    </section>
+    <section id="production">
+      <div id="queue"></div>
+      <p id="queue-note"></p>
+    </section>
+    <section id="actions" aria-label="指令"></section>
+  </footer>
+
+  <div id="overlay" hidden>
+    <div class="dialog" role="dialog" aria-labelledby="overlay-title">
+      <h1 id="overlay-title">玩法說明</h1>
+      <p id="overlay-note"></p>
+      <div id="help-text">
+        <p>經營村莊、組織軍隊，摧毀紅旗領主的主堡。你的主堡（藍旗）全部被毀就算戰敗。敵軍開局約五分鐘後才會進攻。</p>
+        <table>
+          <tbody>
+            <tr><th>左鍵／拖曳</th><td>點選、框選（Shift 加選，雙擊選同類）</td></tr>
+            <tr><th>右鍵</th><td>依目標移動、採集、攻擊、協助施工、交付資源</td></tr>
+            <tr><th>方向鍵／WASD</th><td>捲動畫面（滑鼠移到視窗邊緣也可以）</td></tr>
+            <tr><th>H、B、T</th><td>選村民時建造房屋、兵營、主堡</td></tr>
+            <tr><th>Q、E</th><td>主堡訓練村民；兵營訓練劍士、弓箭手</td></tr>
+            <tr><th>F、X、Esc</th><td>攻擊移動、停止或取消工地、取消操作</td></tr>
+            <tr><th>P／空白鍵</th><td>暫停與繼續</td></tr>
+          </tbody>
+        </table>
+        <p>起手建議：讓村民採果叢與樹木，持續訓練村民，人口快滿時蓋房屋，再蓋兵營。劍士近身後剋弓箭手；弓箭手隔著距離射劍士，傷害有加成。</p>
+      </div>
+      <div class="buttons">
+        <button type="button" id="overlay-primary">開始遊戲</button>
+        <button type="button" id="overlay-restart">重新開始</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="js/namespace.js"></script>
+  <script src="js/data.js"></script>
+  <script src="js/sim/map.js"></script>
+  <script src="js/sim/pathfind.js"></script>
+  <script src="js/sim/world.js"></script>
+  <script src="js/sim/mapgen.js"></script>
+  <script src="js/sim/movement.js"></script>
+  <script src="js/sim/gather.js"></script>
+  <script src="js/sim/construction.js"></script>
+  <script src="js/sim/production.js"></script>
+  <script src="js/sim/combat.js"></script>
+  <script src="js/sim/orders.js"></script>
+  <script src="js/sim/commands.js"></script>
+  <script src="js/sim/game.js"></script>
+  <script src="js/ai/economy.js"></script>
+  <script src="js/ai/ai.js"></script>
+  <script src="js/view/camera.js"></script>
+  <script src="js/view/sprites.js"></script>
+  <script src="js/view/render.js"></script>
+  <script src="js/view/actions.js"></script>
+  <script src="js/view/hud.js"></script>
+  <script src="js/view/input.js"></script>
+  <script src="js/main.js"></script>
+</body>
+</html>
