@@ -149,7 +149,9 @@ h2 { font-size: 22px; color: var(--brass); }
 @media (max-width: 1040px) {
   #topbar dt { font-size: 0; }
   #difficulty .prefix { display: none; }
-  #panel { grid-template-columns: minmax(190px, 1fr) minmax(90px, 0.4fr) minmax(0, 2fr); gap: 10px; }
+  #panel { grid-template-columns: minmax(260px, 1.5fr) minmax(80px, 0.4fr) minmax(0, 1.7fr); gap: 10px; }
+  #selection h2 { font-size: 19px; line-height: 1.35; }
+  #sel-body, #sel-rally { font-size: 12px; line-height: 1.35; }
   .action { font-size: 13px; line-height: 1.35; column-gap: 6px; }
   .action .cost { font-size: 11px; }
 }
@@ -157,7 +159,7 @@ h2 { font-size: 22px; color: var(--brass); }
 @media (max-width: 800px) {
   #clock, #btn-help { display: none; }
   #topbar nav { margin-left: auto; }
-  #panel { grid-template-columns: minmax(0, 1fr) minmax(0, 1.8fr); padding: 8px; }
+  #panel { grid-template-columns: minmax(0, 1.2fr) minmax(0, 1.6fr); padding: 8px; }
   #production { display: none; }
 }
 
@@ -175,6 +177,7 @@ h2 { font-size: 22px; color: var(--brass); }
   }
   #difficulty .prefix { display: inline; }
   #hint { top: 86px; }
+  #toast { bottom: 230px; }      /* 讓開左下角的閒置村民按鈕 */
   #panel { grid-template-columns: minmax(0, 1fr); grid-template-rows: auto minmax(0, 1fr); gap: 4px; }
   #sel-body { display: none; }
   h2 { font-size: 17px; }
