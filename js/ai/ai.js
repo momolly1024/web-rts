@@ -95,6 +95,7 @@
     };
     AI.tech.develop(ctx);      // 排在訓練之前，軍隊成形後科技優先拿資源
     AI.economy.develop(ctx);
+    AI.camps.develop(ctx);
     AI.hunt.develop(ctx);
     AI.economy.assignVillagers(ctx);
     AI.care.repair(ctx);
@@ -107,6 +108,7 @@
   AI.create = function (pid, difficulty) {
     var cfg = config(difficulty);
     var state = { timer: 0, waves: 0, lastWave: 0, wave: {}, assigned: {}, badNodes: {}, sites: {},
+      campTry: {}, needFarm: false,
       badPrey: {}, huntStart: 0, sightings: {}, lookTime: -60, scoutId: 0, route: null, heading: null, leg: 0, laps: 0 };
     return {
       difficulty: cfg.difficulty,

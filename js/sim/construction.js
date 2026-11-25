@@ -10,7 +10,7 @@
       for (var x = tx; x < tx + size; x++) {
         if (!RTS.map.inBounds(map, x, y)) return { ok: false, reason: 'outOfMap' };
         if (RTS.fog.tile(world, owner, x, y) === RTS.fog.UNEXPLORED) return { ok: false, reason: 'unexplored' };
-        if (!RTS.map.isWalkable(map, x, y)) return { ok: false, reason: 'blocked' };
+        if (!RTS.map.isWalkable(map, x, y) || RTS.map.floorAt(map, x, y)) return { ok: false, reason: 'blocked' };
       }
     }
     var enemy = false;
@@ -19,6 +19,14 @@
           u.x >= tx && u.x < tx + size && u.y >= ty && u.y < ty + size) enemy = true;
     });
     return enemy ? { ok: false, reason: 'enemyUnit' } : { ok: true };
+  }
+
+  // 前置建築：目前只有農田需要完工的磨坊。缺少時回傳失敗結果，否則 null
+  function missingRequirement(world, owner, type) {
+    var need = RTS.data.buildings[type].requires;
+    if (!need) return null;
+    var has = RTS.world.buildingsOf(world, owner, need).some(function (b) { return b.complete; });
+    return has ? null : { ok: false, reason: 'needsMill' };
   }
 
   function place(world, owner, type, tx, ty) {
@@ -74,13 +82,18 @@
         b.progress = 1;
         b.complete = true;
         if (b.maxHp - b.hp < 0.01) b.hp = b.maxHp;    // 消除浮點累加誤差
+        if (def.farm) {          // 蓋好農田的村民直接耕作
+          b.amount = RTS.farm.food(world, b.owner);
+          RTS.orders.set(u, RTS.gather.makeOrder(b));
+          return;
+        }
         nextJob(world, u);
       }
     }
   }
 
   RTS.construction = {
-    canPlace: canPlace, place: place, cancel: cancel, beginTick: beginTick, update: update,
+    canPlace: canPlace, missingRequirement: missingRequirement, place: place, cancel: cancel, beginTick: beginTick, update: update,
     nextJob: nextJob
   };
 })();

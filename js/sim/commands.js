@@ -66,7 +66,8 @@
     },
     gather: function (world, pid, c, units) {
       var node = visibleTarget(world, pid, c.targetId);
-      if (!node || node.kind !== 'node' || !RTS.data.nodes[node.type].resource) return fail('notGatherable');
+      if (!RTS.gather.resourceOf(node)) return fail('notGatherable');
+      if (RTS.farm.isFarm(node) && (node.owner !== pid || !node.complete)) return fail('notGatherable');
       var workers = villagersIn(units);
       if (!workers.length) return fail('villagersOnlyGather');
       workers.forEach(function (u) { RTS.orders.set(u, RTS.gather.makeOrder(node)); });
@@ -131,6 +132,8 @@
       var def = RTS.data.buildings[c.building], workers = villagersIn(units);
       if (!def) return fail('unknownBuilding');
       if (!workers.length) return fail('needVillagers');
+      var missing = RTS.construction.missingRequirement(world, pid, c.building);
+      if (missing) return missing;
       var tx = Math.floor(c.tx), ty = Math.floor(c.ty);
       var check = RTS.construction.canPlace(world, pid, c.building, tx, ty);
       if (!check.ok) return check;
@@ -155,6 +158,17 @@
       var b = ownBuilding(world, pid, c.buildingId);
       return b ? RTS.research.enqueue(world, b, c.track) : fail('buildingNotFound');
     },
+    reseed: function (world, pid, c) {
+      var b = ownBuilding(world, pid, c.buildingId);
+      return b ? RTS.farm.reseed(world, b) : fail('buildingNotFound');
+    },
+    cancelReseed: function (world, pid) {
+      return RTS.farm.cancelReseed(world, pid) ? done('cancelReseed') : fail('cannotCancel');
+    },
+    trade: function (world, pid, c) {
+      var b = ownBuilding(world, pid, c.buildingId);
+      return b ? RTS.market.trade(world, b, c.resource, c.side) : fail('buildingNotFound');
+    },
     // 右鍵智慧指令：依目標決定移動、採集、攻擊、施工或交付
     smart: function (world, pid, c, units, herd) {
       if (!units.length) return handlers.move(world, pid, c, units, herd);
@@ -178,6 +192,9 @@
         dispatch('gather', villagersIn(left));
       } else if (t && t.kind === 'building' && !t.complete) {
         dispatch('assist', villagersIn(left));
+      } else if (RTS.farm.isFarm(t)) {
+        // 農田：一位村民耕作，其餘的人也會去找空著的農田
+        dispatch('gather', villagersIn(left));
       } else if (t && t.kind === 'building') {
         if (RTS.data.buildings[t.type].dropoff) {
           dispatch('deposit', left.filter(function (u) { return u.carry.amount > 0; }));

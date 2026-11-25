@@ -11,7 +11,8 @@
       width: width,
       height: height,
       terrain: new Uint8Array(n),
-      occupant: new Int32Array(n)   // 佔用該格的實體 id（天然物件或建築），0 表示空
+      occupant: new Int32Array(n),  // 佔用該格的實體 id（天然物件或建築），0 表示空
+      floor: new Int32Array(n)      // 可行走的平地建築（農田）id；不擋路，但不能再蓋東西
     };
   }
 
@@ -31,6 +32,18 @@
         if (inBounds(map, x, y)) map.occupant[y * map.width + x] = id;
       }
     }
+  }
+
+  function setFloor(map, rect, id) {
+    for (var y = rect.y; y < rect.y + rect.h; y++) {
+      for (var x = rect.x; x < rect.x + rect.w; x++) {
+        if (inBounds(map, x, y)) map.floor[y * map.width + x] = id;
+      }
+    }
+  }
+
+  function floorAt(map, x, y) {
+    return inBounds(map, x, y) ? map.floor[y * map.width + x] : 0;
   }
 
   function occupantAt(map, x, y) {
@@ -94,6 +107,8 @@
     inBounds: inBounds,
     isWalkable: isWalkable,
     setOccupant: setOccupant,
+    setFloor: setFloor,
+    floorAt: floorAt,
     occupantAt: occupantAt,
     nearestFree: nearestFree,
     spreadTiles: spreadTiles,

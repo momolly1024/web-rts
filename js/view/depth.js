@@ -7,11 +7,17 @@
   var UNIT_LIFT = 0.15;       // 單位命中點比位置高一點（畫面單位 = 格）
   var UNIT_REACH = 0.5;
   // 建築牆身高度（點牆面可選取），天然物件外形高度與半寬
-  var WALL = { townCenter: 1.7, house: 1.0, blacksmith: 1.0, barracks: 1.1 };
+  var WALL = {
+    townCenter: 1.7, house: 1.0, blacksmith: 1.0, barracks: 1.1,
+    lumberCamp: 0.9, miningCamp: 0.9, mill: 1.0, farm: 0.05, market: 1.0
+  };
   var NODE = { tree: 0.95, berry: 0.4, gold: 0.4, rock: 0.45, carcass: 0.3 };
   var NODE_HALF = 0.42;
   // 建築圖形最高處（屋頂、旗子）高出占地中心的高度，血條畫在它上面
-  var TOP = { townCenter: 3.4, house: 2.0, blacksmith: 2.0, barracks: 2.5 };
+  var TOP = {
+    townCenter: 3.4, house: 2.0, blacksmith: 2.0, barracks: 2.5,
+    lumberCamp: 1.8, miningCamp: 1.9, mill: 2.6, farm: 0.6, market: 2.0
+  };
 
   function topOf(e) {
     return e.complete ? TOP[e.type] || e.h : Math.max(e.h / 2, 1.2);

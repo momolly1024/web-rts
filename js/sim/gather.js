@@ -1,4 +1,4 @@
-// 村民採集：前往資源、採收、送回主堡、資源耗盡後找附近同類。
+// 村民採集：前往資源或農田、採收、送回收取該資源的建築、資源耗盡後找附近同類。
 (function () {
   'use strict';
   var RTS = globalThis.RTS || (globalThis.RTS = {});
@@ -6,21 +6,56 @@
   var SEARCH_RADIUS = 14;
   var RETRY_WAIT = 1.0;
 
-  // 找離 from 最近、且旁邊有空位的同類資源
+  // 可採集目標（天然資源或農田）產出的資源，不可採集則為 null
+  function resourceOf(e) {
+    if (!e) return null;
+    if (e.kind === 'node') return RTS.data.nodes[e.type].resource || null;
+    return RTS.farm.isFarm(e) ? 'food' : null;
+  }
+
+  // u 能不能採這塊己方農田：完工、還有食物、沒有別人在種
+  function farmOpen(world, farm, owner, u) {
+    return farm.owner === owner && farm.complete && farm.amount > 0 && RTS.farm.freeFor(world, farm, u);
+  }
+
+  // 找離 from 最近、且旁邊有空位的同類資源（食物也包含空著的己方農田）
   // owner 只會找到自己看過的資源
-  function findResource(world, owner, from, resource, skip) {
+  function findResource(world, owner, from, resource, skip, u) {
     return RTS.world.nearest(world, from.x, from.y, function (e) {
+      if (skip && skip[e.id]) return false;
+      if (RTS.farm.isFarm(e)) return resource === 'food' && farmOpen(world, e, owner, u);
       return e.kind === 'node' && RTS.data.nodes[e.type].resource === resource &&
-        RTS.fog.knows(world, owner, e) &&
-        !(skip && skip[e.id]) && RTS.map.hasFreeNeighbor(world.map, e);
+        RTS.fog.knows(world, owner, e) && RTS.map.hasFreeNeighbor(world.map, e);
     }, SEARCH_RADIUS);
   }
 
-  function makeOrder(node) {
+  function makeOrder(target) {
+    var c = RTS.world.center(target);
     return {
-      type: 'gather', targetId: node.id, resource: RTS.data.nodes[node.type].resource,
-      last: { x: node.x + 0.5, y: node.y + 0.5 }, returning: false, progress: 0, skip: {}
+      type: 'gather', targetId: target.id, resource: resourceOf(target),
+      last: { x: c.x, y: c.y }, returning: false, progress: 0, skip: {}
     };
+  }
+
+  function accepts(b, resource) {
+    var drop = RTS.data.buildings[b.type].dropoff;
+    return !!drop && (!resource || drop.indexOf(resource) >= 0);
+  }
+
+  function capacity(world, u) {
+    return RTS.data.units[u.type].carry + RTS.research.economy(world, u.owner, 'carry');
+  }
+
+  function rate(world, u, resource) {
+    return RTS.data.units[u.type].gatherRate[resource] * (1 + RTS.research.economy(world, u.owner, 'gather.' + resource));
+  }
+
+  // 農田站到中央格耕作，其他資源站在旁邊
+  function goalFor(target) {
+    if (RTS.farm.isFarm(target)) {
+      return RTS.move.pointGoal(target.x + Math.floor(target.w / 2), target.y + Math.floor(target.h / 2));
+    }
+    return RTS.move.entityGoal(target, 0.75);
   }
 
   // 回傳 'done'（已入庫或沒東西要交）、'going'、'none'（沒有可交付的主堡）
@@ -29,7 +64,7 @@
     if (u.wait > 0) { u.wait -= dt; return 'going'; }
     var skip = u.order.dropSkip || (u.order.dropSkip = {});
     function isDrop(e) {
-      return e.kind === 'building' && e.owner === u.owner && e.complete && RTS.data.buildings[e.type].dropoff;
+      return e.kind === 'building' && e.owner === u.owner && e.complete && accepts(e, u.carry.resource);
     }
     var drop = RTS.world.nearest(world, u.x, u.y, function (e) { return isDrop(e) && !skip[e.id]; });
     if (!drop) {
@@ -50,9 +85,9 @@
   }
 
   function updateGather(world, u, dt) {
-    var o = u.order, def = RTS.data.units[u.type];
+    var o = u.order;
     var other = u.carry.amount > 0 && u.carry.resource !== o.resource;
-    var full = !other && u.carry.amount >= def.carry;
+    var full = !other && u.carry.amount >= capacity(world, u);
     // 滿載或手上是別種資源：先交貨
     if (o.returning || full || other) {
       o.returning = true;
@@ -64,21 +99,27 @@
     }
 
     var node = RTS.world.get(world, o.targetId);
+    if (node && RTS.farm.isFarm(node) && !farmOpen(world, node, u.owner, u)) {
+      o.skip[node.id] = true;       // 已有人在種或被拆了：改找別塊
+      node = null;
+    }
     if (!node) {
-      var next = findResource(world, u.owner, o.last, o.resource, o.skip);
+      var next = findResource(world, u.owner, o.last, o.resource, o.skip, u);
       if (!next) {
         if (u.carry.amount > 0) o.returning = true;
         else RTS.orders.set(u, { type: 'idle' });
         return;
       }
       o.targetId = next.id;
-      o.last = { x: next.x + 0.5, y: next.y + 0.5 };
+      o.last = RTS.world.center(next);
       u.nav = null;
       node = next;
     }
 
-    var status = RTS.move.approach(world, u, RTS.move.entityGoal(node, 0.75), dt, { spread: true });
+    if (RTS.farm.isFarm(node)) node.farmer = u.id;      // 走過去的路上就先佔住
+    var status = RTS.move.approach(world, u, goalFor(node), dt, { spread: true });
     if (status === 'blocked') {
+      if (node.farmer === u.id) node.farmer = 0;
       o.skip[node.id] = true;
       o.targetId = 0;
     } else if (status === 'arrived') {
@@ -87,21 +128,24 @@
   }
 
   function harvest(world, u, node, dt) {
-    var o = u.order, def = RTS.data.units[u.type];
+    var o = u.order, cap = capacity(world, u);
     // 手上還有別種資源（沒地方交）時不開採，避免貨物被蓋掉
     if (u.carry.resource !== o.resource) {
       if (u.carry.amount > 0) return;
       u.carry.resource = o.resource;
     }
-    u.facing = node.x + 0.5 > u.x ? 1 : -1;
+    var c = RTS.world.center(node);
+    if (Math.abs(c.x - u.x) > 0.05) u.facing = c.x > u.x ? 1 : -1;
     u.swing = (u.swing + dt) % 0.6;
-    o.progress += def.gatherRate[o.resource] * dt;
-    while (o.progress >= 1 && node.amount > 0 && u.carry.amount < def.carry) {
+    o.progress += rate(world, u, o.resource) * dt;
+    while (o.progress >= 1 && node.amount > 0 && u.carry.amount < cap) {
       o.progress -= 1;
       node.amount -= 1;
       u.carry.amount += 1;
     }
-    if (node.amount <= 0) RTS.world.remove(world, node);
+    if (node.amount > 0) return;
+    if (RTS.farm.isFarm(node)) RTS.farm.deplete(world, node);
+    else RTS.world.remove(world, node);
   }
 
   function updateDeposit(world, u, dt) {
@@ -109,7 +153,8 @@
   }
 
   RTS.gather = {
-    findResource: findResource, makeOrder: makeOrder, returnCargo: returnCargo,
+    resourceOf: resourceOf, findResource: findResource, makeOrder: makeOrder, accepts: accepts,
+    capacity: capacity, rate: rate, returnCargo: returnCargo,
     update: updateGather, updateDeposit: updateDeposit
   };
 })();

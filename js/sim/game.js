@@ -41,6 +41,7 @@
         RTS.garrison.heal(e, dt);
       }
     }
+    RTS.market.step(world, dt);
     RTS.move.separate(world, dt);
     RTS.fog.step(world);
 

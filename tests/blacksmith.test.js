@@ -67,9 +67,14 @@ test('AI 依難度蓋鐵匠鋪並研究', () => {
     const target = RTS.world.buildingsOf(w, 0, 'townCenter')[0];
     target.hp = target.maxHp = 1e9;
     for (let i = 0; i < 24000; i++) { ai.update(w, RTS.data.TICK); RTS.game.step(w); }
-    reached[key] = Object.values(w.players[1].upgrades).reduce((a, b) => a + b, 0);
+    // 只看鐵匠鋪的項目（經濟科技另有上限）
+    const levels = Object.entries(w.players[1].upgrades)
+      .filter(([track]) => RTS.data.upgrades[track].unitClass).map(([, lv]) => lv);
+    reached[key] = levels.reduce((a, b) => a + b, 0);
     const max = RTS.ai.config(key).blacksmith.maxLevel;
-    assert.ok(Object.values(w.players[1].upgrades).every(v => v <= max), key);
+    assert.ok(levels.every(v => v <= max), key);
+    const econ = Object.entries(w.players[1].upgrades).filter(([track]) => RTS.data.upgrades[track].economy);
+    assert.ok(econ.every(([, lv]) => lv <= RTS.ai.config(key).economy.techLevel), key + ' 經濟科技 ' + JSON.stringify(econ));
   }
   console.log('      研究總級數 ' + JSON.stringify(reached));
   assert.ok(reached.easy >= 1 && reached.normal >= 3 && reached.hard >= reached.normal, JSON.stringify(reached));

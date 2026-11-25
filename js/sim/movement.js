@@ -54,9 +54,16 @@
     return Math.abs(a.x - b.x) > 0.9 || Math.abs(a.y - b.y) > 0.9 || a.w !== b.w;
   }
 
+  // 村民的移動速度含主堡研究加成
+  function speedOf(world, unit) {
+    var def = RTS.world.defOf(unit);
+    if (unit.kind !== 'unit' || !def.canBuild) return def.speed;
+    return def.speed * (1 + RTS.research.economy(world, unit.owner, 'speed'));
+  }
+
   function follow(world, unit, dt) {
     var path = unit.nav.path;
-    var step = (unit.order.speed || RTS.world.defOf(unit).speed) * dt;    // order.speed：慢走
+    var step = (unit.order.speed || speedOf(world, unit)) * dt;    // order.speed：慢走
     while (step > 1e-9 && path.length) {
       var next = path[0];
       if (!RTS.map.isWalkable(world.map, next.x, next.y)) { unit.nav = null; return; }
@@ -150,7 +157,7 @@
   }
 
   RTS.move = {
-    beginTick: beginTick, approach: approach, pointGoal: pointGoal, entityGoal: entityGoal,
+    beginTick: beginTick, speedOf: speedOf, approach: approach, pointGoal: pointGoal, entityGoal: entityGoal,
     rescue: rescue, separate: separate
   };
 })();

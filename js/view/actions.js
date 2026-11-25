@@ -48,11 +48,12 @@
     if (units.some(function (u) { return data.units[u.type].canBuild; })) {
       data.buildOrderList.forEach(function (type) {
         var def = data.buildings[type];
-        var ok = RTS.world.canAfford(app.world, app.human, def.cost);
+        var missing = RTS.construction.missingRequirement(app.world, app.human, type);
+        var reason = missing ? missing.reason : (RTS.world.canAfford(app.world, app.human, def.cost) ? '' : 'notEnoughResources');
         out.push({
           id: 'build:' + type, label: t('action.build', { name: t('building.' + type) }),
           hotkey: def.hotkey, cost: costText(def.cost),
-          enabled: ok, reason: ok ? '' : 'notEnoughResources', active: app.placement === type,
+          enabled: !reason, reason: reason, active: app.placement === type,
           run: function () { app.placement = type; app.mode = null; }
         });
       });
@@ -88,7 +89,8 @@
         run: function () { issue(app, { type: 'cancelBuild', buildingId: b.id }); }
       }];
     }
-    return researchActions(app, b).concat(data.buildings[b.type].trains.map(function (type) {
+    return researchActions(app, b).concat(reseedActions(app, b), marketActions(app, b),
+      data.buildings[b.type].trains.map(function (type) {
       var def = data.units[type];
       var check = RTS.production.check(app.world, b, type);
       return {
@@ -98,6 +100,43 @@
         run: function () { issue(app, { type: 'train', buildingId: b.id, unit: type }); }
       };
     }), garrisonActions(app, b));
+  }
+
+  // 磨坊：預付農田重種
+  function reseedActions(app, b) {
+    if (!RTS.data.buildings[b.type].reseed) return [];
+    var count = app.world.players[app.human].reseeds;
+    var check = RTS.farm.checkReseed(app.world, b);
+    return [{
+      id: 'reseed', label: t('action.reseed', { count: count }), hotkey: 'E',
+      cost: costText(RTS.data.buildings.farm.cost), enabled: check.ok, reason: check.reason || '',
+      run: function () { issue(app, { type: 'reseed', buildingId: b.id }); }
+    }, {
+      id: 'cancelReseed', label: t('action.cancelReseed'), hotkey: 'X',
+      cost: t('action.refundOne'), enabled: count > 0, reason: count > 0 ? '' : 'cannotCancel',
+      run: function () { issue(app, { type: 'cancelReseed' }); }
+    }];
+  }
+
+  // 市場：每種資源一個買、一個賣
+  function marketActions(app, b) {
+    var m = RTS.data.market;
+    if (!RTS.data.buildings[b.type].market) return [];
+    var out = [];
+    ['buy', 'sell'].forEach(function (side) {
+      m.goods.forEach(function (res, i) {
+        var gold = RTS.market.quote(app.world, app.human, res, side);
+        var check = RTS.market.check(app.world, b, res, side);
+        out.push({
+          id: side + ':' + res, hotkey: m.hotkeys[side][i],
+          label: t('action.' + side, { amount: m.lot, name: t('resource.' + res) }),
+          cost: t('action.' + side + 'Price', { gold: gold }),
+          enabled: check.ok, reason: check.reason || '',
+          run: function () { issue(app, { type: 'trade', buildingId: b.id, resource: res, side: side }); }
+        });
+      });
+    });
+    return out;
   }
 
   function upgradeName(track, level) {
@@ -172,6 +211,18 @@
     var lines = [];
     if (!e.complete) lines.push(t('info.progress', { percent: Math.floor(e.progress * 100) }));
     if (def.pop) lines.push(t('info.providesPop', { amount: def.pop }));
+    if (def.dropoff && e.type !== 'townCenter') {
+      lines.push(t('info.dropoff', { list: def.dropoff.map(function (r) { return t('resource.' + r); })
+        .join(t('list.separator')) }));
+    }
+    if (def.farm && e.complete) {
+      lines.push(t('info.remaining', { resource: t('resource.food'), amount: e.amount }));
+      if (e.owner === human) lines.push(t(RTS.farm.farmerOf(app.world, e) ? 'info.farmBusy' : 'info.farmFree'));
+    }
+    if (def.reseed && e.owner === human) {
+      lines.push(t('info.reseeds', { count: app.world.players[human].reseeds }));
+    }
+    if (def.market && e.owner === human) lines.push(t('info.market'));
     if (e.complete && e.owner === human && def.trains.length) {
       var pop = RTS.world.population(app.world, human);
       if (pop.used + pop.queued >= pop.cap) {

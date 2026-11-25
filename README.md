@@ -16,7 +16,7 @@ mouse and keyboard is recommended.
   Both halves of the map are point-symmetric.
 - You start with a Town Center, 4 villagers, 200 food, 200 wood, 100 gold and no stone.
 - Grey rocks (stone) can be gathered like other resources (4 near each start, more in the wild).
-  Nothing costs stone yet.
+  For now stone can only be sold at the Market; arrow towers and walls in batch 4 will use it.
 - Destroy **every finished enemy Town Center** to win. You lose when all of your finished
   Town Centers are gone (unfinished ones do not count).
 - The enemy waits for a grace period before attacking, and later waves grow. The grace period
@@ -24,10 +24,15 @@ mouse and keyboard is recommended.
 
 | Building | Cost | Purpose |
 |------|------|------|
-| Town Center | 300 wood, 100 gold | Trains villagers, receives resources, +5 population |
+| Town Center | 300 wood, 100 gold | Trains villagers, receives every resource, researches Handcarts, +5 population |
 | House | 50 wood | +5 population (total limit 50) |
 | Barracks | 150 wood | Trains swordsmen and archers |
 | Blacksmith | 130 wood | Researches attack and armor |
+| Lumber Camp | 100 wood | Receives wood; researches Keen axes |
+| Mining Camp | 100 wood | Receives gold and stone; researches Gold digging and Stone cutting |
+| Mill | 100 wood | Receives food; researches Rich harvest; queues farm reseeds |
+| Farm | 60 wood | Needs a finished Mill; one villager farms it, 175 food each |
+| Market | 175 wood | Buys and sells food, wood and stone for gold |
 
 | Unit | Cost | Traits |
 |------|------|------|
@@ -37,7 +42,7 @@ mouse and keyboard is recommended.
 
 Other rules: every builder after the first works at half speed; villagers who finish a building
 help at a nearby site or return to gathering; a villager carrying a load who is told to gather
-something else, build, repair or hunt delivers it first (more of the same resource just continues;
+something else, build, repair or hunt first delivers it to the nearest building that accepts it (more of the same resource just continues;
 move, attack and shelter orders happen at once and keep the load, as does any order when there is no
 Town Center to deliver to);
 cancelling a building site or a unit in training refunds it in full.
@@ -55,6 +60,29 @@ your current and future units of that class (villagers are unaffected).
 | Ranged attack (archer) | attack +1 | 100 wood, 50 gold, 30 s | 170 wood, 100 gold, 45 s |
 | Melee armor (swordsman) | both armors +1 | 90 food, 40 gold, 25 s | 150 food, 80 gold, 40 s |
 | Ranged armor (archer) | both armors +1 | 90 wood, 40 gold, 25 s | 150 wood, 80 gold, 40 s |
+
+### Economy
+
+- **Drop-off buildings**: villagers deliver to the nearest building of yours that accepts what they
+  carry. A lumber camp or mining camp next to woods or a mine saves a lot of walking.
+- **Farms**: need a finished Mill. Units can walk across them and one villager farms each one at a
+  time; the villager who builds a farm starts farming it, and others sent to a busy farm look for an
+  empty one. A farm disappears when its food runs out.
+- **Reseeds**: select a Mill and press E to pay for one farm in advance (up to 30), X cancels one
+  with a refund. When any farm runs out, one reseed is used and the farm refills in place.
+- **Economy upgrades** (researched through the building's queue; they affect villagers and farms only):
+
+| Upgrade (building) | Effect | Level 1 | Level 2 | Level 3 |
+|------|------|------|------|------|
+| Rich harvest (Mill) | Food in farms finished or reseeded later | +60: 75 food, 75 wood, 20 s | +75: 125 food, 125 wood, 35 s | +100: 250 wood, 150 gold, 50 s |
+| Keen axes (Lumber Camp) | Woodcutting speed | +15%: 100 food, 50 wood, 25 s | +15%: 150 food, 100 wood, 35 s | +10%: 300 food, 200 wood, 50 s |
+| Gold digging (Mining Camp) | Gold mining speed | +15%: 100 food, 75 wood, 25 s | +15%: 200 food, 150 wood, 40 s | — |
+| Stone cutting (Mining Camp) | Stone mining speed | +15%: 100 food, 75 wood, 25 s | +15%: 200 food, 150 wood, 40 s | — |
+| Handcarts (Town Center) | Villager carry and speed | +3 carry, +10% speed: 150 food, 50 wood, 30 s | +5 carry, +10% speed: 250 food, 150 wood, 45 s | — |
+
+- **Market**: buy or sell 100 food, wood or stone for gold. The base price is 100 gold; buying costs
+  15% more and selling pays 15% less. Each purchase raises that price by 6 and each sale lowers it
+  by 6 (range 20–300), then it drifts back by 0.4 per second. Each side has its own prices.
 
 ### Repairing
 
@@ -159,8 +187,10 @@ English). Your choice is saved in `localStorage`. Where that is unavailable (som
 | Left-click / drag | Select (Shift adds, double-click selects the same type on screen) |
 | Right-click | Move, gather, hunt, attack, build, repair, deliver or shelter, depending on the target; with a training building selected, set its rally point |
 | Arrow keys, WASD, mouse at the window edge | Scroll |
-| H, B, K, T | With villagers: build House, Barracks, Blacksmith, Town Center (Shift + click to keep placing) |
-| Q, E | Town Center: Villager. Barracks: Swordsman, Archer |
+| H, B, K, T, L, N, M, C, Y | With villagers: build House, Barracks, Blacksmith, Town Center, Lumber Camp, Mining Camp, Mill, Farm, Market (Shift + click to keep placing) |
+| Q, E | Town Center: Villager, Handcarts. Barracks: Swordsman, Archer. Lumber Camp Q: Keen axes. Mining Camp: Gold digging, Stone cutting |
+| Q, E, X | Mill: Rich harvest, queue a reseed, cancel one reseed |
+| Q, E, R / Z, C, V | Market: buy food, wood, stone / sell food, wood, stone |
 | Q, E, R, F | Blacksmith: melee attack, ranged attack, melee armor, ranged armor |
 | G, U | Shelter in the Town Center, release everyone |
 | Ctrl / Alt + digit, digit | Save and select a control group (twice to jump there) |
@@ -177,11 +207,10 @@ English). Your choice is saved in `localStorage`. Where that is unavailable (som
 
 None of the following is implemented yet. These are plans and may change.
 
-- **Batch 3**: lumber camp and mining camp, mill, farms, economic technologies, market
 - **Batch 4**: age upgrades and unit tiers; archery range, stable, spearmen, cavalry; arrow towers,
   walls and gates; healer units; siege weapons
 - **Batch 5**: AI expanding, rebuilding its Town Center, adapting its army to yours
-- **Under consideration**: sound, saving, formations, multiple civilizations, other victory conditions,
+- **Under consideration**: trade carts, sound, saving, formations, multiple civilizations, other victory conditions,
   individual building upgrades
 
 ## Tests
@@ -215,7 +244,9 @@ js/sim/                 Simulation (no DOM, no display text)
   repair.js             Repairing
   garrison.js           Sheltering and release
   rally.js              Rally points
-  research.js           Upgrades
+  research.js           Upgrades (military and economy)
+  farm.js               Farm food, farmers and reseeds
+  market.js             Market prices and trading
   animals.js            Animal behaviour and hunting
   wander.js             Idle strolling
   fog.js                Fog of war and memory
@@ -226,6 +257,7 @@ js/sim/                 Simulation (no DOM, no display text)
   game.js               Fixed-step update and victory check
 js/ai/                  Computer opponent (acts only through commands)
   economy.js            Villager jobs, building, training
+  camps.js              Drop-off buildings, mill and farms, economy upgrades
   tech.js               Blacksmith and research
   care.js               Repairing and sheltering
   hunt.js               Herding and hunting
@@ -267,7 +299,9 @@ Code comments and test names are written in Traditional Chinese.
 
 ## Known limits
 
-- The AI does not gather stone.
+- The AI does not gather stone or use the Market.
+- With villagers selected there are many build buttons; in a short window, Garrison and Stop need
+  the panel scrolled (their hotkeys always work).
 - Pathfinding uses the real map, so units route around obstacles they have not seen.
   difficulties differ only in settings, not tactics.
 - The AI does not rebuild a destroyed Town Center (losing the only one ends the game).

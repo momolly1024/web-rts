@@ -29,6 +29,17 @@
     return total;
   }
 
+  // 經濟研究的加成總和，key 例如 'gather.wood'、'carry'、'speed'、'farmFood'
+  function economy(world, pid, key) {
+    var total = 0;
+    Object.keys(RTS.data.upgrades).forEach(function (track) {
+      var up = RTS.data.upgrades[track];
+      if (!up.economy) return;
+      for (var i = 0; i < level(world, pid, track); i++) total += up.levels[i].effects[key] || 0;
+    });
+    return total;
+  }
+
   function check(world, b, track) {
     var def = RTS.data.buildings[b.type];
     if (!def.researches || def.researches.indexOf(track) < 0) return { ok: false, reason: 'cannotResearch' };
@@ -50,5 +61,7 @@
     return result;
   }
 
-  RTS.research = { level: level, pending: pending, bonus: bonus, check: check, enqueue: enqueue };
+  RTS.research = {
+    level: level, pending: pending, bonus: bonus, economy: economy, check: check, enqueue: enqueue
+  };
 })();

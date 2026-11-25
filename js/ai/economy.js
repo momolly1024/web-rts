@@ -11,9 +11,14 @@
     return null;
   }
 
+  // 最近的資源；食物也包含己方空著的農田
   function nearestNode(ctx, resource) {
     var from = RTS.world.center(ctx.tc);
     return RTS.world.nearest(ctx.world, from.x, from.y, function (e) {
+      if (RTS.farm.isFarm(e)) {
+        return resource === 'food' && e.owner === ctx.pid && e.complete && e.amount > 0 &&
+          !ctx.state.badNodes[e.id] && !RTS.farm.farmerOf(ctx.world, e);
+      }
       return e.kind === 'node' && RTS.data.nodes[e.type].resource === resource &&
         !ctx.state.badNodes[e.id] && RTS.fog.knows(ctx.world, ctx.pid, e) &&
         RTS.map.hasFreeNeighbor(ctx.world.map, e);
@@ -22,7 +27,10 @@
 
   function sendToGather(ctx, villager, resource) {
     var node = nearestNode(ctx, resource);
-    if (!node) return false;
+    if (!node) {
+      if (resource === 'food') ctx.state.needFarm = true;      // 野外食物與空農田都沒了
+      return false;
+    }
     var r = ctx.issue({ type: 'gather', unitIds: [villager.id], targetId: node.id });
     if (r.ok) ctx.state.assigned[villager.id] = { nodeId: node.id, time: ctx.world.time };
     return r.ok;
@@ -176,5 +184,5 @@
   }
 
   AI.economy = { assignVillagers: assignVillagers, develop: develop, startBuilding: startBuilding,
-    pickBuilder: pickBuilder };
+    pickBuilder: pickBuilder, hasMargin: hasMargin };
 })();

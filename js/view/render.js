@@ -53,7 +53,7 @@
       });
     } else if (e.kind === 'building') {
       local(ctx, cam, e.x, e.y, function () {
-        if (e.complete) RTS.sprites.buildings[e.type](ctx, e.w, players[e.owner]);
+        if (e.complete) RTS.sprites.buildings[e.type](ctx, e.w, players[e.owner], e);
         else RTS.sprites.construction(ctx, e.w, e.progress);
       });
     } else if (e.kind === 'animal') {
@@ -69,6 +69,10 @@
         RTS.sprites.units[e.type](ctx, players[e.owner], e.swing, carry);
       });
     }
+  }
+
+  function isFlat(e) {
+    return e.kind === 'building' && !!RTS.data.buildings[e.type].walkable;
   }
 
   function selectionMark(ctx, cam, e, human) {
@@ -205,15 +209,23 @@
     var visible = RTS.depth.sort(RTS.fog.perceived(world, app.human).filter(function (e) {
       return RTS.depth.inView(cam, e);
     }));
+    // 農田這類平地建築貼在地面，先畫，站在上面的單位才不會被蓋住
+    var flat = visible.filter(isFlat);
+    visible = visible.filter(function (e) { return !isFlat(e); });
+    flat.forEach(function (e) {
+      if (e.ghost) ctx.globalAlpha = 0.55;
+      drawEntity(ctx, cam, e);
+      ctx.globalAlpha = 1;
+    });
     var selected = new Set(app.selection);
-    visible.forEach(function (e) { if (selected.has(e.id)) selectionMark(ctx, cam, e, app.human); });
+    flat.concat(visible).forEach(function (e) { if (selected.has(e.id)) selectionMark(ctx, cam, e, app.human); });
 
     visible.forEach(function (e) {
       if (e.ghost) ctx.globalAlpha = 0.55;      // 記憶中的舊樣貌畫淡一些
       drawEntity(ctx, cam, e);
       ctx.globalAlpha = 1;
     });
-    visible.forEach(function (e) {
+    flat.concat(visible).forEach(function (e) {
       if (e.kind !== 'node' && !e.ghost && (selected.has(e.id) || e.hp < e.maxHp)) healthBar(ctx, cam, e);
     });
     visible.forEach(function (e) {

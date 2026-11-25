@@ -83,7 +83,8 @@
     buildings: {
       townCenter: {
         cost: { wood: 300, gold: 100 }, size: 3, hp: 1200, buildTime: 80,
-        pop: 5, vision: 7, trains: ['villager'], dropoff: true, hotkey: 'T',
+        pop: 5, vision: 7, trains: ['villager'], dropoff: ['food', 'wood', 'gold', 'stone'], hotkey: 'T',
+        researches: ['handcart'],
         garrison: { capacity: 10, healRate: 1.5 },
         armorType: 'building', armor: { melee: 1, pierce: 2 }
       },
@@ -102,16 +103,82 @@
         pop: 0, vision: 4, trains: [], dropoff: false, hotkey: 'K',
         researches: ['meleeAttack', 'rangedAttack', 'meleeArmor', 'rangedArmor'],
         armorType: 'building', armor: { melee: 1, pierce: 1 }
+      },
+      // 收集建築：dropoff 列出收取的資源
+      lumberCamp: {
+        cost: { wood: 100 }, size: 2, hp: 400, buildTime: 22,
+        pop: 0, vision: 4, trains: [], dropoff: ['wood'], hotkey: 'L',
+        researches: ['woodcutting'],
+        armorType: 'building', armor: { melee: 1, pierce: 1 }
+      },
+      miningCamp: {
+        cost: { wood: 100 }, size: 2, hp: 400, buildTime: 22,
+        pop: 0, vision: 4, trains: [], dropoff: ['gold', 'stone'], hotkey: 'N',
+        researches: ['goldMining', 'stoneMining'],
+        armorType: 'building', armor: { melee: 1, pierce: 1 }
+      },
+      mill: {
+        cost: { wood: 100 }, size: 2, hp: 400, buildTime: 22,
+        pop: 0, vision: 4, trains: [], dropoff: ['food'], hotkey: 'M',
+        researches: ['farmYield'], reseed: true,
+        armorType: 'building', armor: { melee: 1, pierce: 1 }
+      },
+      // 農田：可行走的平地建築，一次一人耕作，food 為每塊的食物量；需先有完工的磨坊
+      farm: {
+        cost: { wood: 60 }, size: 3, hp: 240, buildTime: 15,
+        pop: 0, vision: 2, trains: [], dropoff: false, hotkey: 'C',
+        walkable: true, farm: { food: 175 }, requires: 'mill',
+        armorType: 'building', armor: { melee: 0, pierce: 0 }
+      },
+      market: {
+        cost: { wood: 175 }, size: 3, hp: 700, buildTime: 40,
+        pop: 0, vision: 5, trains: [], dropoff: false, hotkey: 'Y', market: true,
+        armorType: 'building', armor: { melee: 1, pierce: 1 }
       }
     },
 
-    buildOrderList: ['house', 'barracks', 'blacksmith', 'townCenter'],
+    buildOrderList: ['house', 'barracks', 'blacksmith', 'townCenter',
+      'lumberCamp', 'miningCamp', 'mill', 'farm', 'market'],
+
+    // 市場：一次交易 lot 單位。price 為每 lot 的黃金基準價，買價 = price × (1 + fee)、賣價 = price × (1 - fee)。
+    // 每次買進漲 step、賣出跌 step，限制在 min..max，之後每秒往 base 回穩 recover
+    market: { lot: 100, base: 100, fee: 0.15, step: 6, min: 20, max: 300, recover: 0.4,
+      goods: ['food', 'wood', 'stone'], hotkeys: { buy: ['Q', 'E', 'R'], sell: ['Z', 'C', 'V'] } },
 
     // 修理：修滿全部生命的花費為造價的 costFactor 倍；speed 為相對施工速度
     repair: { costFactor: 0.5, speed: 0.8 },
 
     // 鐵匠鋪研究：對該類別所有單位（現有與之後訓練的）生效。bonus 為該級增加量
+    // 經濟研究：effects 為該級增加量。gather.<資源> 為採集速度比例、carry 為村民負重、
+    // speed 為村民移動速度比例、farmFood 為之後完成或重種的農田食物量
     upgrades: {
+      farmYield: {
+        economy: true, hotkey: 'Q', levels: [
+          { effects: { farmFood: 60 }, cost: { food: 75, wood: 75 }, time: 20 },
+          { effects: { farmFood: 75 }, cost: { food: 125, wood: 125 }, time: 35 },
+          { effects: { farmFood: 100 }, cost: { wood: 250, gold: 150 }, time: 50 }]
+      },
+      woodcutting: {
+        economy: true, hotkey: 'Q', levels: [
+          { effects: { 'gather.wood': 0.15 }, cost: { food: 100, wood: 50 }, time: 25 },
+          { effects: { 'gather.wood': 0.15 }, cost: { food: 150, wood: 100 }, time: 35 },
+          { effects: { 'gather.wood': 0.1 }, cost: { food: 300, wood: 200 }, time: 50 }]
+      },
+      goldMining: {
+        economy: true, hotkey: 'Q', levels: [
+          { effects: { 'gather.gold': 0.15 }, cost: { food: 100, wood: 75 }, time: 25 },
+          { effects: { 'gather.gold': 0.15 }, cost: { food: 200, wood: 150 }, time: 40 }]
+      },
+      stoneMining: {
+        economy: true, hotkey: 'E', levels: [
+          { effects: { 'gather.stone': 0.15 }, cost: { food: 100, wood: 75 }, time: 25 },
+          { effects: { 'gather.stone': 0.15 }, cost: { food: 200, wood: 150 }, time: 40 }]
+      },
+      handcart: {
+        economy: true, hotkey: 'E', levels: [
+          { effects: { carry: 3, speed: 0.1 }, cost: { food: 150, wood: 50 }, time: 30 },
+          { effects: { carry: 5, speed: 0.1 }, cost: { food: 250, wood: 150 }, time: 45 }]
+      },
       meleeAttack: {
         unitClass: 'melee', stat: 'attack', hotkey: 'Q', levels: [
           { bonus: 2, cost: { food: 100, gold: 50 }, time: 30 },
@@ -146,7 +213,8 @@
           repair: { threshold: 0.4, workers: 1 },
           shelter: { radius: 6, minEnemies: 3, woundedBelow: 0 },
           hunt: { prey: false, range: 14, boarParty: 0 },
-          scoutStart: 180
+          scoutStart: 180,
+          economy: { campAt: 4, millAt: 11, maxFarms: 8, reseedBuffer: 1, techAt: 12, techLevel: 1 }
         }
       },
       normal: { ai: {} },
@@ -158,7 +226,8 @@
           repair: { threshold: 0.9, workers: 3 },
           shelter: { radius: 10, minEnemies: 2, woundedBelow: 0.5 },
           hunt: { prey: true, range: 20, boarParty: 4 },
-          scoutStart: 45
+          scoutStart: 45,
+          economy: { campAt: 3, millAt: 8, maxFarms: 16, reseedBuffer: 3, techAt: 10, techLevel: 3 }
         }
       }
     },
@@ -182,7 +251,10 @@
       shelter: { radius: 8, minEnemies: 2, woundedBelow: 0.3 },
       // 是否獵鹿、獵食範圍、獵猛獸的人數（0 表示不獵）
       hunt: { prey: true, range: 16, boarParty: 0 },
-      scoutStart: 90         // 開局多久後開始偵查敵人（秒）
+      scoutStart: 90,        // 開局多久後開始偵查敵人（秒）
+      // 經濟建設：幾人採同一資源且離收取建築遠就蓋收集建築、村民達幾人蓋磨坊、農田上限、
+      // 預付重種保持幾次、村民達幾人開始研究經濟科技、經濟科技最多研究到幾級
+      economy: { campAt: 3, millAt: 9, maxFarms: 12, reseedBuffer: 2, techAt: 12, techLevel: 2 }
     }
   };
 })();

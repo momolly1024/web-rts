@@ -10,7 +10,8 @@
       var res = {};
       var start = opts.resources || data.START_RESOURCES;
       data.resources.forEach(function (r) { res[r] = start[r] || 0; });
-      return { id: id, res: res, upgrades: {} };
+      // reseeds：磨坊預付的農田重種次數；prices：市場價格（見 market.js）
+      return { id: id, res: res, upgrades: {}, reseeds: 0, prices: null };
     });
     return {
       map: RTS.map.create(opts.width || data.MAP_SIZE, opts.height || data.MAP_SIZE),
@@ -48,7 +49,12 @@
       maxHp: def.hp, hp: complete ? def.hp : def.hp * 0.1,
       progress: complete ? 1 : 0, complete: !!complete, queue: [], builders: 0
     });
-    RTS.map.setOccupant(world.map, e, e.id);
+    if (def.walkable) RTS.map.setFloor(world.map, e, e.id);
+    else RTS.map.setOccupant(world.map, e, e.id);
+    if (def.farm) {
+      e.amount = complete ? RTS.farm.food(world, owner) : 0;
+      e.farmer = 0;
+    }
     return e;
   }
 
@@ -75,7 +81,8 @@
   function remove(world, e) {
     if (!world.entities.has(e.id)) return;
     world.entities.delete(e.id);
-    if (e.kind === 'node' || e.kind === 'building') RTS.map.setOccupant(world.map, e, 0);
+    if (e.kind === 'building' && RTS.data.buildings[e.type].walkable) RTS.map.setFloor(world.map, e, 0);
+    else if (e.kind === 'node' || e.kind === 'building') RTS.map.setOccupant(world.map, e, 0);
     if (e.kind === 'building') RTS.garrison.onDestroyed(world, e);
   }
 
