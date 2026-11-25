@@ -177,7 +177,6 @@ English). Your choice is saved in `localStorage`. Where that is unavailable (som
 
 None of the following is implemented yet. These are plans and may change.
 
-- **Next**: scenery beyond the map edge (decorative terrain and a border line, not passable)
 - **Batch 3**: lumber camp and mining camp, mill, farms, economic technologies, market
 - **Batch 4**: age upgrades and unit tiers; archery range, stable, spearmen, cavalry; arrow towers,
   walls and gates; healer units; siege weapons
@@ -240,6 +239,7 @@ js/view/                Rendering and input
   sprites-animals.js    Animal art
   minimap.js            Minimap
   groups.js             Control groups
+  scenery.js            Decorative scenery beyond the map edge
   ground.js             Ground and fog drawing
   render.js             Entities and on-field markers
   actions.js            Command buttons and selection details

@@ -40,9 +40,13 @@
         ctx.fill();
       }
     }
+    // 邊界線：外圈深色粗線加內圈淡色細線，與地圖外景觀清楚分開
     trace(ctx, outline);
     ctx.strokeStyle = '#1c1a17';
-    ctx.lineWidth = 3;
+    ctx.lineWidth = 5;
+    ctx.stroke();
+    ctx.strokeStyle = 'rgba(244,231,190,0.75)';
+    ctx.lineWidth = 1.5;
     ctx.stroke();
   }
 

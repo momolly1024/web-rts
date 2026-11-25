@@ -1,4 +1,4 @@
-// 畫面繪製（地面見 ground.js）：實體、血條、效果、放置預覽、框選框。只讀取世界狀態。
+// 畫面繪製（地圖外景觀見 scenery.js、地面見 ground.js）：實體、血條、效果、放置預覽、框選框。只讀取世界狀態。
 (function () {
   'use strict';
   var RTS = globalThis.RTS || (globalThis.RTS = {});
@@ -199,6 +199,7 @@
     var world = app.world, cam = app.cam;
     ctx.fillStyle = '#14202b';
     ctx.fillRect(0, 0, cam.viewW, cam.viewH);
+    RTS.scenery.draw(ctx, cam);
     RTS.ground.draw(ctx, world, cam, app.human);
 
     var visible = RTS.depth.sort(RTS.fog.perceived(world, app.human).filter(function (e) {
