@@ -65,7 +65,9 @@
       RTS.data.resources.forEach(function (r) { text($('res-' + r), String(res[r])); });
       var pop = RTS.world.population(world, app.human);
       text($('res-pop'), pop.used + (pop.queued ? '+' + pop.queued : '') + ' / ' + pop.cap);
-      $('res-pop').classList.toggle('warn', pop.used + pop.queued >= pop.cap);
+      var full = pop.used + pop.queued >= pop.cap;
+      $('res-pop').classList.toggle('warn', full);
+      $('res-pop').title = full ? t(pop.cap >= RTS.data.POP_MAX ? 'error.popMax' : 'error.popCap') : '';
       var s = Math.floor(world.time);
       text($('clock'), Math.floor(s / 60) + ':' + String(s % 60).padStart(2, '0'));
       text($('btn-pause'), t(app.paused ? 'hud.resume' : 'hud.pause'));

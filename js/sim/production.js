@@ -10,7 +10,10 @@
     if (!b.complete) return { ok: false, reason: 'notComplete' };
     if (b.queue.length >= RTS.data.QUEUE_MAX) return { ok: false, reason: 'queueFull' };
     var pop = RTS.world.population(world, b.owner);
-    if (pop.used + pop.queued + unit.pop > pop.cap) return { ok: false, reason: 'popCap' };
+    if (pop.used + pop.queued + unit.pop > pop.cap) {
+      // 已到總上限時蓋房屋也沒用，訊息要分開
+      return pop.cap >= RTS.data.POP_MAX ? { ok: false, reason: 'popMax' } : { ok: false, reason: 'popCap' };
+    }
     if (!RTS.world.canAfford(world, b.owner, unit.cost)) return { ok: false, reason: 'notEnoughResources' };
     return { ok: true };
   }

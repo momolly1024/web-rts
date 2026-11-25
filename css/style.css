@@ -43,7 +43,10 @@ button:disabled { opacity: 0.45; cursor: not-allowed; border-color: #6d7a84; }
 .gold { --dot: #ffd84a; }
 .pop  { --dot: #6fb4f0; }
 #topbar dd { min-width: 3.2em; font-size: 18px; font-weight: 700; font-variant-numeric: tabular-nums; }
-#res-pop.warn { color: var(--alert); }
+#res-pop.warn {
+  background: #b8321f; color: #fff; border-radius: 3px; padding: 0 6px;
+  outline: 2px solid #ffd2c4; text-align: center;
+}
 #clock { margin-left: auto; font-variant-numeric: tabular-nums; }
 #difficulty { white-space: nowrap; }
 #difficulty b { color: var(--brass); }

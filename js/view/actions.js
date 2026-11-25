@@ -166,12 +166,19 @@
     return [t(owner), t('info.food', { amount: def.food })];
   }
 
-  function describeBuilding(e, def, human) {
+  function describeBuilding(app, e, def) {
+    var human = app.human;
     var lines = [];
     if (!e.complete) lines.push(t('info.progress', { percent: Math.floor(e.progress * 100) }));
     if (def.pop) lines.push(t('info.providesPop', { amount: def.pop }));
     if (e.complete && e.owner === human && RTS.rally.canRally(e)) {
       lines.push(t(e.rally ? 'info.rallySet' : 'info.rallyHint'));
+    }
+    if (e.complete && e.owner === human && def.trains.length) {
+      var pop = RTS.world.population(app.world, human);
+      if (pop.used + pop.queued >= pop.cap) {
+        lines.push(t(pop.cap >= RTS.data.POP_MAX ? 'error.popMax' : 'error.popCap'));
+      }
     }
     if (def.garrison && e.owner === human) {
       lines.push(t('info.garrison', { count: RTS.garrison.count(e), max: def.garrison.capacity }));
@@ -212,7 +219,7 @@
     return {
       title: title,
       lines: lines.concat(e.kind === 'unit' ? describeUnit(app, e, def)
-        : e.kind === 'animal' ? describeAnimal(app, e, def) : describeBuilding(e, def, app.human))
+        : e.kind === 'animal' ? describeAnimal(app, e, def) : describeBuilding(app, e, def))
     };
   }
 
