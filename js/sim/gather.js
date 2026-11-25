@@ -33,8 +33,20 @@
     var c = RTS.world.center(target);
     return {
       type: 'gather', targetId: target.id, resource: resourceOf(target),
-      last: { x: c.x, y: c.y }, returning: false, progress: 0, skip: {}
+      last: { x: c.x, y: c.y }, returning: false, progress: 0, skip: {},
+      livestock: target.type === 'carcass' && !!target.animal &&
+        RTS.data.animals[target.animal] && RTS.data.animals[target.animal].behavior === 'herd'
     };
+  }
+
+  var HERD_RADIUS = 10;
+
+  // 宰完的牲畜吃完後，接著宰附近下一隻自己的成年牲畜（小羊不宰）
+  function nextLivestock(world, u, from) {
+    return RTS.world.nearest(world, from.x, from.y, function (e) {
+      return e.kind === 'animal' && e.owner === u.owner && RTS.data.animals[e.type].behavior === 'herd' &&
+        !RTS.data.animals[e.type].young;
+    }, HERD_RADIUS);
   }
 
   function accepts(b, resource) {
@@ -102,6 +114,13 @@
     if (node && RTS.farm.isFarm(node) && !farmOpen(world, node, u.owner, u)) {
       o.skip[node.id] = true;       // 已有人在種或被拆了：改找別塊
       node = null;
+    }
+    if (!node && o.livestock) {
+      var animal = nextLivestock(world, u, o.last);
+      if (animal) {
+        RTS.orders.set(u, { type: 'hunt', targetId: animal.id, fails: 0, deliver: u.carry.amount > 0 });
+        return;
+      }
     }
     if (!node) {
       var next = findResource(world, u.owner, o.last, o.resource, o.skip, u);

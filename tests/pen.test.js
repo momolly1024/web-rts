@@ -162,3 +162,20 @@ test('拆除：主堡、農田、工地與別人的建築不能拆；牲畜圈�
   assert.ok(RTS.construction.canPlace(w, 0, 'house', 14, 14).ok);
 });
 
+
+test('宰完一隻自己的羊、肉採完後，村民接著宰附近下一隻（小羊不宰）', () => {
+  const w = field();
+  w.players[0].res.food = 0;
+  const pen = RTS.world.addBuilding(w, 'pen', 0, 10, 10, true);
+  RTS.world.addBuilding(w, 'mill', 0, 14, 10, true);
+  const herd = sheepIn(w, pen, 2);
+  const lamb = RTS.world.addAnimal(w, 'lamb', 11.5, 11.5);
+  lamb.owner = 0;
+  lamb.age = -1e9;                       // 測試期間不會長大
+  const v = unit(w, 'villager', 0, 13, 13);
+  RTS.commands.issue(w, 0, { type: 'smart', unitIds: [v.id], targetId: herd[0].id, x: 11.5, y: 11.5 });
+  assert.ok(runUntil(w, () => herd.every(s => !RTS.world.get(w, s.id)), 8000), '兩隻都應被宰');
+  assert.ok(RTS.world.get(w, lamb.id), '小羊還在');
+  assert.ok(runUntil(w, () => v.order.type === 'idle' || v.order.resource !== 'food', 4000));
+  assert.ok(w.players[0].res.food >= 2 * RTS.data.animals.sheep.food - 20, '兩隻的肉都送回來了');
+});
