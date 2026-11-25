@@ -53,6 +53,7 @@ button:disabled { opacity: 0.45; cursor: not-allowed; border-color: #6d7a84; }
 #difficulty b { color: var(--brass); }
 #topbar nav { display: flex; gap: 8px; }
 #topbar nav button { white-space: nowrap; }
+#topbar dd, #clock { white-space: nowrap; }
 
 #panel {
   position: fixed; left: 0; right: 0; bottom: 0; height: 180px; display: grid;
@@ -62,8 +63,13 @@ button:disabled { opacity: 0.45; cursor: not-allowed; border-color: #6d7a84; }
 #panel section { min-width: 0; overflow: auto; }
 h1, h2 { font-family: var(--display); font-weight: 700; letter-spacing: 0.06em; }
 h2 { font-size: 22px; color: var(--brass); }
-#sel-body { white-space: pre-line; }
-#sel-rally { color: var(--brass); font-size: 13px; line-height: 1.35; }
+#sel-body { white-space: pre-line; font-size: 13px; line-height: 1.35; }
+#command { display: flex; flex-direction: column; gap: 6px; }
+/* 集結點提示：指令按鈕上方的醒目色條 */
+#sel-rally {
+  flex: none; padding: 4px 10px; border-radius: 3px; line-height: 1.35;
+  font-size: 14px; font-weight: 700; color: var(--ink); background: var(--brass);
+}
 #sel-rally:empty { display: none; }
 
 #queue { display: flex; flex-wrap: wrap; gap: 6px; }
@@ -138,6 +144,11 @@ h2 { font-size: 22px; color: var(--brass); }
 /* 較矮或較窄的畫面：讓視窗的主要按鈕永遠看得到 */
 .buttons { position: sticky; bottom: -18px; padding: 6px 0; background: var(--slate); }
 
+@media (max-width: 1360px) {
+  #topbar { gap: 16px; }
+  #topbar dl { gap: 14px; }
+}
+
 @media (max-width: 1200px) {
   #topbar { gap: 12px; padding: 0 10px; }
   #topbar dl { gap: 10px; }
@@ -149,10 +160,12 @@ h2 { font-size: 22px; color: var(--brass); }
 @media (max-width: 1040px) {
   #topbar dt { font-size: 0; }
   #difficulty .prefix { display: none; }
-  #panel { grid-template-columns: minmax(260px, 1.5fr) minmax(80px, 0.4fr) minmax(0, 1.7fr); gap: 10px; }
+  #panel { grid-template-columns: minmax(230px, 1.3fr) minmax(80px, 0.35fr) minmax(0, 2fr); gap: 10px; }
   #selection h2 { font-size: 19px; line-height: 1.35; }
-  #sel-body, #sel-rally { font-size: 12px; line-height: 1.35; }
-  .action { font-size: 13px; line-height: 1.35; column-gap: 6px; }
+  #sel-body { font-size: 12px; }
+  #sel-rally { font-size: 13px; padding: 3px 8px; }
+  #actions { grid-template-columns: repeat(auto-fill, minmax(108px, 1fr)); gap: 5px; }
+  .action { font-size: 12px; line-height: 1.25; column-gap: 4px; }
   .action .cost { font-size: 11px; }
 }
 
@@ -191,4 +204,14 @@ h2 { font-size: 22px; color: var(--brass); }
   .dialog { padding: 18px 16px; }
   #difficulty-picker label { grid-template-columns: auto 1fr; row-gap: 0; }
   #difficulty-picker label span { grid-column: 2; }
+}
+
+@media (max-width: 430px) {
+  #topbar { gap: 5px; padding: 0 5px; }
+  #topbar dl { gap: 4px; }
+  #topbar dl div { gap: 2px; }
+  #topbar dt::before { width: 6px; height: 6px; }
+  #topbar dd { font-size: 11px; }
+  #topbar nav { gap: 4px; }
+  #topbar nav button { padding: 2px 3px; font-size: 11px; }
 }
