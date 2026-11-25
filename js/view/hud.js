@@ -39,7 +39,7 @@
   function create(app) {
     var actionsBox = $('actions'), queueBox = $('queue');
     var actionSig = null, queueSig = null, current = [], toastTimer = 0, overlayKind = null;
-    var toastMessage = null, claimed = null;
+    var toastMessage = null, claimed = null, claimHinted = false;
 
     // code 是模擬層回傳的錯誤代碼
     function notify(code) {
@@ -54,14 +54,17 @@
       toastTimer = 3.5;
     }
 
-    // 新認領到牲畜時提示一次
+    // 每局第一次認領到牲畜時教一次怎麼帶走；牲畜圈生的小羊不算
     function watchClaims() {
       var now = RTS.world.list(app.world, function (e) {
-        return e.kind === 'animal' && e.owner === app.human;
+        return e.kind === 'animal' && e.owner === app.human && !RTS.pen.penOf(app.world, e);
       }).map(function (e) { return e.id; });
       // 正在顯示錯誤訊息時不插播，免得玩家看不到指令為何失敗
       var busy = toastTimer > 0 && toastMessage && toastMessage.key.indexOf('error.') === 0;
-      if (!busy && claimed && now.some(function (id) { return claimed.indexOf(id) < 0; })) say('hint.sheepClaimed');
+      if (!busy && !claimHinted && claimed && now.some(function (id) { return claimed.indexOf(id) < 0; })) {
+        say('hint.sheepClaimed');
+        claimHinted = true;
+      }
       claimed = now;
     }
 
@@ -291,6 +294,7 @@
         toastTimer = 0;
         toastMessage = null;
         claimed = null;
+        claimHinted = false;
         $('toast').classList.remove('show');
       },
       update: function (dt) {
