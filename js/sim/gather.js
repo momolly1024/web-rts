@@ -135,6 +135,7 @@
       u.carry.resource = o.resource;
     }
     var c = RTS.world.center(node);
+    if (!RTS.farm.isFarm(node)) RTS.move.lean(u, node, dt);     // 農田站在田中央，不必靠
     if (Math.abs(c.x - u.x) > 0.05) u.facing = c.x > u.x ? 1 : -1;
     u.swing = (u.swing + dt) % 0.6;
     o.progress += rate(world, u, o.resource) * dt;

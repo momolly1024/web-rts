@@ -101,6 +101,7 @@
       var delta = Math.min(1 - b.progress, dt / def.buildTime * factor);
       b.progress += delta;
       b.hp = Math.min(b.maxHp, b.hp + delta * 0.9 * b.maxHp);
+      if (!RTS.data.buildings[b.type].walkable) RTS.move.lean(u, b, dt);
       u.facing = b.x + b.w / 2 > u.x ? 1 : -1;
       u.swing = (u.swing + dt) % 0.6;
       if (b.progress >= 1 - 1e-9) {

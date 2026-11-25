@@ -155,3 +155,20 @@ test('右鍵智慧指令依目標決定行動', () => {
   smart(site, 15, 15);
   assert.deepStrictEqual([v.order.type, s.order.type], ['build', 'move']);
 });
+
+test('採集時村民往資源那一側靠，但不離開自己的格子', () => {
+  const w = RTS.world.create({ width: 20, height: 20, resources: { food: 0, wood: 0, gold: 0, stone: 0 } });
+  RTS.world.addBuilding(w, 'townCenter', 0, 0, 0, true);
+  RTS.world.addBuilding(w, 'townCenter', 1, 17, 17, true);
+  const tree = RTS.world.addNode(w, 'tree', 10, 10);
+  // 只留斜角那一格可站，看起來最遠的位置
+  for (let y = 9; y <= 11; y++) for (let x = 9; x <= 11; x++) {
+    if ((x !== 10 || y !== 10) && !(x === 11 && y === 9)) RTS.world.addNode(w, 'rock', x, y);
+  }
+  const v = RTS.world.addUnit(w, 'villager', 0, 11.5, 9.5);
+  RTS.commands.issue(w, 0, { type: 'gather', unitIds: [v.id], targetId: tree.id });
+  for (let i = 0; i < 40; i++) RTS.game.step(w);
+  assert.strictEqual(Math.floor(v.x), 11);
+  assert.strictEqual(Math.floor(v.y), 9);
+  assert.ok(RTS.util.dist(v.x, v.y, 10.5, 10.5) < Math.SQRT2 - 0.3, '應比格子中心更靠近樹 ' + v.x.toFixed(2) + ',' + v.y.toFixed(2));
+});

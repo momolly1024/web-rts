@@ -130,6 +130,20 @@
     unit.nav = null;
   }
 
+  var LEAN = 0.4;     // 工作時從格子中心往目標靠的距離（格），不超出自己的格子
+
+  // 採集、施工時往目標那一側靠，看起來貼著目標工作（斜角格在等角畫面上特別遠）
+  function lean(unit, target, dt) {
+    var c = RTS.world.center(target);
+    var tx = Math.floor(unit.x) + 0.5, ty = Math.floor(unit.y) + 0.5;
+    var dx = c.x - tx, dy = c.y - ty, d = Math.hypot(dx, dy);
+    if (d < 1e-6) return;
+    var k = Math.min(LEAN, d) / d;
+    var step = Math.min(1, dt * 4);
+    unit.x += (tx + dx * k - unit.x) * step;
+    unit.y += (ty + dy * k - unit.y) * step;
+  }
+
   // 把重疊的靜止單位輕輕推開。工作中的單位只在原本的格子內挪動
   function separate(world, dt) {
     var still = RTS.world.list(world, function (e) { return e.kind === 'unit' && !e.nav; });
@@ -158,7 +172,7 @@
   }
 
   RTS.move = {
-    beginTick: beginTick, speedOf: speedOf, approach: approach, pointGoal: pointGoal, entityGoal: entityGoal,
+    beginTick: beginTick, speedOf: speedOf, lean: lean, approach: approach, pointGoal: pointGoal, entityGoal: entityGoal,
     rescue: rescue, separate: separate
   };
 })();
