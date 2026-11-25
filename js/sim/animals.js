@@ -118,6 +118,7 @@
   // 屍體變成食物資源；正在獵牠的村民直接開始採肉
   function die(world, a) {
     RTS.world.remove(world, a);
+    if (!(def(a).food > 0)) return null;      // 小羊沒有肉
     var t = RTS.map.nearestFree(world.map, Math.floor(a.x), Math.floor(a.y));
     if (!t) return null;
     var carcass = RTS.world.addNode(world, 'carcass', t.x, t.y);
@@ -141,6 +142,7 @@
   function update(world, a, dt) {
     if (a.cooldown > 0) a.cooldown -= dt;
     if (a.swing > 0) a.swing = Math.max(0, a.swing - dt);
+    RTS.pen.grow(a, dt);
     var behavior = def(a).behavior;
     if (behavior === 'herd') updateHerd(world, a, dt);
     else if (behavior === 'flee') updateFlee(world, a, dt);

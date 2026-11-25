@@ -76,6 +76,7 @@
     hunt: function (world, pid, c, units) {
       var t = visibleTarget(world, pid, c.targetId), workers = villagersIn(units);
       if (!t || t.kind !== 'animal') return fail('noHuntTarget');
+      if (RTS.data.animals[t.type].young) return fail('tooYoung');
       if (!workers.length) return fail('villagersOnlyHunt');
       workers.forEach(function (u) {
         RTS.orders.set(u, { type: 'hunt', targetId: t.id, fails: 0, deliver: u.carry.amount > 0 });
@@ -142,6 +143,10 @@
       workers.forEach(function (u) { assignJob(u, 'build', b); });
       return { ok: true, action: 'build', buildingId: b.id };
     },
+    demolish: function (world, pid, c) {
+      var b = ownBuilding(world, pid, c.buildingId);
+      return b ? RTS.pen.demolish(world, b) : fail('buildingNotFound');
+    },
     cancelBuild: function (world, pid, c) {
       var b = ownBuilding(world, pid, c.buildingId);
       return b && RTS.construction.cancel(world, b) ? done('cancelBuild') : fail('cannotCancel');
@@ -182,7 +187,8 @@
         result = handlers[type](world, pid, c, takers);
         left = left.filter(function (u) { return takers.indexOf(u) < 0; });
       }
-      if (animal) {
+      var young = animal && RTS.data.animals[t.type].young;
+      if (animal && !young) {
         dispatch('hunt', villagersIn(left));
         // 士兵會攻擊敵方牲畜與野生的獵物、猛獸，但不殺中立或己方牲畜
         var hostile = t.owner !== pid &&
@@ -202,6 +208,7 @@
         if (RTS.repair.canRepair(t)) dispatch('repair', villagersIn(left));
         if (RTS.garrison.hasRoom(t)) dispatch('garrison', left);
       }
+      if (young && t.owner !== pid && t.owner !== null) dispatch('attack', left.slice());
       // 牲畜只跟著走向空地；村民去採集或施工時牠們留在原地
       var busy = animal || (t && (t.kind === 'building' || (t.kind === 'node' && RTS.data.nodes[t.type].resource)));
       var followers = left.concat((herd || []).filter(function (a) { return !busy && a !== t; }));

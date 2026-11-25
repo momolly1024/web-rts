@@ -32,7 +32,9 @@
   function chooseTarget(ctx) {
     var cfg = ctx.cfg.hunt, pid = ctx.pid;
     function kind(a) { return RTS.data.animals[a.type].behavior; }
-    var sheep = nearestAnimal(ctx, function (a) { return kind(a) === 'herd' && a.owner === pid; }, HOME + 1);
+    var sheep = nearestAnimal(ctx, function (a) {
+      return kind(a) === 'herd' && a.owner === pid && !RTS.data.animals[a.type].young;
+    }, HOME + 1);
     if (sheep) return { animal: sheep, party: 1 };
     // 獵物與猛獸取離主堡較近者
     function wanted(type) {

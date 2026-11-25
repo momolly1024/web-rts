@@ -20,7 +20,8 @@ test('地圖上三種動物雙方數量與位置點對稱', () => {
     const key = (t, x, y) => `${t}@${x.toFixed(1)},${y.toFixed(1)}`;
     const set = new Set(all.map(a => key(a.type, a.x, a.y)));
     all.forEach(a => assert.ok(set.has(key(a.type, w.map.width - a.x, w.map.height - a.y))));
-    for (const type of Object.keys(RTS.data.animals)) {
+    // 小黑羊只從牲畜圈長出來，開局地圖上沒有
+    for (const type of Object.keys(RTS.data.animals).filter(t => !RTS.data.animals[t].young)) {
       const n = all.filter(a => a.type === type).length;
       assert.ok(n >= 2 && n % 2 === 0, type + ' ' + n);
     }

@@ -32,6 +32,14 @@
       disc(ctx, 0.27, -0.16, 0.12, 0.11, '#4a403a');
       if (collar) disc(ctx, 0.19, -0.06, 0.07, 0.07, collar);
     },
+    // 小黑羊：比綿羊小一圈、毛色深
+    lamb: function (ctx, collar) {
+      disc(ctx, 0, 0.16, 0.2, 0.06, 'rgba(0,0,0,0.25)', false);
+      legs(ctx, [-0.1, 0.08], 0.04, '#1c1a17');
+      disc(ctx, -0.01, -0.02, 0.2, 0.14, '#3b3633');
+      disc(ctx, 0.19, -0.1, 0.09, 0.08, '#1f1b19');
+      if (collar) disc(ctx, 0.13, -0.02, 0.05, 0.05, collar);
+    },
     deer: function (ctx) {
       disc(ctx, 0, 0.18, 0.32, 0.09, 'rgba(0,0,0,0.25)', false);
       legs(ctx, [-0.18, -0.08, 0.1, 0.19], -0.04, '#6e4a2c');

@@ -141,7 +141,7 @@
     if (app.hud.overlay() || ev.repeat) return;
     var idle = RTS.groups.idleKey(ev.code, ev.shiftKey);
     if (idle) { ev.preventDefault(); app.selectIdle(idle); return; }
-    var key = ev.code.replace(/^Key/, '');
+    var key = ev.code === 'Backspace' ? 'Delete' : ev.code.replace(/^Key/, '');    // Mac 鍵盤沒有 Delete 鍵
     var action = RTS.actions.list(app).filter(function (a) { return a.hotkey === key; })[0];
     if (!action) return;
     if (action.enabled) action.run(); else app.notify(action.reason);

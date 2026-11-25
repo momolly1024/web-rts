@@ -90,7 +90,7 @@
       }];
     }
     return researchActions(app, b).concat(reseedActions(app, b), marketActions(app, b),
-      data.buildings[b.type].trains.map(function (type) {
+      demolishActions(app, b), data.buildings[b.type].trains.map(function (type) {
       var def = data.units[type];
       var check = RTS.production.check(app.world, b, type);
       return {
@@ -100,6 +100,15 @@
         run: function () { issue(app, { type: 'train', buildingId: b.id, unit: type }); }
       };
     }), garrisonActions(app, b));
+  }
+
+  function demolishActions(app, b) {
+    if (!RTS.pen.canDemolish(b)) return [];
+    return [{
+      id: 'demolish', label: t('action.demolish'), hotkey: 'Delete',
+      cost: t('action.demolishRefund', { list: costText(RTS.pen.refundOf(b)) }), enabled: true,
+      run: function () { issue(app, { type: 'demolish', buildingId: b.id }); }
+    }];
   }
 
   // 磨坊：預付農田重種
@@ -203,6 +212,7 @@
   function describeAnimal(app, e, def) {
     var owner = e.owner === null ? 'info.animal.' + def.behavior
       : e.owner === app.human ? 'info.animalOwn' : 'info.animalEnemy';
+    if (def.young) return [t(owner), t('info.young', { seconds: RTS.pen.growLeft(e) })];
     return [t(owner), t('info.food', { amount: def.food })];
   }
 
@@ -223,6 +233,11 @@
       lines.push(t('info.reseeds', { count: app.world.players[human].reseeds }));
     }
     if (def.market && e.owner === human) lines.push(t('info.market'));
+    if (def.pen && e.complete && e.owner === human) {
+      var count = RTS.pen.flock(app.world, e).length;
+      lines.push(count >= def.pen.cap ? t('info.penFull', { count: count, max: def.pen.cap })
+        : t('info.pen', { count: count, max: def.pen.cap, seconds: RTS.pen.secondsLeft(e) }));
+    }
     if (e.complete && e.owner === human && def.trains.length) {
       var pop = RTS.world.population(app.world, human);
       if (pop.used + pop.queued >= pop.cap) {

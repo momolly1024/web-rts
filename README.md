@@ -33,6 +33,7 @@ mouse and keyboard is recommended.
 | Mill | 100 wood | Receives food; researches Rich harvest; queues farm reseeds |
 | Farm | 60 wood | Needs a finished Mill; one villager farms it, 175 food each |
 | Market | 175 wood | Buys and sells food, wood and stone for gold |
+| Pen | 120 wood | Grows one black lamb of yours every 50 s; lambs become white sheep after 60 s |
 
 | Unit | Cost | Traits |
 |------|------|------|
@@ -46,6 +47,8 @@ something else, build, repair or hunt first delivers it to the nearest building 
 move, attack and shelter orders happen at once and keep the load, as does any order when there is no
 Town Center to deliver to);
 cancelling a building site or a unit in training refunds it in full.
+Buildings cannot be moved; finished ones (except Town Centers and farms) can be demolished for 75% of
+their cost, scaled down further by lost hit points, plus a full refund of their queue.
 
 ## Features
 
@@ -83,6 +86,15 @@ your current and future units of that class (villagers are unaffected).
 - **Market**: buy or sell 100 food, wood or stone for gold. The base price is 100 gold; buying costs
   15% more and selling pays 15% less. Each purchase raises that price by 6 and each sale lowers it
   by 6 (range 20–300), then it drifts back by 0.4 per second. Each side has its own prices.
+
+### Pens
+
+- A finished pen grows a black lamb of yours every 50 s. After 60 s it becomes an ordinary white
+  sheep worth 90 food when slaughtered.
+- Lambs cannot be slaughtered (villagers just walk to them) and leave no meat if enemy soldiers kill them.
+- The pen pauses when 5 of your sheep (lambs included) are within 4 tiles, and starts again as soon as
+  one is slaughtered or led away.
+- Like wild sheep, an enemy unit can take them when none of yours is nearby.
 
 ### Repairing
 
@@ -187,7 +199,7 @@ English). Your choice is saved in `localStorage`. Where that is unavailable (som
 | Left-click / drag | Select (Shift adds, double-click selects the same type on screen) |
 | Right-click | Move, gather, hunt, attack, build, repair, deliver or shelter, depending on the target; with a training building selected, set its rally point |
 | Arrow keys, WASD, mouse at the window edge | Scroll |
-| H, B, K, T, L, N, M, C, Y | With villagers: build House, Barracks, Blacksmith, Town Center, Lumber Camp, Mining Camp, Mill, Farm, Market (Shift + click to keep placing) |
+| H, B, K, T, L, N, M, C, Y, O | With villagers: build House, Barracks, Blacksmith, Town Center, Lumber Camp, Mining Camp, Mill, Farm, Market, Pen (Shift + click to keep placing) |
 | Q, E | Town Center: Villager, Handcarts. Barracks: Swordsman, Archer. Lumber Camp Q: Keen axes. Mining Camp: Gold digging, Stone cutting |
 | Q, E, X | Mill: Rich harvest, queue a reseed, cancel one reseed |
 | Q, E, R / Z, C, V | Market: buy food, wood, stone / sell food, wood, stone |
@@ -198,6 +210,7 @@ English). Your choice is saved in `localStorage`. Where that is unavailable (som
 | Idle villagers button | Click selects all idle villagers; Shift + click selects them one at a time |
 | F | Attack move |
 | X | Stop, or cancel a building site |
+| Delete (Mac: Backspace) | Demolish the selected building (partial refund) |
 | Esc | Cancel placement or order, clear selection, close a dialog |
 | P, Space | Pause and resume |
 | F1 | Help |
@@ -247,6 +260,7 @@ js/sim/                 Simulation (no DOM, no display text)
   research.js           Upgrades (military and economy)
   farm.js               Farm food, farmers and reseeds
   market.js             Market prices and trading
+  pen.js                Pens, growing lambs, demolishing buildings
   animals.js            Animal behaviour and hunting
   wander.js             Idle strolling
   fog.js                Fog of war and memory
@@ -299,7 +313,7 @@ Code comments and test names are written in Traditional Chinese.
 
 ## Known limits
 
-- The AI does not gather stone or use the Market.
+- The AI does not gather stone or use the Market, pens or demolition.
 - With villagers selected there are many build buttons; in a short window, Garrison and Stop need
   the panel scrolled (their hotkeys always work).
 - Pathfinding uses the real map, so units route around obstacles they have not seen.

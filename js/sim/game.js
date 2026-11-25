@@ -38,6 +38,7 @@
       else if (e.kind === 'animal') RTS.animals.update(world, e, dt);
       else if (e.kind === 'building') {
         RTS.production.update(world, e, dt);
+        RTS.pen.update(world, e, dt);
         RTS.garrison.heal(e, dt);
       }
     }

@@ -64,6 +64,13 @@
         wander: { speed: 0.5, radius: 2.5, ownedRadius: 1.2, step: 1.2, pause: [3, 8] },
         armorType: 'animal', armor: { melee: 0, pierce: 0 }
       },
+      // 牲畜圈長出的小黑羊：不能宰，grows 秒後長成白羊
+      lamb: {
+        behavior: 'herd', young: true, hp: 8, speed: 1.4, food: 0, vision: 2, claimRadius: 3,
+        grows: { into: 'sheep', time: 60 },
+        wander: { speed: 0.4, radius: 2.5, ownedRadius: 1.2, step: 1, pause: [3, 8] },
+        armorType: 'animal', armor: { melee: 0, pierce: 0 }
+      },
       deer: {
         behavior: 'flee', hp: 24, speed: 3.0, food: 130, vision: 5,
         fleeRadius: 3, fleeDistance: 5, rest: 2.5, leash: 10,
@@ -130,6 +137,13 @@
         walkable: true, farm: { food: 175 }, requires: 'mill',
         armorType: 'building', armor: { melee: 0, pierce: 0 }
       },
+      // 牲畜圈：每 interval 秒長出一隻小黑羊；圈附近 radius 格內己方羊（含小羊）達 cap 隻就暫停
+      pen: {
+        cost: { wood: 120 }, size: 3, hp: 350, buildTime: 25,
+        pop: 0, vision: 3, trains: [], dropoff: false, hotkey: 'O',
+        walkable: true, pen: { interval: 50, cap: 5, radius: 4 },
+        armorType: 'building', armor: { melee: 0, pierce: 1 }
+      },
       market: {
         cost: { wood: 175 }, size: 3, hp: 700, buildTime: 40,
         pop: 0, vision: 5, trains: [], dropoff: false, hotkey: 'Y', market: true,
@@ -138,7 +152,10 @@
     },
 
     buildOrderList: ['house', 'barracks', 'blacksmith', 'townCenter',
-      'lumberCamp', 'miningCamp', 'mill', 'farm', 'market'],
+      'lumberCamp', 'miningCamp', 'mill', 'farm', 'market', 'pen'],
+
+    // 拆除完工建築：退回造價 × refund × 剩餘生命比例（無條件捨去）
+    demolish: { refund: 0.75, exclude: ['townCenter', 'farm'] },
 
     // 市場：一次交易 lot 單位。price 為每 lot 的黃金基準價，買價 = price × (1 + fee)、賣價 = price × (1 - fee)。
     // 每次買進漲 step、賣出跌 step，限制在 min..max，之後每秒往 base 回穩 recover
