@@ -191,7 +191,7 @@
       if (overlayKind) showOverlay(overlayKind);
     }
 
-    // kind: 'help' | 'pause' | 'restart' | 'over' | null
+    // kind: 'help' | 'pause' | 'restart' | 'result'（勝負與成就）| 'over'（再玩一局）| null
     function showOverlay(kind) {
       overlayKind = kind;
       $('overlay').hidden = !kind;
@@ -216,18 +216,18 @@
         title = 'overlay.restart';
         note = 'overlay.restartNote';
         primary = 'button.newGame';
-      } else if (kind === 'over') {
+      } else if (kind === 'result' || kind === 'over') {
         var won = app.world.winner === app.human;
         title = won ? 'overlay.victory' : 'overlay.defeat';
         note = won ? 'overlay.victoryNote' : 'overlay.defeatNote';
-        primary = 'button.playAgain';
+        primary = kind === 'result' ? 'button.ok' : 'button.playAgain';
       }
       text($('overlay-title'), t(title));
       text($('overlay-note'), note ? t(note) : '');
       text($('overlay-primary'), t(primary));
-      $('overlay-restart').hidden = kind === 'over' || kind === 'restart' || app.world.tick === 0;
+      $('overlay-restart').hidden = kind === 'over' || kind === 'result' || kind === 'restart' || app.world.tick === 0;
       $('overlay-cancel').hidden = kind !== 'restart';
-      showAchievements(kind === 'over');
+      showAchievements(kind === 'result');
     }
 
     // 遊戲結束時列出成就

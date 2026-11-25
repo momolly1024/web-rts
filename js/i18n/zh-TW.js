@@ -168,6 +168,7 @@
     'button.back': '回到戰場',
     'button.resume': '繼續遊戲',
     'button.newGame': '開始新局',
+    'button.ok': '確定',
     'button.playAgain': '再玩一局',
     'button.restart': '重新開始',
 

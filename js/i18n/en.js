@@ -168,6 +168,7 @@
     'button.back': 'Back to battle',
     'button.resume': 'Resume',
     'button.newGame': 'Start new game',
+    'button.ok': 'OK',
     'button.playAgain': 'Play again',
     'button.restart': 'Restart',
 

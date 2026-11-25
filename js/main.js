@@ -123,7 +123,8 @@
   click('btn-help', app.toggleHelp);
   click('btn-restart', app.askRestart);
   click('overlay-primary', function () {
-    if (app.world.over || app.hud.overlay() === 'restart') app.restart();
+    if (app.hud.overlay() === 'result') app.hud.showOverlay('over');
+    else if (app.world.over || app.hud.overlay() === 'restart') app.restart();
     else app.closeOverlay();
   });
   click('overlay-restart', app.askRestart);
@@ -155,7 +156,7 @@
         pending -= tick;
       }
       if (pending >= tick) pending = 0;     // 追不上時放慢遊戲，不累積欠帳
-      if (app.world.over) app.hud.showOverlay('over');
+      if (app.world.over) app.hud.showOverlay('result');      // 先看勝負與成就，按確定後才問要不要再玩
     }
 
     // 目標消失或看不見了就取消選取
