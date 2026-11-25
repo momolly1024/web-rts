@@ -333,6 +333,9 @@
 
     // 難度：只能覆寫下方 ai 的行為參數，不得改資源或戰鬥數值。普通即基準值
     difficultyOrder: ['easy', 'normal', 'hard'],
+    // 隱藏難度：在難度選單連點「困難」五次才出現
+    hiddenDifficulties: ['peaceful'],
+    secretClicks: 5,
     defaultDifficulty: 'normal',
     difficulties: {
       easy: {
@@ -350,6 +353,8 @@
         }
       },
       normal: { ai: {} },
+      // 和平世界：電腦照常發展、會防守，但永遠不進攻
+      peaceful: { ai: { attack: false } },
       hard: {
         ai: {
           thinkInterval: 0.5, graceTime: 240, villagerTarget: 18, attackSize: 8, waveGrowth: 3,
@@ -368,6 +373,7 @@
 
     // AI 基準參數
     ai: {
+      attack: true,          // false 時永遠不發動進攻（和平世界）
       thinkInterval: 1.0,
       graceTime: 300,        // 開局緩衝（秒），此前 AI 不進攻
       villagerTarget: 14,

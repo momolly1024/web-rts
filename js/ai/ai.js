@@ -7,7 +7,8 @@
   // 基準參數套上該難度的覆寫值；未知難度一律視為預設
   function config(difficulty) {
     var data = RTS.data;
-    var key = data.difficultyOrder.indexOf(difficulty) >= 0 ? difficulty : data.defaultDifficulty;
+    var known = data.difficultyOrder.concat(data.hiddenDifficulties);
+    var key = known.indexOf(difficulty) >= 0 ? difficulty : data.defaultDifficulty;
     return Object.assign({ difficulty: key }, data.ai, data.difficulties[key].ai);
   }
 
@@ -58,7 +59,7 @@
     var target = enemyTarget(ctx);
     AI.scout.develop(ctx, !!target && target.type === 'townCenter');
     if (!target) return;
-    if (ctx.world.time >= cfg.graceTime && !threat) {
+    if (cfg.attack && ctx.world.time >= cfg.graceTime && !threat) {
       var reserve = ctx.army.filter(function (u) { return !state.wave[u.id]; });
       var size = Math.min(cfg.attackSize + state.waves * cfg.waveGrowth, cfg.attackSizeMax);
       // 資源枯竭湊不滿一波時，過了很久就帶現有兵力出擊

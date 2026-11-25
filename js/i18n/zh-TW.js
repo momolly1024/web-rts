@@ -77,6 +77,8 @@
     'difficulty.easy': '簡單',
     'difficulty.normal': '普通',
     'difficulty.hard': '困難',
+    'difficulty.peaceful': '和平世界',
+    'difficulty.peacefulSummary': '電腦照常發展，但永遠不會進攻（你去打它，它還是會防守）',
     'difficulty.summary': '約 {minutes} 分鐘後才進攻，第一波 {first} 人，軍隊最多 {max} 人',
 
     'upgrade.meleeAttack': '近戰攻擊',

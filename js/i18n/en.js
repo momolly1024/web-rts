@@ -77,6 +77,8 @@
     'difficulty.easy': 'Easy',
     'difficulty.normal': 'Normal',
     'difficulty.hard': 'Hard',
+    'difficulty.peaceful': 'Peaceful World',
+    'difficulty.peacefulSummary': 'The computer builds up as usual but never attacks (it still defends itself)',
     'difficulty.summary': 'Attacks after about {minutes} min, first wave {first}, army up to {max}',
 
     'upgrade.meleeAttack': 'Melee attack',

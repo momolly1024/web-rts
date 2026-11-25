@@ -85,3 +85,14 @@ test('三種難度對不動的玩家都能分出勝負', () => {
     assert.strictEqual(world.winner, AI_ID, key);
   }
 });
+
+test('和平世界：隱藏難度，只關掉進攻；電腦照常發展但永遠不出兵', () => {
+  assert.ok(RTS.data.difficultyOrder.indexOf('peaceful') < 0, '不在一般選單');
+  const entry = RTS.data.difficulties.peaceful;
+  assert.deepStrictEqual(entry, { ai: { attack: false } });
+  assert.strictEqual(RTS.ai.create(AI_ID, 'peaceful').difficulty, 'peaceful');
+  const log = simulate(7, 'peaceful');
+  assert.strictEqual(log.firstAttack, null, '不應進攻');
+  assert.strictEqual(log.firstDamage, null, '玩家主堡不應受損');
+  assert.ok(log.peakArmy > 0, '仍會發展軍隊防守');
+});

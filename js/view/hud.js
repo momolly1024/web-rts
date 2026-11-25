@@ -159,18 +159,34 @@
     // 說明文字直接由資料表產生，調參數後不必另外改介面
     function difficultySummary(key) {
       var cfg = RTS.ai.config(key);
+      if (!cfg.attack) return t('difficulty.peacefulSummary');
       return t('difficulty.summary', {
         minutes: cfg.graceTime / 60, first: cfg.attackSize, max: cfg.armyMax
       });
     }
 
+    // 連點「困難」達 secretClicks 次才顯示隱藏難度
+    var hardClicks = 0;
+    function revealSecret() {
+      $('difficulty-picker').querySelectorAll('label[data-secret]').forEach(function (l) { l.hidden = false; });
+    }
+
     function buildDifficultyPicker() {
-      RTS.data.difficultyOrder.forEach(function (key) {
+      RTS.data.difficultyOrder.concat(RTS.data.hiddenDifficulties).forEach(function (key) {
         var label = el('label'), input = el('input');
         input.type = 'radio';
         input.name = 'difficulty';
         input.value = key;
+        if (RTS.data.hiddenDifficulties.indexOf(key) >= 0) {
+          label.dataset.secret = '1';
+          label.hidden = true;
+        }
         input.addEventListener('change', function () { app.chosenDifficulty = key; });
+        if (key === 'hard') {
+          input.addEventListener('click', function () {
+            if (++hardClicks >= RTS.data.secretClicks) revealSecret();
+          });
+        }
         label.appendChild(input);
         label.appendChild(el('b'));
         label.appendChild(el('span'));
@@ -207,6 +223,7 @@
       var picking = kind === 'restart' || kind === 'over' || (kind === 'help' && app.world.tick === 0);
       $('difficulty-picker').hidden = !picking;
       if (picking) {
+        if (RTS.data.hiddenDifficulties.indexOf(app.chosenDifficulty) >= 0) revealSecret();    // 上一局選過就繼續顯示
         $('difficulty-picker').querySelector('input[value="' + app.chosenDifficulty + '"]').checked = true;
       }
       var start = app.world.tick === 0;

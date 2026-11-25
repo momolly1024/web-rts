@@ -21,6 +21,8 @@ mouse and keyboard is recommended.
   Town Centers are gone (unfinished ones do not count).
 - The enemy waits for a grace period before attacking, and later waves grow. The grace period
   and army size depend on the difficulty.
+- Hidden difficulty "Peaceful World": click Hard five times in the difficulty list to reveal it.
+  The computer builds up and defends itself but never attacks.
 
 | Building | Cost | Purpose |
 |------|------|------|
