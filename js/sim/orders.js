@@ -18,12 +18,13 @@
   function update(world, u, dt) {
     if (u.cooldown > 0) u.cooldown -= dt;
     var type = u.order.type;
-    if (type !== 'gather' && type !== 'build' && u.swing > 0) u.swing = Math.max(0, u.swing - dt);
+    if (type !== 'gather' && type !== 'build' && type !== 'repair' && u.swing > 0) u.swing = Math.max(0, u.swing - dt);
     switch (type) {
       case 'move': updateMove(world, u, dt); break;
       case 'gather': RTS.gather.update(world, u, dt); break;
       case 'deposit': RTS.gather.updateDeposit(world, u, dt); break;
       case 'build': RTS.construction.update(world, u, dt); break;
+      case 'repair': RTS.repair.update(world, u, dt); break;
       case 'attack': RTS.combat.updateAttack(world, u, dt); break;
       case 'attackMove': RTS.combat.updateAttackMove(world, u, dt); break;
       default: RTS.combat.updateIdle(world, u, dt);

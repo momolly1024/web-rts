@@ -60,6 +60,7 @@
     'info.defense': '護甲 近戰 {melee}／穿刺 {pierce}　視野 {vision}',
     'info.carry': '　攜帶{resource} {amount}',
     'info.progress': '施工進度 {percent}%（右鍵派村民協助）',
+    'info.repairHint': '受損：右鍵派村民修理（花費資源）',
     'info.providesPop': '提供人口 {amount}',
 
     'order.idle': '待命',
@@ -67,6 +68,7 @@
     'order.gather': '採集中',
     'order.deposit': '運送中',
     'order.build': '施工中',
+    'order.repair': '修理中',
     'order.attack': '作戰中',
     'order.attackMove': '攻擊移動中',
 
@@ -109,7 +111,7 @@
     'help.selectKeys': '左鍵／拖曳',
     'help.selectText': '點選、框選（Shift 加選，雙擊選同類）',
     'help.orderKeys': '右鍵',
-    'help.orderText': '依目標移動、採集、攻擊、協助施工、交付資源',
+    'help.orderText': '依目標移動、採集、攻擊、協助施工、修理、交付資源',
     'help.scrollKeys': '方向鍵／WASD',
     'help.scrollText': '捲動畫面（滑鼠移到視窗邊緣也可以）',
     'help.buildKeys': 'H、B、K、T',
@@ -133,6 +135,8 @@
     'error.cannotResearch': '這裡無法研究該項目',
     'error.maxLevel': '已是最高等級',
     'error.alreadyResearching': '該項目正在研究中',
+    'error.cannotRepair': '這座建築不需要或無法修理',
+    'error.villagersOnlyRepair': '只有村民能修理',
     'error.noUnits': '沒有可指揮的單位',
     'error.noDestination': '沒有可到達的位置',
     'error.notGatherable': '這裡沒有可採集的資源',

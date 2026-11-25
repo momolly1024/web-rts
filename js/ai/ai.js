@@ -92,6 +92,7 @@
     AI.tech.develop(ctx);      // 排在訓練之前，軍隊成形後科技優先拿資源
     AI.economy.develop(ctx);
     AI.economy.assignVillagers(ctx);
+    AI.care.repair(ctx);
     command(ctx);
   }
 

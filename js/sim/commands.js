@@ -72,8 +72,15 @@
       var b = ownBuilding(world, pid, c.targetId), workers = villagersIn(units);
       if (!b || b.complete) return fail('nothingToBuild');
       if (!workers.length) return fail('villagersOnlyBuild');
-      workers.forEach(function (u) { assignBuild(u, b); });
+      workers.forEach(function (u) { assignJob(u, 'build', b); });
       return done('assist');
+    },
+    repair: function (world, pid, c, units) {
+      var b = ownBuilding(world, pid, c.targetId), workers = villagersIn(units);
+      if (!RTS.repair.canRepair(b)) return fail('cannotRepair');
+      if (!workers.length) return fail('villagersOnlyRepair');
+      workers.forEach(function (u) { assignJob(u, 'repair', b); });
+      return done('repair');
     },
     build: function (world, pid, c, units) {
       var def = RTS.data.buildings[c.building], workers = villagersIn(units);
@@ -84,7 +91,7 @@
       if (!check.ok) return check;
       if (!RTS.world.pay(world, pid, def.cost)) return fail('notEnoughResources');
       var b = RTS.construction.place(world, pid, c.building, tx, ty);
-      workers.forEach(function (u) { assignBuild(u, b); });
+      workers.forEach(function (u) { assignJob(u, 'build', b); });
       return { ok: true, action: 'build', buildingId: b.id };
     },
     cancelBuild: function (world, pid, c) {
@@ -108,28 +115,36 @@
       if (!units.length) return fail('noUnits');
       var t = c.targetId ? RTS.world.get(world, c.targetId) : null;
       if (t && t.owner !== null && t.owner !== pid) return handlers.attack(world, pid, c, units);
-      var special = null, takers = [];
-      if (t && t.kind === 'node' && RTS.data.nodes[t.type].resource) {
-        special = 'gather';
-        takers = villagersIn(units);
-      } else if (t && t.kind === 'building' && !t.complete) {
-        special = 'assist';
-        takers = villagersIn(units);
-      } else if (t && t.kind === 'building' && RTS.data.buildings[t.type].dropoff) {
-        special = 'deposit';
-        takers = units.filter(function (u) { return u.carry.amount > 0; });
+      var left = units.slice(), result = null;
+      // 把符合條件的單位分去做特定工作，其餘的照常移動
+      function dispatch(type, takers) {
+        if (!takers.length) return;
+        result = handlers[type](world, pid, c, takers);
+        left = left.filter(function (u) { return takers.indexOf(u) < 0; });
       }
-      var others = units.filter(function (u) { return takers.indexOf(u) < 0; });
-      var result = others.length ? moveUnits(world, others, c.x, c.y) : null;
-      if (takers.length) result = handlers[special](world, pid, c, takers);
+      if (t && t.kind === 'node' && RTS.data.nodes[t.type].resource) {
+        dispatch('gather', villagersIn(left));
+      } else if (t && t.kind === 'building' && !t.complete) {
+        dispatch('assist', villagersIn(left));
+      } else if (t && t.kind === 'building') {
+        if (RTS.data.buildings[t.type].dropoff) {
+          dispatch('deposit', left.filter(function (u) { return u.carry.amount > 0; }));
+        }
+        if (RTS.repair.canRepair(t)) dispatch('repair', villagersIn(left));
+      }
+      if (left.length) {
+        var moved = moveUnits(world, left, c.x, c.y);
+        result = result || moved;
+      }
       return result;
     }
   };
 
-  function assignBuild(u, building) {
+  // 施工或修理；記下原本的採集工作，做完後接續
+  function assignJob(u, type, building) {
     var prev = u.order;
-    var resume = prev.type === 'gather' ? prev : prev.type === 'build' ? prev.resume : null;
-    RTS.orders.set(u, { type: 'build', targetId: building.id, resume: resume, fails: 0 });
+    var resume = prev.type === 'gather' ? prev : prev.resume || null;
+    RTS.orders.set(u, { type: type, targetId: building.id, resume: resume, fails: 0 });
   }
 
   function issue(world, pid, command) {

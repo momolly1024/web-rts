@@ -80,6 +80,9 @@
 
     buildOrderList: ['house', 'barracks', 'blacksmith', 'townCenter'],
 
+    // 修理：修滿全部生命的花費為造價的 costFactor 倍；speed 為相對施工速度
+    repair: { costFactor: 0.5, speed: 0.8 },
+
     // 鐵匠鋪研究：對該類別所有單位（現有與之後訓練的）生效。bonus 為該級增加量
     upgrades: {
       meleeAttack: {
@@ -112,7 +115,8 @@
         ai: {
           thinkInterval: 2.5, graceTime: 480, villagerTarget: 10, attackSize: 4, waveGrowth: 1,
           attackSizeMax: 8, waveInterval: 150, armyMax: 10, maxBarracks: 1,
-          blacksmith: { atArmy: 7, maxLevel: 1 }
+          blacksmith: { atArmy: 7, maxLevel: 1 },
+          repair: { threshold: 0.4, workers: 1 }
         }
       },
       normal: { ai: {} },
@@ -120,7 +124,8 @@
         ai: {
           thinkInterval: 0.5, graceTime: 240, villagerTarget: 18, attackSize: 8, waveGrowth: 3,
           attackSizeMax: 20, waveInterval: 55, armyMax: 26, maxBarracks: 3,
-          blacksmith: { atArmy: 5, maxLevel: 2 }
+          blacksmith: { atArmy: 5, maxLevel: 2 },
+          repair: { threshold: 0.9, workers: 3 }
         }
       }
     },
@@ -138,7 +143,8 @@
       armyMax: 18,           // 軍隊人數上限（含訓練中）
       defendRadius: 11,
       maxBarracks: 2,
-      blacksmith: { atArmy: 6, maxLevel: 2 }   // 軍隊達幾人後投資科技、最多研究到幾級
+      blacksmith: { atArmy: 6, maxLevel: 2 },  // 軍隊達幾人後投資科技、最多研究到幾級
+      repair: { threshold: 0.7, workers: 2 }   // 生命低於此比例就派幾位村民修理
     }
   };
 })();

@@ -6,7 +6,7 @@
 
   function gathererResource(u) {
     if (u.order.type === 'gather') return u.order.resource;
-    if (u.order.type === 'build' && u.order.resume) return u.order.resume.resource;
+    if (u.order.resume) return u.order.resume.resource;
     return null;
   }
 
@@ -91,7 +91,9 @@
   }
 
   function pickBuilder(ctx, x, y) {
-    var free = ctx.villagers.filter(function (u) { return u.order.type !== 'build'; });
+    var free = ctx.villagers.filter(function (u) {
+      return u.order.type !== 'build' && u.order.type !== 'repair';
+    });
     free.sort(function (a, b) {
       return RTS.util.dist(a.x, a.y, x, y) - RTS.util.dist(b.x, b.y, x, y);
     });
@@ -167,5 +169,6 @@
     });
   }
 
-  AI.economy = { assignVillagers: assignVillagers, develop: develop, startBuilding: startBuilding };
+  AI.economy = { assignVillagers: assignVillagers, develop: develop, startBuilding: startBuilding,
+    pickBuilder: pickBuilder };
 })();

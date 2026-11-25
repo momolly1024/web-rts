@@ -60,6 +60,7 @@
     'info.defense': 'Armor: melee {melee}, pierce {pierce} · Sight {vision}',
     'info.carry': ' · carrying {amount} {resource}',
     'info.progress': 'Construction {percent}% (right-click with villagers to help)',
+    'info.repairHint': 'Damaged: right-click with villagers to repair (costs resources)',
     'info.providesPop': 'Population +{amount}',
 
     'order.idle': 'Idle',
@@ -67,6 +68,7 @@
     'order.gather': 'Gathering',
     'order.deposit': 'Delivering',
     'order.build': 'Building',
+    'order.repair': 'Repairing',
     'order.attack': 'Fighting',
     'order.attackMove': 'Attack-moving',
 
@@ -109,7 +111,7 @@
     'help.selectKeys': 'Left-click / drag',
     'help.selectText': 'Select (Shift adds, double-click selects the same type)',
     'help.orderKeys': 'Right-click',
-    'help.orderText': 'Move, gather, attack, help build or deliver, depending on the target',
+    'help.orderText': 'Move, gather, attack, help build, repair or deliver, depending on the target',
     'help.scrollKeys': 'Arrows / WASD',
     'help.scrollText': 'Scroll the view (or move the mouse to the window edge)',
     'help.buildKeys': 'H, B, K, T',
@@ -133,6 +135,8 @@
     'error.cannotResearch': 'That cannot be researched here',
     'error.maxLevel': 'Already at the highest level',
     'error.alreadyResearching': 'Already being researched',
+    'error.cannotRepair': 'That building cannot be repaired',
+    'error.villagersOnlyRepair': 'Only villagers can repair',
     'error.noUnits': 'No units to command',
     'error.noDestination': 'No reachable position',
     'error.notGatherable': 'Nothing to gather there',

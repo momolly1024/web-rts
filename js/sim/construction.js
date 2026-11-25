@@ -79,6 +79,7 @@
   }
 
   RTS.construction = {
-    canPlace: canPlace, place: place, cancel: cancel, beginTick: beginTick, update: update
+    canPlace: canPlace, place: place, cancel: cancel, beginTick: beginTick, update: update,
+    nextJob: nextJob
   };
 })();

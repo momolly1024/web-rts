@@ -133,10 +133,11 @@
     return lines;
   }
 
-  function describeBuilding(e, def) {
+  function describeBuilding(e, def, human) {
     var lines = [];
     if (!e.complete) lines.push(t('info.progress', { percent: Math.floor(e.progress * 100) }));
     if (def.pop) lines.push(t('info.providesPop', { amount: def.pop }));
+    if (RTS.repair.canRepair(e) && e.owner === human) lines.push(t('info.repairHint'));
     return lines;
   }
 
@@ -166,7 +167,7 @@
     var lines = [t('info.hp', { hp: Math.ceil(e.hp), max: e.maxHp })];
     return {
       title: title,
-      lines: lines.concat(e.kind === 'unit' ? describeUnit(app, e, def) : describeBuilding(e, def))
+      lines: lines.concat(e.kind === 'unit' ? describeUnit(app, e, def) : describeBuilding(e, def, app.human))
     };
   }
 
