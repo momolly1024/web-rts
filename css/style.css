@@ -41,6 +41,7 @@ button:disabled { opacity: 0.45; cursor: not-allowed; border-color: #6d7a84; }
 .food { --dot: #d0477a; }
 .wood { --dot: #a9764a; }
 .gold { --dot: #ffd84a; }
+.stone { --dot: #c3ccd6; }
 .pop  { --dot: #6fb4f0; }
 #topbar dd { min-width: 3.2em; font-size: 18px; font-weight: 700; font-variant-numeric: tabular-nums; }
 #res-pop.warn {

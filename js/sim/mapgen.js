@@ -5,6 +5,7 @@
 
   var START = { x: 8, y: 8 };      // 玩家 0 主堡左上角；玩家 1 取對稱位置
   var HOME_RADIUS = 13;
+  var HOME_STONES = 4;             // 每方家園石材固定數量
 
   function startPositions(map) {
     var s = RTS.data.buildings.townCenter.size;
@@ -40,6 +41,17 @@
     return placed;
   }
 
+  // 石材團放在其他家園資源之間；數量不足時換角度補滿
+  function placeHomeStone(rand, map, base, allowed, place) {
+    var left = HOME_STONES;
+    for (var i = 0; i < 12 && left > 0; i++) {
+      var a = base + Math.PI / 4 + i * Math.PI / 2 + (i >= 4 ? 0.35 : 0);
+      var cx = RTS.util.clamp(Math.round(START.x + 1 + Math.cos(a) * 9), 1, map.width - 2);
+      var cy = RTS.util.clamp(Math.round(START.y + 1 + Math.sin(a) * 9), 1, map.height - 2);
+      left -= blob(rand, map, cx, cy, left, allowed, place);
+    }
+  }
+
   function populate(world, rand) {
     var map = world.map, W = map.width, H = map.height;
     function node(type) {
@@ -64,6 +76,7 @@
       cy = RTS.util.clamp(cy, 1, H - 2);
       blob(rand, map, cx, cy, spec[1], homeOk, node(spec[0]));
     });
+    placeHomeStone(rand, map, base, homeOk, node('rock'));
 
     function scatter(count, min, max, place) {
       for (var i = 0; i < count; i++) {
@@ -126,17 +139,20 @@
     if (!a || !b) return false;
     var seen = flood(map, a);
     if (!seen[b.y * map.width + b.x]) return false;
-    var reach = { wood: 0, food: 0, gold: 0 };
+    var reach = { wood: 0, food: 0, gold: 0, stone: 0 };
+    var stones = 0;
     world.entities.forEach(function (e) {
       var res = e.kind === 'node' && RTS.data.nodes[e.type].resource;
       if (!res || homeDist(e.x, e.y) >= HOME_RADIUS) return;
+      if (res === 'stone') stones++;
       var open = [[1, 0], [-1, 0], [0, 1], [0, -1]].some(function (d) {
         var x = e.x + d[0], y = e.y + d[1];
         return RTS.map.inBounds(map, x, y) && seen[y * map.width + x];
       });
       if (open) reach[res]++;
     });
-    return reach.food >= 4 && reach.gold >= 3 && reach.wood >= 12;
+    return reach.food >= 4 && reach.gold >= 3 && reach.wood >= 12 &&
+      stones === HOME_STONES && reach.stone >= 2;
   }
 
   // 產生含雙方主堡與村民的完整對局；地圖不合格就換種子重來

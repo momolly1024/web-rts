@@ -10,9 +10,9 @@
     POP_MAX: 50,
     QUEUE_MAX: 5,
     START_VILLAGERS: 4,
-    START_RESOURCES: { food: 200, wood: 200, gold: 100 },
+    START_RESOURCES: { food: 200, wood: 200, gold: 100, stone: 0 },
 
-    resources: ['food', 'wood', 'gold'],
+    resources: ['food', 'wood', 'gold', 'stone'],
 
     players: [
       { color: '#3b82d6', dark: '#1d4b85' },    // 藍旗
@@ -24,7 +24,7 @@
       tree:  { resource: 'wood', amount: 100 },
       berry: { resource: 'food', amount: 200 },
       gold:  { resource: 'gold', amount: 700 },
-      rock:  { resource: null,   amount: 0 },
+      rock:  { resource: 'stone', amount: 300 },
       carcass: { resource: 'food', amount: 0 }      // 獸肉，份量由動物決定
     },
 
@@ -39,7 +39,7 @@
         cost: { food: 50 }, trainTime: 12, pop: 1, hotkey: 'Q',
         hp: 40, speed: 2.4, vision: 5, armorType: 'civilian', armor: { melee: 0, pierce: 0 },
         attack: { type: 'melee', damage: 3, range: 0.8, cooldown: 1.6 },
-        military: false, canBuild: true, carry: 10, gatherRate: { food: 0.9, wood: 0.8, gold: 0.7 },
+        military: false, canBuild: true, carry: 10, gatherRate: { food: 0.9, wood: 0.8, gold: 0.7, stone: 0.7 },
         hunt: { range: 3.2, damage: 6, cooldown: 1.5 }     // 狩獵時的投擲攻擊
       },
       swordsman: {

@@ -20,6 +20,7 @@
     'resource.food': '食物',
     'resource.wood': '木材',
     'resource.gold': '黃金',
+    'resource.stone': '石材',
     'node.tree': '樹木',
     'node.berry': '果叢',
     'node.gold': '金礦',
@@ -64,7 +65,6 @@
     'selection.enemy': '{name}（敵方）',
 
     'info.remaining': '剩餘{resource} {amount}',
-    'info.impassable': '無法通行',
     'info.food': '打倒後可得食物 {amount}',
     'info.animal.herd': '尚未認領：讓村民走到 3 格內（右鍵點羊旁邊的地面）。直接用村民右鍵點羊會宰殺',
     'info.animal.flee': '獵物：受驚會逃跑',

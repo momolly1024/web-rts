@@ -30,7 +30,8 @@
   // 依缺口大小排序的資源清單
   function wanted(ctx, counts, total) {
     var ratio = ctx.cfg.gatherRatio;
-    return RTS.data.resources.slice().sort(function (a, b) {
+    // 只分配 AI 會採的資源（比例表裡有的）
+    return Object.keys(ratio).sort(function (a, b) {
       return (ratio[b] * total - counts[b]) - (ratio[a] * total - counts[a]);
     });
   }

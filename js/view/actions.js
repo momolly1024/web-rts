@@ -210,9 +210,7 @@
     if (e.kind === 'node') {
       return {
         title: nameOf(e),
-        lines: [def.resource
-          ? t('info.remaining', { resource: t('resource.' + def.resource), amount: e.amount })
-          : t('info.impassable')]
+        lines: [t('info.remaining', { resource: t('resource.' + def.resource), amount: e.amount })]
       };
     }
     var enemy = e.owner !== app.human && e.owner !== null;

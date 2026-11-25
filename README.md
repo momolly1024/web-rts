@@ -14,7 +14,9 @@ mouse and keyboard is recommended.
 
 - You are the Blue lord (top left of the map); the opponent is the Red lord (bottom right).
   Both halves of the map are point-symmetric.
-- You start with a Town Center, 4 villagers, 200 food, 200 wood and 100 gold.
+- You start with a Town Center, 4 villagers, 200 food, 200 wood, 100 gold and no stone.
+- Grey stone deposits can be gathered like other resources (4 near each start, more in the wild).
+  Nothing costs stone yet.
 - Destroy **every finished enemy Town Center** to win. You lose when all of your finished
   Town Centers are gone (unfinished ones do not count).
 - The enemy waits for a grace period before attacking, and later waves grow. The grace period
@@ -152,7 +154,7 @@ English). Your choice is saved in `localStorage`. Where that is unavailable (som
 None of the following is implemented yet. These are plans and may change.
 
 - **Batch 2**: minimap, fog of war, isometric view
-- **Batch 3**: lumber camp and mining camp, mill, farms, economic technologies, market, stone
+- **Batch 3**: lumber camp and mining camp, mill, farms, economic technologies, market
 - **Batch 4**: age upgrades and unit tiers; archery range, stable, spearmen, cavalry; arrow towers,
   walls and gates; healer units; siege weapons
 - **Batch 5**: AI scouting, expanding and rebuilding, adapting its army
@@ -236,6 +238,7 @@ Code comments and test names are written in Traditional Chinese.
 
 ## Known limits
 
+- The AI does not gather stone.
 - The AI sees the whole map, including your Town Center, and does not scout. The three
   difficulties differ only in settings, not tactics.
 - The AI does not rebuild a destroyed Town Center (losing the only one ends the game).
