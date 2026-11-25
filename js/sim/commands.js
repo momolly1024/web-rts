@@ -82,6 +82,19 @@
       workers.forEach(function (u) { assignJob(u, 'repair', b); });
       return done('repair');
     },
+    garrison: function (world, pid, c, units) {
+      var b = ownBuilding(world, pid, c.targetId);
+      if (!b || !b.complete || !RTS.garrison.capacity(b)) return fail('cannotGarrison');
+      if (!RTS.garrison.hasRoom(b)) return fail('garrisonFull');
+      if (!units.length) return fail('noUnits');
+      units.forEach(function (u) { assignJob(u, 'garrison', b); });
+      return done('garrison');
+    },
+    ungarrison: function (world, pid, c) {
+      var b = ownBuilding(world, pid, c.buildingId);
+      if (!b || !RTS.garrison.count(b)) return fail('nothingGarrisoned');
+      return RTS.garrison.release(world, b) ? done('ungarrison') : fail('noDestination');
+    },
     build: function (world, pid, c, units) {
       var def = RTS.data.buildings[c.building], workers = villagersIn(units);
       if (!def) return fail('unknownBuilding');
@@ -131,6 +144,7 @@
           dispatch('deposit', left.filter(function (u) { return u.carry.amount > 0; }));
         }
         if (RTS.repair.canRepair(t)) dispatch('repair', villagersIn(left));
+        if (RTS.garrison.hasRoom(t)) dispatch('garrison', left);
       }
       if (left.length) {
         var moved = moveUnits(world, left, c.x, c.y);

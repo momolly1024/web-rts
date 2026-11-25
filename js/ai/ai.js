@@ -93,6 +93,7 @@
     AI.economy.develop(ctx);
     AI.economy.assignVillagers(ctx);
     AI.care.repair(ctx);
+    AI.care.shelter(ctx);
     command(ctx);
   }
 

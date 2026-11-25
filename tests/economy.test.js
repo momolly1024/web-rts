@@ -150,7 +150,7 @@ test('右鍵智慧指令依目標決定行動', () => {
   assert.deepStrictEqual([v.order.type, s.order.type], ['move', 'move']);
   v.carry = { resource: 'wood', amount: 5 };
   smart(tc, 4, 4);
-  assert.deepStrictEqual([v.order.type, s.order.type], ['deposit', 'move']);
+  assert.deepStrictEqual([v.order.type, s.order.type], ['deposit', 'garrison']);
   const site = RTS.world.addBuilding(w, 'house', 0, 15, 15, false);
   smart(site, 15, 15);
   assert.deepStrictEqual([v.order.type, s.order.type], ['build', 'move']);

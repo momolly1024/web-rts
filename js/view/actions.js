@@ -22,6 +22,24 @@
     return result;
   }
 
+  // 離單位最近、還有空位的己方避難建築
+  function nearestShelter(app, u) {
+    return RTS.world.nearest(app.world, u.x, u.y, function (e) {
+      return e.kind === 'building' && e.owner === app.human && RTS.garrison.hasRoom(e);
+    });
+  }
+
+  function garrisonActions(app, b) {
+    if (!RTS.garrison.capacity(b)) return [];
+    var inside = RTS.garrison.count(b);
+    return [{
+      id: 'ungarrison', label: t('action.ungarrison'), hotkey: 'U',
+      cost: t('action.garrisonCount', { count: inside, max: RTS.garrison.capacity(b) }),
+      enabled: inside > 0, reason: inside ? '' : 'nothingGarrisoned',
+      run: function () { issue(app, { type: 'ungarrison', buildingId: b.id }); }
+    }];
+  }
+
   function unitActions(app, units) {
     var data = RTS.data, out = [];
     var ids = units.map(function (u) { return u.id; });
@@ -43,6 +61,13 @@
         cost: t('action.attackMoveNote'), enabled: true,
         active: app.mode === 'attackMove',
         run: function () { app.mode = 'attackMove'; app.placement = null; }
+      });
+    }
+    var shelter = nearestShelter(app, units[0]);
+    if (shelter) {
+      out.push({
+        id: 'garrison', label: t('action.garrison'), hotkey: 'G', cost: '', enabled: true,
+        run: function () { issue(app, { type: 'garrison', unitIds: ids, targetId: shelter.id }); }
       });
     }
     out.push({
@@ -70,7 +95,7 @@
         enabled: check.ok, reason: check.reason || '',
         run: function () { issue(app, { type: 'train', buildingId: b.id, unit: type }); }
       };
-    }));
+    }), garrisonActions(app, b));
   }
 
   function upgradeName(track, level) {
@@ -137,6 +162,9 @@
     var lines = [];
     if (!e.complete) lines.push(t('info.progress', { percent: Math.floor(e.progress * 100) }));
     if (def.pop) lines.push(t('info.providesPop', { amount: def.pop }));
+    if (def.garrison && e.owner === human) {
+      lines.push(t('info.garrison', { count: RTS.garrison.count(e), max: def.garrison.capacity }));
+    }
     if (RTS.repair.canRepair(e) && e.owner === human) lines.push(t('info.repairHint'));
     return lines;
   }

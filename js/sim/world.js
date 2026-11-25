@@ -65,6 +65,7 @@
     if (!world.entities.has(e.id)) return;
     world.entities.delete(e.id);
     if (e.kind !== 'unit') RTS.map.setOccupant(world.map, e, 0);
+    if (e.kind === 'building') RTS.garrison.onDestroyed(world, e);
   }
 
   function get(world, id) {
@@ -137,6 +138,7 @@
       if (e.kind === 'unit') used += RTS.data.units[e.type].pop;
       else if (e.kind === 'building') {
         if (e.complete) cap += RTS.data.buildings[e.type].pop;
+        if (e.garrison) e.garrison.forEach(function (u) { used += RTS.data.units[u.type].pop; });
         e.queue.forEach(function (q) { if (!q.research) queued += RTS.data.units[q.type].pop; });
       }
     });

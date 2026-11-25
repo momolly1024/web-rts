@@ -58,6 +58,7 @@
       townCenter: {
         cost: { wood: 300, gold: 100 }, size: 3, hp: 1200, buildTime: 80,
         pop: 5, vision: 7, trains: ['villager'], dropoff: true, hotkey: 'T',
+        garrison: { capacity: 10, healRate: 1.5 },
         armorType: 'building', armor: { melee: 1, pierce: 2 }
       },
       house: {
@@ -116,7 +117,8 @@
           thinkInterval: 2.5, graceTime: 480, villagerTarget: 10, attackSize: 4, waveGrowth: 1,
           attackSizeMax: 8, waveInterval: 150, armyMax: 10, maxBarracks: 1,
           blacksmith: { atArmy: 7, maxLevel: 1 },
-          repair: { threshold: 0.4, workers: 1 }
+          repair: { threshold: 0.4, workers: 1 },
+          shelter: { radius: 6, minEnemies: 3, woundedBelow: 0 }
         }
       },
       normal: { ai: {} },
@@ -125,7 +127,8 @@
           thinkInterval: 0.5, graceTime: 240, villagerTarget: 18, attackSize: 8, waveGrowth: 3,
           attackSizeMax: 20, waveInterval: 55, armyMax: 26, maxBarracks: 3,
           blacksmith: { atArmy: 5, maxLevel: 2 },
-          repair: { threshold: 0.9, workers: 3 }
+          repair: { threshold: 0.9, workers: 3 },
+          shelter: { radius: 10, minEnemies: 2, woundedBelow: 0.5 }
         }
       }
     },
@@ -144,7 +147,9 @@
       defendRadius: 11,
       maxBarracks: 2,
       blacksmith: { atArmy: 6, maxLevel: 2 },  // 軍隊達幾人後投資科技、最多研究到幾級
-      repair: { threshold: 0.7, workers: 2 }   // 生命低於此比例就派幾位村民修理
+      repair: { threshold: 0.7, workers: 2 },  // 生命低於此比例就派幾位村民修理
+      // 敵兵進入主堡 radius 格且達 minEnemies 人時村民避難；士兵生命低於 woundedBelow 時回堡療傷
+      shelter: { radius: 8, minEnemies: 2, woundedBelow: 0.3 }
     }
   };
 })();

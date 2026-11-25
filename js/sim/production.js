@@ -75,5 +75,5 @@
     b.queue.shift();
   }
 
-  RTS.production = { check: check, enqueue: enqueue, cancel: cancel, update: update };
+  RTS.production = { spawnTile: spawnTile, check: check, enqueue: enqueue, cancel: cancel, update: update };
 })();

@@ -92,7 +92,7 @@
 
   function pickBuilder(ctx, x, y) {
     var free = ctx.villagers.filter(function (u) {
-      return u.order.type !== 'build' && u.order.type !== 'repair';
+      return ['build', 'repair', 'garrison'].indexOf(u.order.type) < 0;
     });
     free.sort(function (a, b) {
       return RTS.util.dist(a.x, a.y, x, y) - RTS.util.dist(b.x, b.y, x, y);
@@ -136,8 +136,9 @@
   function develop(ctx) {
     var cfg = ctx.cfg;
     var pop = RTS.world.population(ctx.world, ctx.pid);
-    var queuedVillagers = countType(ctx.tc.queue, 'villager');
-    if (ctx.villagers.length + queuedVillagers < cfg.villagerTarget && ctx.tc.queue.length < 1) {
+    var inside = ctx.tc.garrison || [];      // 避難中的單位也要算進目標人數
+    var queuedVillagers = countType(ctx.tc.queue, 'villager') + countType(inside, 'villager');
+    if (ctx.villagers.length + queuedVillagers < cfg.villagerTarget && countType(ctx.tc.queue, 'villager') < 1) {
       ctx.issue({ type: 'train', buildingId: ctx.tc.id, unit: 'villager' });
     }
 
@@ -157,7 +158,8 @@
     ctx.buildings.forEach(function (b) { if (b.type === 'barracks') training += b.queue.length; });
     ctx.buildings.forEach(function (b) {
       if (b.type !== 'barracks' || !b.complete || b.queue.length >= 2) return;
-      if (ctx.army.length + training >= cfg.armyMax) return;
+      var sheltered = inside.length - countType(inside, 'villager');
+      if (ctx.army.length + sheltered + training >= cfg.armyMax) return;
       var swords = countType(ctx.army, 'swordsman') + countType(b.queue, 'swordsman');
       var archers = countType(ctx.army, 'archer') + countType(b.queue, 'archer');
       var picks = swords <= archers ? ['swordsman', 'archer'] : ['archer', 'swordsman'];

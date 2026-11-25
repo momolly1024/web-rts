@@ -89,6 +89,20 @@
     }
   }
 
+  // 建築內有避難單位時，在屋頂上方標人數
+  function garrisonBadge(ctx, cam, b) {
+    var p = RTS.camera.worldToScreen(cam, b.x + b.w / 2, b.y - 0.75);
+    ctx.fillStyle = '#14202b';
+    ctx.beginPath();
+    ctx.arc(p.x, p.y, 10, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.fillStyle = '#fff3b0';
+    ctx.font = 'bold 12px sans-serif';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText(String(RTS.garrison.count(b)), p.x, p.y + 1);
+  }
+
   function drawEffects(ctx, cam, world) {
     world.effects.forEach(function (fx) {
       var t = fx.age / fx.life;
@@ -156,6 +170,9 @@
     visible.forEach(function (e) { drawEntity(ctx, cam, e); });
     visible.forEach(function (e) {
       if (e.kind !== 'node' && (selected.has(e.id) || e.hp < e.maxHp)) healthBar(ctx, cam, e);
+    });
+    visible.forEach(function (e) {
+      if (e.owner === app.human && e.garrison && e.garrison.length) garrisonBadge(ctx, cam, e);
     });
     drawEffects(ctx, cam, world);
     if (app.placement) drawPlacement(ctx, app);
