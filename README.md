@@ -286,10 +286,8 @@ English). Your choice is saved in `localStorage`. Where that is unavailable (som
 
 None of the following is implemented yet. These are plans and may change.
 
-- **Batch 4**: age upgrades and unit tiers; archery range, stable, spearmen, cavalry; arrow towers,
-  walls and gates; healer units; siege weapons
 - **Batch 5**: AI expanding, rebuilding its Town Center, adapting its army to yours
-- **Under consideration**: trade carts, sound, saving, formations, multiple civilizations, other victory conditions,
+- **Under consideration**: more mounted units (scout cavalry, cavalry archers, camels), trade carts, sound, saving, formations, multiple civilizations, other victory conditions,
   individual building upgrades
 
 ## Tests
