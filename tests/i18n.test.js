@@ -60,7 +60,7 @@ test('語言檔以外的程式、頁面與樣式沒有寫死的中文', () => {
 
 test('index.html 的文字都來自存在的鍵', () => {
   const html = read('index.html');
-  const keys = [...html.matchAll(/data-i18n(?:-aria)?="([^"]+)"/g)].map(m => m[1]);
+  const keys = [...html.matchAll(/data-i18n(?:-aria|-title)?="([^"]+)"/g)].map(m => m[1]);
   assert.ok(keys.length > 30);
   keys.forEach(k => assert.ok(k in zh, '缺少 ' + k));
   // 除了程式動態填入的數字，標籤之間不應有寫死的文字

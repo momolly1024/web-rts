@@ -28,6 +28,9 @@
     document.querySelectorAll('[data-i18n]').forEach(function (node) {
       text(node, t(node.dataset.i18n));
     });
+    document.querySelectorAll('[data-i18n-title]').forEach(function (node) {
+      node.title = t(node.dataset.i18nTitle);
+    });
     document.querySelectorAll('[data-i18n-aria]').forEach(function (node) {
       node.setAttribute('aria-label', t(node.dataset.i18nAria));
     });

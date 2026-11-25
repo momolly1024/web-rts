@@ -39,6 +39,7 @@
     app.cam = RTS.camera.create(app.world.map.width, app.world.map.height);
     app.selection = [];
     app.groups = RTS.groups.create();
+    app.lastIdle = 0;
     app.placement = app.mode = app.drag = null;
     app.hud.reset();
     resize();
@@ -84,13 +85,24 @@
     app.hud.showOverlay('restart');
   };
 
-  // 一次選取全部閒置村民並把鏡頭移過去
-  app.selectIdle = function () {
-    var idle = RTS.groups.allIdle(app.world, app.human);
-    if (!idle) return;
-    app.selection = idle.ids;
+  // mode 'next'：依序選下一位閒置村民；'all'：全選。鏡頭跟著移過去
+  app.selectIdle = function (mode) {
+    var ids, focus;
+    if (mode === 'all') {
+      var idle = RTS.groups.allIdle(app.world, app.human);
+      if (!idle) return;
+      ids = idle.ids;
+      focus = idle.focus;
+    } else {
+      var u = RTS.groups.nextIdle(app.world, app.human, app.lastIdle);
+      if (!u) return;
+      app.lastIdle = u.id;
+      ids = [u.id];
+      focus = u;
+    }
+    app.selection = ids;
     app.placement = app.mode = null;
-    RTS.camera.centerOn(app.cam, idle.focus.x, idle.focus.y);
+    RTS.camera.centerOn(app.cam, focus.x, focus.y);
   };
 
   function click(id, handler) {
@@ -101,7 +113,11 @@
   }
 
   click('btn-pause', app.togglePause);
-  click('btn-idle', app.selectIdle);
+  // 按鈕：點一下全選，Shift + 點擊逐一選
+  document.getElementById('btn-idle').addEventListener('click', function (ev) {
+    ev.currentTarget.blur();
+    app.selectIdle(ev.shiftKey ? 'next' : 'all');
+  });
   click('btn-help', app.toggleHelp);
   click('btn-restart', app.askRestart);
   click('overlay-primary', function () {

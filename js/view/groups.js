@@ -67,6 +67,18 @@
     return { ids: list.map(function (u) { return u.id; }), focus: { x: focus.x, y: focus.y } };
   }
 
+  // 輪流挑下一位：id 比上次大的第一位，沒有就回到開頭
+  function nextIdle(world, owner, lastId) {
+    var list = idleVillagers(world, owner);
+    return list.filter(function (u) { return u.id > (lastId || 0); })[0] || list[0] || null;
+  }
+
+  // 依實體鍵位判斷閒置村民快捷鍵（與 Shift、輸入法無關）。回傳 'next'、'all' 或 null
+  function idleKey(code, shift) {
+    return code === 'Period' ? (shift ? 'all' : 'next') : null;
+  }
+
   RTS.groups = { create: create, assign: assign, recall: recall, boxSelection: boxSelection,
-    idleVillagers: idleVillagers, allIdle: allIdle };
+    idleVillagers: idleVillagers, allIdle: allIdle,
+    nextIdle: nextIdle, idleKey: idleKey };
 })();
