@@ -59,7 +59,9 @@
       var now = RTS.world.list(app.world, function (e) {
         return e.kind === 'animal' && e.owner === app.human;
       }).map(function (e) { return e.id; });
-      if (claimed && now.some(function (id) { return claimed.indexOf(id) < 0; })) say('hint.sheepClaimed');
+      // 正在顯示錯誤訊息時不插播，免得玩家看不到指令為何失敗
+      var busy = toastTimer > 0 && toastMessage && toastMessage.key.indexOf('error.') === 0;
+      if (!busy && claimed && now.some(function (id) { return claimed.indexOf(id) < 0; })) say('hint.sheepClaimed');
       claimed = now;
     }
 
