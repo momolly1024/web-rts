@@ -66,7 +66,11 @@
   }
 
   // opts.avoid：Set(格索引)，這些格子可以經過但不能當終點（讓單位分散站位）
+  // opts.owner：走路的人屬於哪一方，別人的城門不能過（未指定則不看城門）
   function find(map, sx, sy, goal, opts) {
+    var owner = opts && opts.owner;
+    var open = owner === undefined || owner === null ? function (x, y) { return RTS.map.isWalkable(map, x, y); }
+      : function (x, y) { return RTS.map.passable(map, x, y, owner); };
     var w = map.width, h = map.height;
     var avoid = opts && opts.avoid;
     var maxNodes = (opts && opts.maxNodes) || w * h;
@@ -96,8 +100,8 @@
 
       for (var i = 0; i < 8; i++) {
         var nx = x + DIRS[i][0], ny = y + DIRS[i][1];
-        if (!RTS.map.isWalkable(map, nx, ny)) continue;
-        if (i >= 4 && (!RTS.map.isWalkable(map, x, ny) || !RTS.map.isWalkable(map, nx, y))) continue;
+        if (!open(nx, ny)) continue;
+        if (i >= 4 && (!open(x, ny) || !open(nx, y))) continue;
         var ni = ny * w + nx;
         if (b.closed[ni] === gen) continue;
         var g = b.g[cur] + DIRS[i][2];

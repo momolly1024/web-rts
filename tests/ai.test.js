@@ -69,21 +69,32 @@ for (const difficulty of RTS.data.difficultyOrder) {
   });
 }
 
-test('AI 經濟建設：長局中蓋磨坊、伐木場，野外食物不夠時種田並研究經濟科技', () => {
-  const world = RTS.game.create(7);
+// AI 對 AI 一場長局，回傳整局出現過的建築、有沒有人種田、雙方的研究
+function longGame(seed) {
+  const world = RTS.game.create(seed);
   const ais = [RTS.ai.create(0), RTS.ai.create(1)];
+  const ever = new Set();          // 結束時建築可能已被打掉，所以邊跑邊記
   let farmed = false;
   for (let i = 0; i < 16000 && !world.over; i++) {
     ais.forEach(a => a.update(world, RTS.data.TICK));
     RTS.game.step(world);
-    if (i % 100 === 0 && !farmed) {
-      farmed = RTS.world.list(world, e => e.kind === 'unit' && e.order.type === 'gather' &&
-        RTS.farm.isFarm(RTS.world.get(world, e.order.targetId))).length > 0;
-    }
+    if (i % 100) continue;
+    RTS.world.list(world, e => e.kind === 'building').forEach(b => ever.add(b.type));
+    farmed = farmed || RTS.world.list(world, e => e.kind === 'unit' && e.order.type === 'gather' &&
+      RTS.farm.isFarm(RTS.world.get(world, e.order.targetId))).length > 0;
   }
-  const built = type => [0, 1].some(p => RTS.world.buildingsOf(world, p, type).length > 0);
-  assert.ok(built('mill') && built('lumberCamp'), '應蓋磨坊與伐木場');
-  assert.ok(farmed, '應有村民在種田');
+  return { ever, farmed, upgrades: world.players.map(p => p.upgrades) };
+}
+
+test('AI 經濟建設：長局中蓋磨坊、伐木場，野外食物不夠時種田', () => {
+  // 伐木場只在樹林離收取建築遠時才蓋，所以用樹林較遠的地圖
+  const g = longGame(303);
+  assert.ok(g.ever.has('mill') && g.ever.has('lumberCamp'), [...g.ever].join(','));
+  assert.ok(g.farmed, '應有村民在種田');
+});
+
+test('AI 經濟建設：資源有餘時研究經濟科技', () => {
+  const g = longGame(7);
   const tracks = ['woodcutting', 'farmYield', 'goldMining', 'handcart', 'stoneMining'];
-  assert.ok(world.players.some(p => tracks.some(t => p.upgrades[t])), '應研究經濟科技');
+  assert.ok(g.upgrades.some(u => tracks.some(t => u[t])), JSON.stringify(g.upgrades));
 });

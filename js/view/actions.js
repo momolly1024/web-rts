@@ -46,7 +46,13 @@
     var ids = movers.map(function (u) { return u.id; });
     var units = movers.filter(function (u) { return u.kind === 'unit'; });
     if (units.some(function (u) { return data.units[u.type].canBuild; })) {
-      data.buildOrderList.forEach(function (type) {
+      var page = app.buildPage === 'mil' ? 'mil' : 'eco';
+      out.push({
+        id: 'buildPage', label: t(page === 'eco' ? 'action.pageMil' : 'action.pageEco'), hotkey: 'Tab',
+        cost: t(page === 'eco' ? 'action.pageMilNote' : 'action.pageEcoNote'), enabled: true,
+        run: function () { app.buildPage = page === 'eco' ? 'mil' : 'eco'; }
+      });
+      data.buildPages.eco.concat(data.buildPages.mil).forEach(function (type) {
         var def = data.buildings[type];
         var missing = RTS.construction.missingRequirement(app.world, app.human, type);
         var reason = missing ? missing.reason : (RTS.world.canAfford(app.world, app.human, def.cost) ? '' : 'notEnoughResources');
@@ -54,7 +60,8 @@
           id: 'build:' + type, label: t('action.build', { name: t('building.' + type) }),
           hotkey: def.hotkey, cost: costText(def.cost),
           enabled: !reason, reason: reason, active: app.placement === type,
-          run: function () { app.placement = type; app.mode = null; }
+          hidden: data.buildPages[page].indexOf(type) < 0,
+          run: function () { app.placement = type; app.mode = null; app.wallStart = null; }
         });
       });
     }
@@ -94,7 +101,7 @@
       var def = data.units[type];
       var check = RTS.production.check(app.world, b, type);
       return {
-        id: 'train:' + type, label: t('action.train', { name: t('unit.' + type) }),
+        id: 'train:' + type, label: t('action.train', { name: unitName(app.world, app.human, type) }),
         hotkey: def.hotkey, cost: costText(def.cost),
         enabled: check.ok, reason: check.reason || '',
         run: function () { issue(app, { type: 'train', buildingId: b.id, unit: type }); }
@@ -150,7 +157,10 @@
 
   // 時代研究顯示時代名稱，其他顯示「名稱 等級」
   function upgradeName(track, level) {
-    return track === 'age' ? t('age.' + level) : t('upgrade.' + track) + ' ' + level;
+    if (track === 'age') return t('age.' + level);
+    var unitType = RTS.data.upgrades[track].unitType;
+    if (unitType) return t('unitTier.' + unitType + '.' + level);     // 兵種升級顯示升級後的名稱
+    return t('upgrade.' + track) + ' ' + level;
   }
 
   function researchActions(app, b) {
@@ -184,19 +194,26 @@
     return out;
   }
 
-  function nameOf(e) {
-    return t(e.kind + '.' + e.type);
+  // 單位名稱含兵種升級（例如劍士升級後叫重裝劍士）
+  function unitName(world, owner, type) {
+    var tier = RTS.data.units[type] ? RTS.research.tier(world, owner, type) : 0;
+    return tier ? t('unitTier.' + type + '.' + tier) : t((RTS.data.units[type] ? 'unit.' : 'animal.') + type);
+  }
+
+  function nameOf(e, world) {
+    return e.kind === 'unit' && world ? unitName(world, e.owner, e.type) : t(e.kind + '.' + e.type);
   }
 
   function describeUnit(app, e, def) {
     var atk = RTS.research.bonus(app.world, e.owner, e.type, 'attack');
     var arm = RTS.research.bonus(app.world, e.owner, e.type, 'armor');
     function plus(base, extra) { return extra ? base + '+' + extra : base; }
+    var range = def.attack ? RTS.research.tierBonus(app.world, e.owner, e.type, 'range') : 0;
     var lines = [
-      t('info.attack', {
+      def.attack ? t('info.attack', {
         type: t('attackType.' + def.attack.type), damage: plus(def.attack.damage, atk),
         armor: t('armorType.' + def.armorType)
-      }),
+      }) + (range ? t('info.rangeUp', { amount: range }) : '') : t('info.heal', { rate: def.heal.rate }),
       t('info.defense', {
         melee: plus(def.armor.melee, arm), pierce: plus(def.armor.pierce, arm), vision: def.vision
       })
@@ -289,8 +306,7 @@
       return {
         title: t('selection.many', { count: sel.length }),
         lines: Object.keys(counts).map(function (type) {
-          var kind = RTS.data.units[type] ? 'unit.' : 'animal.';
-          return t('selection.countLine', { name: t(kind + type), count: counts[type] });
+          return t('selection.countLine', { name: unitName(app.world, app.human, type), count: counts[type] });
         })
       };
     }
@@ -302,7 +318,7 @@
       };
     }
     var enemy = e.owner !== app.human && e.owner !== null;
-    var title = enemy ? t('selection.enemy', { name: nameOf(e) }) : nameOf(e);
+    var title = enemy ? t('selection.enemy', { name: nameOf(e, app.world) }) : nameOf(e, app.world);
     if (e.kind === 'animal' && def.behavior === 'herd' && !enemy) {
       title = t(e.owner === null ? 'selection.unclaimed' : 'selection.own', { name: nameOf(e) });
     }

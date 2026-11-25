@@ -12,7 +12,8 @@
       height: height,
       terrain: new Uint8Array(n),
       occupant: new Int32Array(n),  // 佔用該格的實體 id（天然物件或建築），0 表示空
-      floor: new Int32Array(n)      // 可行走的平地建築（農田）id；不擋路，但不能再蓋東西
+      floor: new Int32Array(n),     // 可行走的平地建築（農田）id；不擋路，但不能再蓋東西
+      gate: new Uint8Array(n)       // 城門：主人編號 + 1；只有主人能通過，0 表示不是城門
     };
   }
 
@@ -34,6 +35,21 @@
     }
   }
 
+  // owner 能不能走進這格：可走，而且不是別人的城門（owner 為 undefined 時只看地形與佔用）
+  function passable(map, x, y, owner) {
+    if (!isWalkable(map, x, y)) return false;
+    var g = map.gate[y * map.width + x];
+    return !g || g === owner + 1;
+  }
+
+  function setGate(map, rect, owner) {
+    for (var y = rect.y; y < rect.y + rect.h; y++) {
+      for (var x = rect.x; x < rect.x + rect.w; x++) {
+        if (inBounds(map, x, y)) map.gate[y * map.width + x] = owner === null ? 0 : owner + 1;
+      }
+    }
+  }
+
   function setFloor(map, rect, id) {
     for (var y = rect.y; y < rect.y + rect.h; y++) {
       for (var x = rect.x; x < rect.x + rect.w; x++) {
@@ -50,15 +66,15 @@
     return inBounds(map, x, y) ? map.occupant[y * map.width + x] : 0;
   }
 
-  // 由近到遠找可走的格子（環狀掃描，同一圈取歐氏距離最近者）
-  function nearestFree(map, tx, ty, maxRadius) {
+  // 由近到遠找可走的格子（環狀掃描，同一圈取歐氏距離最近者）；給 owner 時避開別人的城門
+  function nearestFree(map, tx, ty, maxRadius, owner) {
     var limit = maxRadius === undefined ? Math.max(map.width, map.height) : maxRadius;
     for (var r = 0; r <= limit; r++) {
       var best = null, bestD = Infinity;
       for (var dy = -r; dy <= r; dy++) {
         for (var dx = -r; dx <= r; dx++) {
           if (Math.max(Math.abs(dx), Math.abs(dy)) !== r) continue;
-          if (!isWalkable(map, tx + dx, ty + dy)) continue;
+          if (owner === undefined ? !isWalkable(map, tx + dx, ty + dy) : !passable(map, tx + dx, ty + dy, owner)) continue;
           var d = dx * dx + dy * dy;
           if (d < bestD) { bestD = d; best = { x: tx + dx, y: ty + dy }; }
         }
@@ -108,6 +124,8 @@
     isWalkable: isWalkable,
     setOccupant: setOccupant,
     setFloor: setFloor,
+    passable: passable,
+    setGate: setGate,
     floorAt: floorAt,
     occupantAt: occupantAt,
     nearestFree: nearestFree,

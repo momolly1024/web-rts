@@ -67,7 +67,7 @@
     item.progress = Math.min(1, item.progress + dt / itemSpec(item).time);
     if (item.progress < 1 - 1e-9) return;
     if (item.research) {
-      world.players[b.owner].upgrades[item.research] = item.level + 1;
+      RTS.research.complete(world, b.owner, item.research, item.level);
       b.queue.shift();
       return;
     }

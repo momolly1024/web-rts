@@ -44,7 +44,23 @@
     ctx.stroke();
   }
 
-  function drawEntity(ctx, cam, e) {
+  // 兵種升級：頭頂加羽飾，第一級白、第二級金
+  var HEAD = { swordsman: -0.52, spearman: -0.5, archer: -0.58, cavalry: -0.74 };
+  function plume(ctx, type, tier) {
+    if (!tier || HEAD[type] === undefined) return;
+    var y = HEAD[type];
+    ctx.beginPath();
+    ctx.moveTo(-0.02, y);
+    ctx.quadraticCurveTo(-0.2, y - 0.2, -0.1, y - 0.3);
+    ctx.quadraticCurveTo(0.02, y - 0.16, 0.04, y);
+    ctx.closePath();
+    ctx.fillStyle = tier >= 2 ? '#ffd84a' : '#f4f1e6';
+    ctx.fill();
+    ctx.strokeStyle = '#1c1a17';
+    ctx.stroke();
+  }
+
+  function drawEntity(ctx, cam, e, world) {
     var players = RTS.data.players;
     if (e.kind === 'node') {
       local(ctx, cam, e.x + 0.5, e.y + 0.5, function () {
@@ -67,12 +83,14 @@
         ctx.scale(e.facing, 1);
         var carry = e.carry.amount > 0 ? e.carry.resource : null;
         RTS.sprites.units[e.type](ctx, players[e.owner], e.swing, carry);
+        if (world) plume(ctx, e.type, RTS.research.tier(world, e.owner, e.type));
       });
     }
   }
 
   function isFlat(e) {
-    return e.kind === 'building' && !!RTS.data.buildings[e.type].walkable;
+    var def = e.kind === 'building' && RTS.data.buildings[e.type];
+    return !!def && !!def.walkable && !def.gate;       // 城門有柱子，照一般建築排序
   }
 
   function selectionMark(ctx, cam, e, human) {
@@ -178,9 +196,26 @@
     });
   }
 
+  // 城牆預覽：從起點到游標的每一格，可放綠、不可放紅
+  function drawWallLine(ctx, app, spot) {
+    var cam = app.cam, start = app.wallStart || spot;
+    var tiles = RTS.construction.lineTiles(start.tx, start.ty, spot.tx, spot.ty);
+    var stone = app.world.players[app.human].res.stone, cost = RTS.data.buildings.wall.cost.stone;
+    tiles.forEach(function (t, i) {
+      var ok = RTS.construction.canPlace(app.world, app.human, 'wall', t.x, t.y).ok && stone >= cost * (i + 1);
+      path(ctx, RTS.camera.quad(cam, t.x, t.y, 1, 1));
+      ctx.fillStyle = ok ? 'rgba(90,220,90,0.45)' : 'rgba(230,60,40,0.55)';
+      ctx.fill();
+      ctx.strokeStyle = ok ? '#c9ffb8' : '#ffb0a0';
+      ctx.lineWidth = 1.5;
+      ctx.stroke();
+    });
+  }
+
   function drawPlacement(ctx, app) {
     var spot = RTS.input.placementTile(app);
     if (!spot) return;
+    if (app.placement === 'wall') { drawWallLine(ctx, app, spot); return; }
     var cam = app.cam, type = app.placement;
     var size = RTS.data.buildings[type].size;
     var check = RTS.construction.canPlace(app.world, app.human, type, spot.tx, spot.ty);
@@ -214,7 +249,7 @@
     visible = visible.filter(function (e) { return !isFlat(e); });
     flat.forEach(function (e) {
       if (e.ghost) ctx.globalAlpha = 0.55;
-      drawEntity(ctx, cam, e);
+      drawEntity(ctx, cam, e, world);
       ctx.globalAlpha = 1;
     });
     var selected = new Set(app.selection);
@@ -222,7 +257,7 @@
 
     visible.forEach(function (e) {
       if (e.ghost) ctx.globalAlpha = 0.55;      // 記憶中的舊樣貌畫淡一些
-      drawEntity(ctx, cam, e);
+      drawEntity(ctx, cam, e, world);
       ctx.globalAlpha = 1;
     });
     flat.concat(visible).forEach(function (e) {

@@ -35,11 +35,32 @@
     return found;
   }
 
-  // 某兵種類別目前的加成總和；stat 為 'attack' 或 'armor'
+  // 兵種升級的等級（0 為未升級）與該項數值累計加成；stat 為 hp、attack、armor、range
+  function tierTrack(unitType) {
+    var found = null;
+    Object.keys(RTS.data.upgrades).forEach(function (track) {
+      if (RTS.data.upgrades[track].unitType === unitType) found = track;
+    });
+    return found;
+  }
+
+  function tier(world, pid, unitType) {
+    var track = tierTrack(unitType);
+    return track ? level(world, pid, track) : 0;
+  }
+
+  function tierBonus(world, pid, unitType, stat) {
+    var track = tierTrack(unitType), total = 0;
+    if (!track) return 0;
+    for (var i = 0; i < level(world, pid, track); i++) total += RTS.data.upgrades[track].levels[i].tier[stat] || 0;
+    return total;
+  }
+
+  // 某兵種目前的攻擊或護甲加成總和（鐵匠鋪 + 兵種升級）；stat 為 'attack' 或 'armor'
   function bonus(world, pid, unitType, stat) {
     var cls = RTS.data.units[unitType] && RTS.data.units[unitType].upgradeClass;
-    if (!cls) return 0;
-    var total = 0;
+    var total = tierBonus(world, pid, unitType, stat);
+    if (!cls) return total;
     Object.keys(RTS.data.upgrades).forEach(function (track) {
       var up = RTS.data.upgrades[track];
       if (up.unitClass !== cls || up.stat !== stat) return;
@@ -48,12 +69,12 @@
     return total;
   }
 
-  // 經濟研究的加成總和，key 例如 'gather.wood'、'carry'、'speed'、'farmFood'
+  // 研究效果（effects）的加成總和，key 例如 'gather.wood'、'carry'、'speed'、'farmFood'、'tower.damage'
   function economy(world, pid, key) {
     var total = 0;
     Object.keys(RTS.data.upgrades).forEach(function (track) {
       var up = RTS.data.upgrades[track];
-      if (!up.economy) return;
+      if (!up.levels[0].effects) return;
       for (var i = 0; i < level(world, pid, track); i++) total += up.levels[i].effects[key] || 0;
     });
     return total;
@@ -83,7 +104,18 @@
     return result;
   }
 
+  // 研究完成：兵種升級讓場上同類單位的生命上限與目前生命一起增加
+  function complete(world, pid, track, lv) {
+    world.players[pid].upgrades[track] = lv + 1;
+    var up = RTS.data.upgrades[track], gain = up.unitType && up.levels[lv].tier.hp;
+    if (!gain) return;
+    world.entities.forEach(function (e) {
+      if (e.kind === 'unit' && e.owner === pid && e.type === up.unitType) { e.maxHp += gain; e.hp += gain; }
+    });
+  }
+
   RTS.research = {
+    tier: tier, tierTrack: tierTrack, tierBonus: tierBonus, complete: complete,
     level: level, age: age, ageFail: ageFail, needsMet: needsMet, pending: pending, bonus: bonus, economy: economy, check: check, enqueue: enqueue
   };
 })();

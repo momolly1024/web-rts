@@ -51,6 +51,7 @@
     });
     if (def.walkable) RTS.map.setFloor(world.map, e, e.id);
     else RTS.map.setOccupant(world.map, e, e.id);
+    if (def.gate) RTS.map.setGate(world.map, e, owner);
     if (def.farm) {
       e.amount = complete ? RTS.farm.food(world, owner) : 0;
       e.farmer = 0;
@@ -61,8 +62,9 @@
   // x, y 為連續座標（格中心是 n + 0.5）
   function addUnit(world, type, owner, x, y) {
     var def = RTS.data.units[type];
+    var hp = def.hp + (RTS.research ? RTS.research.tierBonus(world, owner, type, 'hp') : 0);    // 含兵種升級
     return add(world, {
-      kind: 'unit', type: type, owner: owner, x: x, y: y, hp: def.hp, maxHp: def.hp,
+      kind: 'unit', type: type, owner: owner, x: x, y: y, hp: hp, maxHp: hp,
       order: { type: 'idle' }, nav: null, cooldown: 0, carry: { resource: null, amount: 0 },
       scanTimer: 0, facing: 1, swing: 0
     });
@@ -81,6 +83,7 @@
   function remove(world, e) {
     if (!world.entities.has(e.id)) return;
     world.entities.delete(e.id);
+    if (e.kind === 'building' && RTS.data.buildings[e.type].gate) RTS.map.setGate(world.map, e, null);
     if (e.kind === 'building' && RTS.data.buildings[e.type].walkable) RTS.map.setFloor(world.map, e, 0);
     else if (e.kind === 'node' || e.kind === 'building') RTS.map.setOccupant(world.map, e, 0);
     if (e.kind === 'building') RTS.garrison.onDestroyed(world, e);

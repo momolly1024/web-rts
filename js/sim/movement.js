@@ -31,8 +31,9 @@
   function plan(world, unit, goal, spread) {
     var map = world.map, sx = Math.floor(unit.x), sy = Math.floor(unit.y);
     var res = null;
-    if (spread) res = RTS.path.find(map, sx, sy, goal, { avoid: claimedTiles(world, unit) });
-    if (!res || !res.reached) res = RTS.path.find(map, sx, sy, goal);
+    var owner = unit.owner;
+    if (spread) res = RTS.path.find(map, sx, sy, goal, { avoid: claimedTiles(world, unit), owner: owner });
+    if (!res || !res.reached) res = RTS.path.find(map, sx, sy, goal, { owner: owner });
     var path = res.path;
     if (path.length) {
       // 單位偏離格中心時，直接走向下一格可能擦進障礙，先回到本格中心
@@ -66,7 +67,7 @@
     var step = (unit.order.speed || speedOf(world, unit)) * dt;    // order.speed：慢走
     while (step > 1e-9 && path.length) {
       var next = path[0];
-      if (!RTS.map.isWalkable(world.map, next.x, next.y)) { unit.nav = null; return; }
+      if (!RTS.map.passable(world.map, next.x, next.y, unit.owner)) { unit.nav = null; return; }
       var dx = next.x + 0.5 - unit.x, dy = next.y + 0.5 - unit.y;
       var d = Math.hypot(dx, dy);
       if (Math.abs(dx) > 0.01) unit.facing = dx > 0 ? 1 : -1;
@@ -121,8 +122,8 @@
   // 單位被建築壓住時移到最近的空格
   function rescue(world, unit) {
     var tx = Math.floor(unit.x), ty = Math.floor(unit.y);
-    if (RTS.map.isWalkable(world.map, tx, ty)) return;
-    var t = RTS.map.nearestFree(world.map, tx, ty);
+    if (RTS.map.passable(world.map, tx, ty, unit.owner)) return;
+    var t = RTS.map.nearestFree(world.map, tx, ty, undefined, unit.owner);
     if (!t) return;
     unit.x = t.x + 0.5;
     unit.y = t.y + 0.5;
@@ -151,7 +152,7 @@
   function nudge(world, u, dx, dy) {
     var nx = u.x + dx, ny = u.y + dy;
     var same = Math.floor(nx) === Math.floor(u.x) && Math.floor(ny) === Math.floor(u.y);
-    if (!same && (u.order.type !== 'idle' || !RTS.map.isWalkable(world.map, Math.floor(nx), Math.floor(ny)))) return;
+    if (!same && (u.order.type !== 'idle' || !RTS.map.passable(world.map, Math.floor(nx), Math.floor(ny), u.owner))) return;
     u.x = nx;
     u.y = ny;
   }

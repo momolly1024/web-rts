@@ -50,7 +50,7 @@
   }
 
   function assignVillagers(ctx) {
-    var counts = { food: 0, wood: 0, gold: 0 };
+    var counts = { food: 0, wood: 0, gold: 0, stone: 0 };
     ctx.villagers.forEach(function (u) {
       var r = gathererResource(u);
       if (r) counts[r]++;
@@ -169,11 +169,16 @@
         (barracks > 0 && barracks < cfg.maxBarracks && res.wood > 320)) {
       startBuilding(ctx, 'barracks');
     }
-    // 封建時代後各蓋一座靶場與馬廄
-    if (RTS.research.age(ctx.world, ctx.pid) >= 1 && barracks > 0 && !saving) {
+    // 封建時代後各蓋一座靶場與馬廄，再補箭塔；城堡時代要攻城槌時蓋攻城工坊
+    var age = RTS.research.age(ctx.world, ctx.pid);
+    if (age >= 1 && barracks > 0 && !saving) {
       ['archeryRange', 'stable'].forEach(function (type) {
         if (!countType(ctx.buildings, type) && res.wood > 160) startBuilding(ctx, type);
       });
+      var towersPending = ctx.buildings.some(function (b) { return b.type === 'tower' && !b.complete; });
+      if (countType(ctx.buildings, 'tower') < cfg.military.towers && !towersPending) startBuilding(ctx, 'tower');
+      if (age >= 2 && cfg.military.rams > 0 && !countType(ctx.buildings, 'siegeWorkshop') &&
+          ctx.army.length >= cfg.attackSize) startBuilding(ctx, 'siegeWorkshop');
     }
     tendSites(ctx);
     if (saving) return;
@@ -188,7 +193,11 @@
     var enemyCavalry = RTS.fog.perceived(ctx.world, ctx.pid).filter(function (e) {
       return e.kind === 'unit' && e.owner !== ctx.pid && e.type === 'cavalry';
     }).length;
-    function wanted(type) { return type !== 'spearman' || count(type) < enemyCavalry; }
+    function wanted(type) {
+      if (type === 'spearman') return count(type) < enemyCavalry;
+      if (type === 'ram') return count(type) < cfg.military.rams;
+      return !RTS.data.units[type].heal;          // AI 不訓練治療者
+    }
     trainers.forEach(function (b) {
       if (b.queue.length >= 2) return;
       var sheltered = inside.length - countType(inside, 'villager');

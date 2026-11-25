@@ -10,7 +10,7 @@
   var WALL = {
     townCenter: 1.7, house: 1.0, blacksmith: 1.0, barracks: 1.1,
     lumberCamp: 0.9, miningCamp: 0.9, mill: 1.0, farm: 0.05, market: 1.0, pen: 0.5,
-    archeryRange: 1.0, stable: 1.1
+    archeryRange: 1.0, stable: 1.1, tower: 2.2, wall: 0.9, gate: 1.2, temple: 1.2, siegeWorkshop: 1.1
   };
   var NODE = { tree: 0.95, berry: 0.4, gold: 0.4, rock: 0.45, carcass: 0.3 };
   var NODE_HALF = 0.42;
@@ -18,7 +18,7 @@
   var TOP = {
     townCenter: 3.4, house: 2.0, blacksmith: 2.0, barracks: 2.5,
     lumberCamp: 1.8, miningCamp: 1.9, mill: 2.6, farm: 0.6, market: 2.0, pen: 1.3,
-    archeryRange: 2.2, stable: 2.6
+    archeryRange: 2.2, stable: 2.6, tower: 3.1, wall: 1.3, gate: 1.5, temple: 2.6, siegeWorkshop: 2.2
   };
 
   function topOf(e) {

@@ -109,6 +109,7 @@
         button.disabled = !a.enabled;
         button.title = a.reason ? t('error.' + a.reason) : '';
         button.classList.toggle('active', !!a.active);
+        button.hidden = !!a.hidden;      // 另一頁的建造按鈕：不顯示，但快捷鍵照常有效
       });
     }
 
@@ -149,7 +150,8 @@
     }
 
     function updateHint() {
-      var hint = app.placement ? t('hint.placement')
+      var hint = app.placement === 'wall' ? t(app.wallStart ? 'hint.wallEnd' : 'hint.wallStart')
+        : app.placement ? t('hint.placement')
         : app.mode === 'attackMove' ? t('hint.attackMove') : '';
       text($('hint'), hint);
     }

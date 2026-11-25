@@ -60,7 +60,16 @@
 
   function leftClickMode(app, x, y, shift) {
     var units = app.selection.slice();
-    if (app.placement) {
+    if (app.placement === 'wall') {
+      // 城牆：第一下定起點，第二下定終點並沿線放工地
+      var end = placementTile(app);
+      if (!app.wallStart) { app.wallStart = end; return; }
+      var line = RTS.actions.issue(app, {
+        type: 'buildWall', unitIds: units, x0: app.wallStart.tx, y0: app.wallStart.ty, x1: end.tx, y1: end.ty
+      });
+      app.wallStart = null;
+      if (line.ok && !shift) app.placement = null;
+    } else if (app.placement) {
       var spot = placementTile(app);
       var r = RTS.actions.issue(app, {
         type: 'build', unitIds: units, building: app.placement, tx: spot.tx, ty: spot.ty
@@ -144,6 +153,7 @@
     var key = ev.code === 'Backspace' ? 'Delete' : ev.code.replace(/^Key/, '');    // Mac 鍵盤沒有 Delete 鍵
     var action = RTS.actions.list(app).filter(function (a) { return a.hotkey === key; })[0];
     if (!action) return;
+    if (key === 'Tab') ev.preventDefault();        // 切換建造選單頁，不讓瀏覽器移動焦點
     if (action.enabled) action.run(); else app.notify(action.reason);
   }
 

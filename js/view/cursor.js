@@ -27,6 +27,7 @@
       '<path d="M16 3 V13 M11 9 L16 14 L21 9" fill="none" stroke="#fff3b0" stroke-width="3"/>', 16, 16],
     garrison: ['<path d="M16 3 L28 7 V16 Q28 25 16 30 Q4 25 4 16 V7 Z" fill="#3b82d6"/>' +
       '<path d="M16 8 V25" stroke="#fff3b0" stroke-width="3"/>', 16, 16],
+    heal: ['<path d="M12 4 H20 V12 H28 V20 H20 V28 H12 V20 H4 V12 H12 Z" fill="#6fd35a"/>', 16, 16],
     pen: ['<path d="M4 12 H28 M4 22 H28" stroke="#8a5f3c" stroke-width="3"/>' +
       '<path d="M7 8 V28 M16 8 V28 M25 8 V28" stroke="#6b4a2b" stroke-width="4"/>', 16, 16]
   };
@@ -54,15 +55,22 @@
     if (herd.length && RTS.pen.isPen(target) && target.owner === pid && target.complete) return 'pen';
     if (!units.length) return null;
     var villagers = units.some(function (u) { return data.units[u.type].canBuild; });
+    var healers = units.some(function (u) { return data.units[u.type].heal; });
+    // 能打這個目標的單位：治療者不能打，攻城槌只打建築
+    var attackers = units.some(function (u) {
+      var atk = data.units[u.type].attack;
+      return atk && (!atk.buildingsOnly || target.kind === 'building');
+    });
 
     if (target.kind === 'animal') {
       var def = data.animals[target.type];
       if (def.young) return target.owner !== pid && target.owner !== null ? 'attack' : null;
       if (villagers) return 'hunt';
       var hostile = target.owner !== pid && (target.owner !== null || def.behavior !== 'herd');
-      return hostile ? 'attack' : null;
+      return hostile && attackers ? 'attack' : null;
     }
-    if (target.owner !== null && target.owner !== pid) return 'attack';
+    if (target.owner !== null && target.owner !== pid) return attackers ? 'attack' : null;
+    if (target.kind === 'unit' && healers && RTS.heal.canHeal({ owner: pid }, target)) return 'heal';
     var resource = RTS.gather.resourceOf(target);
     if (target.kind === 'node') return resource && villagers ? GATHER_ICON[resource] : null;
     if (target.kind !== 'building') return null;

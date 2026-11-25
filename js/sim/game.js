@@ -39,6 +39,7 @@
       else if (e.kind === 'building') {
         RTS.production.update(world, e, dt);
         RTS.pen.update(world, e, dt);
+        RTS.towers.update(world, e, dt);
         RTS.garrison.heal(e, dt);
       }
     }

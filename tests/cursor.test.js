@@ -75,3 +75,18 @@ test('游標：每個圖示都產生合法的 CSS 游標值', () => {
     assert.ok(decodeURIComponent(value).includes('<svg'), name);
   });
 });
+
+test('游標：治療者指向受傷的自己人是治療；攻城槌只對建築顯示攻擊', () => {
+  const { w, app } = setup();
+  const healer = unit(w, 'healer', 0, 10, 10);
+  const hurt = unit(w, 'swordsman', 0, 12, 10);
+  app.selection = [healer.id];
+  assert.strictEqual(RTS.cursor.actionFor(app, hurt), null, '沒受傷不用治療');
+  hurt.hp = 5;
+  assert.strictEqual(RTS.cursor.actionFor(app, hurt), 'heal');
+  assert.strictEqual(RTS.cursor.actionFor(app, unit(w, 'swordsman', 1, 14, 10)), null, '治療者不能攻擊');
+  const ram = unit(w, 'ram', 0, 10, 12);
+  app.selection = [ram.id];
+  assert.strictEqual(RTS.cursor.actionFor(app, unit(w, 'archer', 1, 15, 10)), null);
+  assert.strictEqual(RTS.cursor.actionFor(app, RTS.world.buildingsOf(w, 1, 'townCenter')[0]), 'attack');
+});

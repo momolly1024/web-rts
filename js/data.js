@@ -34,8 +34,8 @@
     // 傷害 = max(1, 攻擊力 * 相剋倍率 - 該攻擊類型的護甲)
     // 單位的 attack.bonus 可針對特定護甲類型覆寫倍率（例如長槍兵對騎兵）
     damageBonus: {
-      melee:  { civilian: 1.0,  infantry: 1.0,  ranged: 1.4,  cavalry: 1.0,  building: 0.8, animal: 1.0 },
-      pierce: { civilian: 1.0,  infantry: 1.25, ranged: 0.9,  cavalry: 0.75, building: 0.3, animal: 1.0 }
+      melee:  { civilian: 1.0,  infantry: 1.0,  ranged: 1.4,  cavalry: 1.0,  siege: 1.0, building: 0.8, animal: 1.0 },
+      pierce: { civilian: 1.0,  infantry: 1.25, ranged: 0.9,  cavalry: 0.75, siege: 0.2, building: 0.3, animal: 1.0 }
     },
 
     units: {
@@ -65,6 +65,19 @@
         hp: 110, speed: 3.4, vision: 6, armorType: 'cavalry', armor: { melee: 2, pierce: 2 },
         attack: { type: 'melee', damage: 8, range: 0.8, cooldown: 1.4 },
         military: true, upgradeClass: 'melee'
+      },
+      // 治療者：不能攻擊，自動替附近受傷的己方單位回血（攻城槌除外）
+      healer: {
+        cost: { gold: 100 }, trainTime: 30, pop: 1, hotkey: 'Q', age: 2,
+        hp: 30, speed: 2.1, vision: 8, armorType: 'civilian', armor: { melee: 0, pierce: 0 },
+        attack: null, heal: { rate: 1.5, range: 4 }, military: true
+      },
+      // 攻城槌：只打建築、傷害極高，幾乎不怕箭；慢
+      ram: {
+        cost: { wood: 160, gold: 75 }, trainTime: 30, pop: 1, hotkey: 'Q', age: 2,
+        hp: 200, speed: 1.4, vision: 4, armorType: 'siege', armor: { melee: 0, pierce: 8 },
+        attack: { type: 'melee', damage: 3, range: 0.9, cooldown: 3, bonus: { building: 40 }, buildingsOnly: true },
+        military: true, noHeal: true
       },
       archer: {
         cost: { wood: 40, gold: 35 }, trainTime: 16, pop: 1, hotkey: 'Q', age: 1,
@@ -120,7 +133,7 @@
       },
       barracks: {
         cost: { wood: 150 }, size: 3, hp: 600, buildTime: 30,
-        pop: 0, vision: 4, trains: ['swordsman', 'spearman'], dropoff: false, hotkey: 'B',
+        pop: 0, vision: 4, trains: ['swordsman', 'spearman'], dropoff: false, hotkey: 'B', researches: ['swordLine'],
         armorType: 'building', armor: { melee: 1, pierce: 1 }
       },
       blacksmith: {
@@ -131,12 +144,41 @@
       },
       archeryRange: {
         cost: { wood: 150 }, size: 3, hp: 600, buildTime: 30, age: 1,
-        pop: 0, vision: 4, trains: ['archer'], dropoff: false, hotkey: 'R',
+        pop: 0, vision: 4, trains: ['archer'], dropoff: false, hotkey: 'R', researches: ['archerLine'],
         armorType: 'building', armor: { melee: 1, pierce: 1 }
       },
       stable: {
         cost: { wood: 150 }, size: 3, hp: 600, buildTime: 30, age: 1,
-        pop: 0, vision: 4, trains: ['cavalry'], dropoff: false, hotkey: 'V',
+        pop: 0, vision: 4, trains: ['cavalry'], dropoff: false, hotkey: 'V', researches: ['cavalryLine'],
+        armorType: 'building', armor: { melee: 1, pierce: 1 }
+      },
+      // 箭塔：自動射擊範圍內的敵方單位
+      tower: {
+        cost: { wood: 25, stone: 125 }, size: 1, hp: 700, buildTime: 30, age: 1,
+        pop: 0, vision: 8, trains: [], dropoff: false, hotkey: 'I', researches: ['towerUpgrade'],
+        attack: { type: 'pierce', damage: 5, range: 7, cooldown: 2 },
+        armorType: 'building', armor: { melee: 2, pierce: 4 }
+      },
+      // 石牆：一格，拖一條線一次放多格
+      wall: {
+        cost: { stone: 5 }, size: 1, hp: 600, buildTime: 5, age: 1,
+        pop: 0, vision: 1, trains: [], dropoff: false, hotkey: 'Z', line: true,
+        armorType: 'building', armor: { melee: 4, pierce: 6 }
+      },
+      // 城門：自己人可通過、別人不行；可蓋在空地或直接取代自己的城牆
+      gate: {
+        cost: { stone: 30 }, size: 1, hp: 900, buildTime: 10, age: 1,
+        pop: 0, vision: 2, trains: [], dropoff: false, hotkey: 'U', gate: true, walkable: true,
+        armorType: 'building', armor: { melee: 4, pierce: 6 }
+      },
+      temple: {
+        cost: { wood: 175 }, size: 3, hp: 700, buildTime: 40, age: 2,
+        pop: 0, vision: 5, trains: ['healer'], dropoff: false, hotkey: 'J',
+        armorType: 'building', armor: { melee: 1, pierce: 1 }
+      },
+      siegeWorkshop: {
+        cost: { wood: 200 }, size: 3, hp: 700, buildTime: 40, age: 2,
+        pop: 0, vision: 4, trains: ['ram'], dropoff: false, hotkey: 'E',
         armorType: 'building', armor: { melee: 1, pierce: 1 }
       },
       // 收集建築：dropoff 列出收取的資源
@@ -179,8 +221,14 @@
       }
     },
 
+    // 村民的建造選單分兩頁（Tab 切換），快捷鍵兩頁都有效
+    buildPages: {
+      eco: ['house', 'townCenter', 'lumberCamp', 'miningCamp', 'mill', 'farm', 'pen', 'market'],
+      mil: ['barracks', 'archeryRange', 'stable', 'blacksmith', 'tower', 'wall', 'gate', 'temple', 'siegeWorkshop']
+    },
     buildOrderList: ['house', 'barracks', 'blacksmith', 'townCenter',
-      'lumberCamp', 'miningCamp', 'mill', 'farm', 'market', 'pen', 'archeryRange', 'stable'],
+      'lumberCamp', 'miningCamp', 'mill', 'farm', 'market', 'pen', 'archeryRange', 'stable',
+      'tower', 'wall', 'gate', 'temple', 'siegeWorkshop'],
 
     // 成就：「贏過了幾 % 的玩家」用的對照表 [數量, 百分比]。沒有真實玩家資料，這是估計值，可自行調整
     achievements: {
@@ -235,6 +283,25 @@
           { age: 1, effects: { carry: 3, speed: 0.1 }, cost: { food: 150, wood: 50 }, time: 30 },
           { age: 2, effects: { carry: 5, speed: 0.1 }, cost: { food: 250, wood: 150 }, time: 45 }]
       },
+      // 兵種升級：unitType 的現有與之後訓練的單位一起變強，名稱與外觀改變。tier 為該級增加量
+      swordLine: {
+        unitType: 'swordsman', hotkey: 'R', levels: [
+          { age: 1, tier: { hp: 15, attack: 2, armor: 1 }, cost: { food: 100, gold: 40 }, time: 30 },
+          { age: 2, tier: { hp: 20, attack: 2, armor: 1 }, cost: { food: 200, gold: 100 }, time: 45 }]
+      },
+      archerLine: {
+        unitType: 'archer', hotkey: 'E', levels: [
+          { age: 2, tier: { hp: 10, attack: 1, range: 1 }, cost: { food: 150, gold: 100 }, time: 40 }]
+      },
+      cavalryLine: {
+        unitType: 'cavalry', hotkey: 'E', levels: [
+          { age: 2, tier: { hp: 40, attack: 3, armor: 1 }, cost: { food: 250, gold: 150 }, time: 50 }]
+      },
+      // 箭塔強化：在箭塔研究，所有箭塔攻擊與射程提高
+      towerUpgrade: {
+        hotkey: 'Q', levels: [
+          { age: 2, effects: { 'tower.damage': 3, 'tower.range': 1 }, cost: { food: 100, stone: 100 }, time: 40 }]
+      },
       meleeAttack: {
         unitClass: 'melee', stat: 'attack', hotkey: 'Q', levels: [
           { age: 1, bonus: 2, cost: { food: 100, gold: 50 }, time: 30 },
@@ -271,7 +338,8 @@
           hunt: { prey: false, range: 14, boarParty: 0 },
           scoutStart: 180,
           economy: { campAt: 4, millAt: 11, maxFarms: 8, reseedBuffer: 1, techAt: 12, techLevel: 1 },
-          age: { at: [10, 99], army: [4, 10], maxAge: 1 }
+          age: { at: [10, 99], army: [4, 10], maxAge: 1 },
+          military: { towers: 0, rams: 0, tiers: false }
         }
       },
       normal: { ai: {} },
@@ -285,7 +353,8 @@
           hunt: { prey: true, range: 20, boarParty: 4 },
           scoutStart: 45,
           economy: { campAt: 3, millAt: 8, maxFarms: 16, reseedBuffer: 3, techAt: 10, techLevel: 3 },
-          age: { at: [14, 17], army: [8, 26], maxAge: 2 }
+          age: { at: [14, 17], army: [8, 26], maxAge: 2 },
+          military: { towers: 2, rams: 3, tiers: true }
         }
       }
     },
@@ -295,7 +364,7 @@
       thinkInterval: 1.0,
       graceTime: 300,        // 開局緩衝（秒），此前 AI 不進攻
       villagerTarget: 14,
-      gatherRatio: { food: 0.45, wood: 0.35, gold: 0.20 },
+      gatherRatio: { food: 0.42, wood: 0.32, gold: 0.18, stone: 0.08 },   // 封建以後也採石材（箭塔）
       gatherRatioDark: { food: 0.6, wood: 0.3, gold: 0.1 },   // 黑暗時代只有劍士能訓練，多採食物
       attackSize: 6,         // 第一波人數
       waveGrowth: 2,
@@ -315,7 +384,9 @@
       // 預付重種保持幾次、村民達幾人開始研究經濟科技、經濟科技最多研究到幾級
       economy: { campAt: 3, millAt: 9, maxFarms: 12, reseedBuffer: 2, techAt: 12, techLevel: 2 },
       // 升時代：村民達 at[目前時代] 人、軍隊達 army[目前時代] 人才開始準備（存錢期間不訓練；封建取第一波人數，城堡取軍隊上限，滿編才存錢），最多升到 maxAge（at 不可超過 villagerTarget）
-      age: { at: [12, 14], army: [6, 18], maxAge: 2 }
+      age: { at: [12, 14], army: [6, 18], maxAge: 2 },
+      // 封建後蓋幾座箭塔、城堡時代最多幾台攻城槌、是否研究兵種升級
+      military: { towers: 1, rams: 2, tiers: true }
     }
   };
 })();

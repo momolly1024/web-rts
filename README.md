@@ -29,6 +29,11 @@ mouse and keyboard is recommended.
 | Barracks | 150 wood | Trains swordsmen and spearmen (Feudal) |
 | Archery Range (Feudal) | 150 wood | Trains archers |
 | Stable (Feudal) | 150 wood | Trains cavalry |
+| Arrow Tower (Feudal) | 25 wood, 125 stone | One tile; shoots enemy units within 7 tiles |
+| Stone Wall (Feudal) | 5 stone per tile | Blocks the way; click the start, then the end, to lay a whole line |
+| Gate (Feudal) | 30 stone | Your units pass, enemies cannot; can replace a tile of your own wall |
+| Temple (Castle) | 175 wood | Trains healers |
+| Siege Workshop (Castle) | 200 wood | Trains battering rams |
 | Blacksmith | 130 wood | Researches attack and armor |
 | Lumber Camp | 100 wood | Receives wood; researches Keen axes |
 | Mining Camp | 100 wood | Receives gold and stone; researches Gold digging and Stone cutting |
@@ -43,6 +48,8 @@ mouse and keyboard is recommended.
 | Swordsman | 60 food, 20 gold | Tough melee unit; x1.4 damage against ranged units |
 | Spearman (Feudal) | 35 food, 25 wood | Cheap; x5.5 damage against cavalry, loses to swordsmen and archers |
 | Cavalry (Feudal) | 80 food, 50 gold | Fast, tough, high pierce armor; runs down archers |
+| Healer (Castle) | 100 gold | Cannot attack; heals nearby wounded allies when idle (1.5 HP/s) |
+| Battering Ram (Castle) | 160 wood, 75 gold | Attacks buildings only and tears them down fast; arrows barely hurt it; slow |
 | Archer (Feudal) | 40 wood, 35 gold | Range 4.5; x1.25 damage against infantry, slow against buildings |
 
 Other rules: every builder after the first works at half speed; villagers who finish a building
@@ -80,6 +87,30 @@ your current and future units of that class (villagers are unaffected).
 - The top bar shows your age; select the Town Center to see what the next age needs.
 - Counters: cavalry beat archers, archers beat spearmen, spearmen beat cavalry; swordsmen beat
   archers up close and also beat spearmen.
+
+### Defense and siege
+
+- **Arrow towers** shoot the nearest enemy unit in range once finished. In the Castle Age, press Q at a
+  tower for Stronger towers: +3 attack and +1 range for all your towers.
+- **Stone walls**: with villagers press Z, click the start and then the end; a site goes on every tile
+  of the line (as far as your stone lasts) and villagers build them from the nearest one.
+- **Gates**: press U and place one on open ground or on a tile of your own wall to replace it. Your
+  units walk through; enemies cannot.
+- An army that cannot reach its target because of walls attacks the enemy building in its way.
+- **Battering rams** only attack buildings and healers cannot attack, so right-clicking an enemy unit
+  does nothing for them.
+
+### Unit upgrades
+
+Researched at the training building; existing and future units of that type get stronger, change
+name and wear a plume (white for the first level, gold for the second).
+
+| Upgrade (building, key) | Age | Effect | Cost |
+|------|------|------|------|
+| Swordsman → Heavy Swordsman (Barracks R) | Feudal | +15 HP, +2 attack, +1 armor | 100 food, 40 gold, 30 s |
+| Heavy Swordsman → Elite Swordguard (Barracks R) | Castle | +20 HP, +2 attack, +1 armor | 200 food, 100 gold, 45 s |
+| Archer → Longbowman (Archery Range E) | Castle | +10 HP, +1 attack, +1 range | 150 food, 100 gold, 40 s |
+| Cavalry → Heavy Cavalry (Stable E) | Castle | +40 HP, +3 attack, +1 armor | 250 food, 150 gold, 50 s |
 
 ### Economy
 
@@ -228,7 +259,9 @@ English). Your choice is saved in `localStorage`. Where that is unavailable (som
 | Left-click / drag | Select (Shift adds, double-click selects the same type on screen) |
 | Right-click | Move, gather, hunt, attack, build, repair, deliver or shelter, depending on the target; with a training building selected, set its rally point |
 | Arrow keys, WASD, mouse at the window edge | Scroll |
-| H, B, K, T, L, N, M, C, Y, O, R, V | With villagers: build House, Barracks, Blacksmith, Town Center, Lumber Camp, Mining Camp, Mill, Farm, Market, Pen, Archery Range, Stable (Shift + click to keep placing) |
+| H, T, L, N, M, C, O, Y | With villagers (Economy page): House, Town Center, Lumber Camp, Mining Camp, Mill, Farm, Pen, Market (Shift + click to keep placing) |
+| B, R, V, K, I, Z, U, J, E | With villagers (Military page): Barracks, Archery Range, Stable, Blacksmith, Arrow Tower, Stone Wall, Gate, Temple, Siege Workshop |
+| Tab | With villagers: switch the build menu between Economy and Military (hotkeys work on both) |
 | Q, E, R | Town Center: Villager, Handcarts, next age. Barracks: Swordsman, Spearman. Archery Range Q: Archer. Stable Q: Cavalry. Lumber Camp Q: Keen axes. Mining Camp: Gold digging, Stone cutting |
 | Q, E, X | Mill: Rich harvest, queue a reseed, cancel one reseed |
 | Q, E, R / Z, C, V | Market: buy food, wood, stone / sell food, wood, stone |
@@ -294,7 +327,9 @@ js/sim/                 Simulation (no DOM, no display text)
   wander.js             Idle strolling
   fog.js                Fog of war and memory
   production.js         Training and research queues
-  combat.js             Damage, chasing, retaliation, attack move
+  combat.js             Damage, chasing, retaliation, attack move, breaching walls
+  towers.js             Arrow towers shooting
+  heal.js               Healers
   orders.js             Unit order state machine
   commands.js           Command interface shared by player and AI
   game.js               Fixed-step update and victory check
@@ -344,7 +379,9 @@ Code comments and test names are written in Traditional Chinese.
 
 ## Known limits
 
-- The AI does not gather stone or use the Market, pens or demolition.
+- The AI does not use the Market, pens or demolition, and builds no walls, gates or temples (no
+  healers). It only prepares for the Castle Age with a full army, so rams show up in long games.
+- Buildings do not change appearance with the age.
 - With villagers selected there are many build buttons; in a short window, Garrison and Stop need
   the panel scrolled (their hotkeys always work).
 - Pathfinding uses the real map, so units route around obstacles they have not seen.

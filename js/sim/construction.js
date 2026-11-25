@@ -3,6 +3,26 @@
   'use strict';
   var RTS = globalThis.RTS || (globalThis.RTS = {});
 
+  // 己方完工的城牆（城門可以直接蓋在上面取代它）
+  function ownWallAt(world, owner, x, y) {
+    var e = RTS.world.get(world, RTS.map.occupantAt(world.map, x, y));
+    return e && e.kind === 'building' && e.type === 'wall' && e.owner === owner && e.complete ? e : null;
+  }
+
+  // 城牆一條線上的格子（八方向的直線，斜線也連得起來）
+  function lineTiles(x0, y0, x1, y1) {
+    var out = [], dx = Math.abs(x1 - x0), dy = Math.abs(y1 - y0), sx = x0 < x1 ? 1 : -1, sy = y0 < y1 ? 1 : -1;
+    var err = dx - dy, x = x0, y = y0;
+    for (;;) {
+      out.push({ x: x, y: y });
+      if (x === x1 && y === y1) break;
+      var e2 = 2 * err;
+      if (e2 > -dy) { err -= dy; x += sx; }
+      if (e2 < dx) { err += dx; y += sy; }
+    }
+    return out;
+  }
+
   // 預覽與指令共用同一套判斷
   function canPlace(world, owner, type, tx, ty) {
     var size = RTS.data.buildings[type].size, map = world.map;
@@ -10,7 +30,8 @@
       for (var x = tx; x < tx + size; x++) {
         if (!RTS.map.inBounds(map, x, y)) return { ok: false, reason: 'outOfMap' };
         if (RTS.fog.tile(world, owner, x, y) === RTS.fog.UNEXPLORED) return { ok: false, reason: 'unexplored' };
-        if (!RTS.map.isWalkable(map, x, y) || RTS.map.floorAt(map, x, y)) return { ok: false, reason: 'blocked' };
+        var free = RTS.map.isWalkable(map, x, y) && !RTS.map.floorAt(map, x, y);
+        if (!free && !(type === 'gate' && ownWallAt(world, owner, x, y))) return { ok: false, reason: 'blocked' };
       }
     }
     var enemy = false;
@@ -32,6 +53,8 @@
   }
 
   function place(world, owner, type, tx, ty) {
+    var old = type === 'gate' && ownWallAt(world, owner, tx, ty);
+    if (old) RTS.world.remove(world, old);      // 城門取代城牆，牆不退款
     var b = RTS.world.addBuilding(world, type, owner, tx, ty, false);
     world.entities.forEach(function (u) {
       if (u.w === undefined) RTS.move.rescue(world, u);
@@ -95,7 +118,7 @@
   }
 
   RTS.construction = {
-    canPlace: canPlace, missingRequirement: missingRequirement, place: place, cancel: cancel, beginTick: beginTick, update: update,
+    canPlace: canPlace, missingRequirement: missingRequirement, ownWallAt: ownWallAt, lineTiles: lineTiles, place: place, cancel: cancel, beginTick: beginTick, update: update,
     nextJob: nextJob
   };
 })();

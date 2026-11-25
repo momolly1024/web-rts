@@ -25,8 +25,20 @@
       return;
     }
     var smith = smiths[0], track = nextTrack(ctx, cfg.maxLevel);
-    if (!track || !smith.complete || smith.queue.length) return;
-    ctx.issue({ type: 'research', buildingId: smith.id, track: track });
+    if (track && smith.complete && !smith.queue.length) ctx.issue({ type: 'research', buildingId: smith.id, track: track });
+    upgradeUnits(ctx);
+  }
+
+  // 兵種升級：在對應的生產建築研究，排在出兵前面（研究期間該建築不出兵）
+  function upgradeUnits(ctx) {
+    if (!ctx.cfg.military.tiers) return;
+    ['swordLine', 'archerLine', 'cavalryLine'].forEach(function (track) {
+      var b = ctx.buildings.filter(function (e) {
+        var r = RTS.data.buildings[e.type].researches;
+        return e.complete && !e.queue.length && r && r.indexOf(track) >= 0;
+      })[0];
+      if (b && RTS.research.check(ctx.world, b, track).ok) ctx.issue({ type: 'research', buildingId: b.id, track: track });
+    });
   }
 
   AI.tech = { develop: develop };

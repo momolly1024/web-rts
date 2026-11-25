@@ -95,9 +95,22 @@
       var t = visibleTarget(world, pid, c.targetId);
       var wild = t && t.kind === 'animal' && t.owner !== pid;
       if (!t || (!wild && (t.owner === null || t.owner === pid))) return fail('cannotAttack');
-      if (!units.length) return fail('noUnits');
+      // 治療者不能攻擊；攻城槌只打建築
+      units = units.filter(function (u) {
+        var atk = RTS.data.units[u.type].attack;
+        return atk && (!atk.buildingsOnly || t.kind === 'building');
+      });
+      if (!units.length) return fail('cannotAttack');
       units.forEach(function (u) { RTS.orders.set(u, { type: 'attack', targetId: t.id, auto: false }); });
       return done('attack');
+    },
+    heal: function (world, pid, c, units) {
+      var healers = units.filter(function (u) { return RTS.data.units[u.type].heal; });
+      if (!healers.length) return fail('healersOnly');
+      var t = visibleTarget(world, pid, c.targetId);
+      if (!t || t.kind !== 'unit' || t.owner !== pid || RTS.data.units[t.type].noHeal) return fail('cannotHeal');
+      healers.forEach(function (u) { if (u !== t) RTS.orders.set(u, { type: 'heal', targetId: t.id, auto: false }); });
+      return done('heal');
     },
     assist: function (world, pid, c, units) {
       var b = ownBuilding(world, pid, c.targetId), workers = villagersIn(units);
@@ -150,6 +163,29 @@
       var b = ownBuilding(world, pid, c.buildingId);
       return b ? RTS.pen.demolish(world, b) : fail('buildingNotFound');
     },
+    // 城牆：從 (x0, y0) 拉到 (x1, y1)，能放的格子都放工地（錢不夠就停），村民從最近的一格開始蓋
+    buildWall: function (world, pid, c, units) {
+      var def = RTS.data.buildings.wall, workers = villagersIn(units);
+      if (!workers.length) return fail('needVillagers');
+      var missing = RTS.construction.missingRequirement(world, pid, 'wall');
+      if (missing) return missing;
+      var tiles = RTS.construction.lineTiles(Math.floor(c.x0), Math.floor(c.y0), Math.floor(c.x1), Math.floor(c.y1));
+      var sites = [], reason = 'blocked';
+      for (var i = 0; i < tiles.length && sites.length < 60; i++) {
+        var t = tiles[i];
+        var check = RTS.construction.canPlace(world, pid, 'wall', t.x, t.y);
+        if (!check.ok) { reason = check.reason; continue; }
+        if (!RTS.world.pay(world, pid, def.cost)) { reason = 'notEnoughResources'; break; }
+        sites.push(RTS.construction.place(world, pid, 'wall', t.x, t.y));
+      }
+      if (!sites.length) return fail(reason);
+      var first = workers[0];
+      sites.sort(function (a, b) {
+        return RTS.util.dist(first.x, first.y, a.x, a.y) - RTS.util.dist(first.x, first.y, b.x, b.y);
+      });
+      workers.forEach(function (u) { assignJob(u, 'build', sites[0]); });
+      return { ok: true, action: 'build', count: sites.length };
+    },
     cancelBuild: function (world, pid, c) {
       var b = ownBuilding(world, pid, c.buildingId);
       return b && RTS.construction.cancel(world, b) ? done('cancelBuild') : fail('cannotCancel');
@@ -196,6 +232,10 @@
         if (!takers.length) return;
         result = handlers[type](world, pid, c, takers);
         left = left.filter(function (u) { return takers.indexOf(u) < 0; });
+      }
+      // 右鍵受傷的己方單位：治療者去治療，其他人照常移動
+      if (t && t.kind === 'unit' && t.owner === pid && t.hp < t.maxHp && !RTS.data.units[t.type].noHeal) {
+        dispatch('heal', left.filter(function (u) { return RTS.data.units[u.type].heal && u !== t; }));
       }
       var young = animal && RTS.data.animals[t.type].young;
       if (animal && !young) {

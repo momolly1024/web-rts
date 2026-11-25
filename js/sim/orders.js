@@ -25,7 +25,7 @@
       u.nav = null;
       u.wait = 0;
     }
-    if (type !== 'gather' && type !== 'build' && type !== 'repair' && u.swing > 0) u.swing = Math.max(0, u.swing - dt);
+    if (type !== 'gather' && type !== 'build' && type !== 'repair' && type !== 'heal' && u.swing > 0) u.swing = Math.max(0, u.swing - dt);
     switch (type) {
       case 'move': updateMove(world, u, dt); break;
       case 'gather': RTS.gather.update(world, u, dt); break;
@@ -36,7 +36,10 @@
       case 'hunt': RTS.animals.updateHunt(world, u, dt); break;
       case 'attack': RTS.combat.updateAttack(world, u, dt); break;
       case 'attackMove': RTS.combat.updateAttackMove(world, u, dt); break;
-      default: RTS.combat.updateIdle(world, u, dt);
+      case 'heal': RTS.heal.update(world, u, dt); break;
+      default:
+        if (RTS.data.units[u.type].heal) RTS.heal.updateIdle(world, u, dt);
+        else RTS.combat.updateIdle(world, u, dt);
     }
   }
 
