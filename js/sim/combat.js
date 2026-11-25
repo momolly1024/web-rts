@@ -9,7 +9,8 @@
   // attackBonus、armorBonus 為雙方的研究加成
   function damageOf(attackerType, targetDef, attackBonus, armorBonus) {
     var atk = RTS.data.units[attackerType].attack;
-    var bonus = RTS.data.damageBonus[atk.type][targetDef.armorType];
+    var special = atk.bonus && atk.bonus[targetDef.armorType];
+    var bonus = special || RTS.data.damageBonus[atk.type][targetDef.armorType];
     var armor = targetDef.armor[atk.type] + (armorBonus || 0);
     return Math.max(1, (atk.damage + (attackBonus || 0)) * bonus - armor);
   }

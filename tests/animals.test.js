@@ -158,7 +158,7 @@ test('只有困難 AI 會組隊圍獵野豬', () => {
     const ai = RTS.ai.create(1, key);
     const boars = RTS.world.list(w, e => e.kind === 'animal').length;
     let party = 0;
-    for (let i = 0; i < 8000; i++) {
+    for (let i = 0; i < 12000; i++) {
       ai.update(w, RTS.data.TICK);
       RTS.game.step(w);
       party = Math.max(party, RTS.world.unitsOf(w, 1).filter(u => u.order.type === 'hunt').length);

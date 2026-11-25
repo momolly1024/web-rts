@@ -119,6 +119,39 @@
       gable(ctx, [0.08, 0.14, s - 0.08, s - 0.14], 1.0, 0.85, '#5c5852', '#45423e', '#6f4b2f');
       flag(ctx, s - 0.3, s / 2, 1.8, c.color);
     },
+    // 靶場：開放式棚子加兩座草靶
+    archeryRange: function (ctx, s, c) {
+      plot(ctx, s, '#8f815f');
+      var r = [0.2, 0.2, s - 0.2, 1.3];
+      box(ctx, r, 0, 0.9, ['#8a5f3c', '#6f4b2f', '#7a5334']);
+      onLeft(ctx, r[3], 0.5, s - 0.5, 0.1, 0.75, '#33251a');
+      gable(ctx, [0.08, 0.08, s - 0.08, 1.42], 0.9, 0.6, c.color, c.dark, '#6f4b2f');
+      [[0.9, s - 0.6], [s - 0.7, s - 0.6]].forEach(function (p) {
+        edge(ctx, [p[0], p[1], 0], [p[0], p[1], 0.5], '#5c4326', 0.07);
+        var m = at(p[0], p[1], 0.75);
+        D.disc(ctx, m[0], m[1], 0.28, 0.28, '#d9c27a');
+        D.disc(ctx, m[0], m[1], 0.18, 0.18, '#efe6cf', false);
+        D.disc(ctx, m[0], m[1], 0.08, 0.08, '#d0473f', false);
+      });
+      flag(ctx, s - 0.3, 0.3, 1.5, c.color);
+    },
+    // 馬廄：長穀倉、乾草堆、門口的馬蹄鐵招牌
+    stable: function (ctx, s, c) {
+      plot(ctx, s, '#8f815f');
+      var r = [0.2, 0.3, s - 0.2, s - 0.6];
+      box(ctx, r, 0, 1.0, ['#9c5b3a', '#7d472d', '#8a5034']);
+      [0.5, 1.2, 1.9].forEach(function (u) { onLeft(ctx, r[3], u, u + 0.5, 0, 0.6, '#3a2618'); });
+      gable(ctx, [0.08, 0.16, s - 0.08, s - 0.48], 1.0, 0.8, '#5c5852', '#45423e', '#7d472d');
+      box(ctx, [s - 1.0, s - 0.45, s - 0.3, s - 0.1], 0, 0.35, ['#d9c27a', '#bfa860', '#e6d28c']);
+      var p = at(1.45, r[3], 0.85);
+      ctx.beginPath();
+      ctx.arc(p[0], p[1], 0.16, 0.3, Math.PI - 0.3, true);
+      ctx.strokeStyle = '#c9ced4';
+      ctx.lineWidth = 0.07;
+      ctx.stroke();
+      ctx.lineWidth = 1 / 36;
+      flag(ctx, s - 0.3, s / 2, 1.9, c.color);
+    },
     lumberCamp: function (ctx, s, c) {
       plot(ctx, s, '#8f815f');
       // 單坡棚子：後高前低，前方堆木頭

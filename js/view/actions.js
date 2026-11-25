@@ -148,8 +148,9 @@
     return out;
   }
 
+  // 時代研究顯示時代名稱，其他顯示「名稱 等級」
   function upgradeName(track, level) {
-    return t('upgrade.' + track) + ' ' + level;
+    return track === 'age' ? t('age.' + level) : t('upgrade.' + track) + ' ' + level;
   }
 
   function researchActions(app, b) {
@@ -225,6 +226,7 @@
     var lines = [];
     if (!e.complete) lines.push(t('info.progress', { percent: Math.floor(e.progress * 100) }));
     if (def.pop) lines.push(t('info.providesPop', { amount: def.pop }));
+    if (e.type === 'townCenter' && e.owner === human && e.complete) lines = lines.concat(ageLines(app));
     if (def.dropoff && e.type !== 'townCenter') {
       lines.push(t('info.dropoff', { list: def.dropoff.map(function (r) { return t('resource.' + r); })
         .join(t('list.separator')) }));
@@ -253,6 +255,20 @@
       lines.push(t('info.garrison', { count: RTS.garrison.count(e), max: def.garrison.capacity }));
     }
     if (RTS.repair.canRepair(e) && e.owner === human) lines.push(t('info.repairHint'));
+    return lines;
+  }
+
+  // 主堡：目前時代與升下一個時代的條件
+  function ageLines(app) {
+    var world = app.world, human = app.human, age = RTS.research.age(world, human);
+    var lines = [t('info.age', { name: t('age.' + age) })];
+    var next = RTS.data.upgrades.age.levels[age];
+    if (!next) return lines.concat(t('info.ageMax'));
+    var met = RTS.research.needsMet(world, human, next.needs);
+    lines.push(t('info.ageNeeds', {
+      name: t('age.' + (age + 1)), count: next.needs.count, have: met.have.length,
+      list: next.needs.from.map(function (type) { return t('building.' + type); }).join(t('list.separator'))
+    }));
     return lines;
   }
 

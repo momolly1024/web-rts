@@ -8,6 +8,8 @@
     var def = RTS.data.buildings[b.type], unit = RTS.data.units[unitType];
     if (!unit || def.trains.indexOf(unitType) < 0) return { ok: false, reason: 'cannotTrain' };
     if (!b.complete) return { ok: false, reason: 'notComplete' };
+    var tooEarly = RTS.research.ageFail(world, b.owner, unit.age);
+    if (tooEarly) return tooEarly;
     if (b.queue.length >= RTS.data.QUEUE_MAX) return { ok: false, reason: 'queueFull' };
     var pop = RTS.world.population(world, b.owner);
     if (pop.used + pop.queued + unit.pop > pop.cap) {

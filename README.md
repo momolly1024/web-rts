@@ -26,7 +26,9 @@ mouse and keyboard is recommended.
 |------|------|------|
 | Town Center | 300 wood, 100 gold | Trains villagers, receives every resource, researches Handcarts, +5 population |
 | House | 50 wood | +5 population (total limit 50) |
-| Barracks | 150 wood | Trains swordsmen and archers |
+| Barracks | 150 wood | Trains swordsmen and spearmen (Feudal) |
+| Archery Range (Feudal) | 150 wood | Trains archers |
+| Stable (Feudal) | 150 wood | Trains cavalry |
 | Blacksmith | 130 wood | Researches attack and armor |
 | Lumber Camp | 100 wood | Receives wood; researches Keen axes |
 | Mining Camp | 100 wood | Receives gold and stone; researches Gold digging and Stone cutting |
@@ -39,7 +41,9 @@ mouse and keyboard is recommended.
 |------|------|------|
 | Villager | 50 food | Gathers and builds; weak fighter, does not retaliate on its own |
 | Swordsman | 60 food, 20 gold | Tough melee unit; x1.4 damage against ranged units |
-| Archer | 40 wood, 35 gold | Range 4.5; x1.25 damage against infantry, slow against buildings |
+| Spearman (Feudal) | 35 food, 25 wood | Cheap; x5.5 damage against cavalry, loses to swordsmen and archers |
+| Cavalry (Feudal) | 80 food, 50 gold | Fast, tough, high pierce armor; runs down archers |
+| Archer (Feudal) | 40 wood, 35 gold | Range 4.5; x1.25 damage against infantry, slow against buildings |
 
 Other rules: every builder after the first works at half speed; villagers who finish a building
 help at a nearby site or return to gathering; a villager carrying a load who is told to gather
@@ -63,6 +67,19 @@ your current and future units of that class (villagers are unaffected).
 | Ranged attack (archer) | attack +1 | 100 wood, 50 gold, 30 s | 170 wood, 100 gold, 45 s |
 | Melee armor (swordsman) | both armors +1 | 90 food, 40 gold, 25 s | 150 food, 80 gold, 40 s |
 | Ranged armor (archer) | both armors +1 | 90 wood, 40 gold, 25 s | 150 wood, 80 gold, 40 s |
+
+### Ages
+
+- Three ages: Dark → Feudal → Castle. Select the Town Center and press R; it costs food (plus gold for
+  the Castle Age) and time, and the Town Center cannot train villagers meanwhile.
+- Feudal Age: needs two of Barracks, Lumber Camp, Mining Camp and Mill; 400 food, 60 s.
+- Castle Age: needs two of Blacksmith, Archery Range, Stable and Market; 700 food, 200 gold, 90 s.
+- Feudal unlocks the Blacksmith, Market, Archery Range, Stable, Spearmen and Handcarts, plus level 2
+  economy upgrades and level 1 Blacksmith upgrades.
+- Castle unlocks level 3 economy upgrades and level 2 Handcarts and Blacksmith upgrades.
+- The top bar shows your age; select the Town Center to see what the next age needs.
+- Counters: cavalry beat archers, archers beat spearmen, spearmen beat cavalry; swordsmen beat
+  archers up close and also beat spearmen.
 
 ### Economy
 
@@ -211,8 +228,8 @@ English). Your choice is saved in `localStorage`. Where that is unavailable (som
 | Left-click / drag | Select (Shift adds, double-click selects the same type on screen) |
 | Right-click | Move, gather, hunt, attack, build, repair, deliver or shelter, depending on the target; with a training building selected, set its rally point |
 | Arrow keys, WASD, mouse at the window edge | Scroll |
-| H, B, K, T, L, N, M, C, Y, O | With villagers: build House, Barracks, Blacksmith, Town Center, Lumber Camp, Mining Camp, Mill, Farm, Market, Pen (Shift + click to keep placing) |
-| Q, E | Town Center: Villager, Handcarts. Barracks: Swordsman, Archer. Lumber Camp Q: Keen axes. Mining Camp: Gold digging, Stone cutting |
+| H, B, K, T, L, N, M, C, Y, O, R, V | With villagers: build House, Barracks, Blacksmith, Town Center, Lumber Camp, Mining Camp, Mill, Farm, Market, Pen, Archery Range, Stable (Shift + click to keep placing) |
+| Q, E, R | Town Center: Villager, Handcarts, next age. Barracks: Swordsman, Spearman. Archery Range Q: Archer. Stable Q: Cavalry. Lumber Camp Q: Keen axes. Mining Camp: Gold digging, Stone cutting |
 | Q, E, X | Mill: Rich harvest, queue a reseed, cancel one reseed |
 | Q, E, R / Z, C, V | Market: buy food, wood, stone / sell food, wood, stone |
 | Q, E, R, F | Blacksmith: melee attack, ranged attack, melee armor, ranged armor |
@@ -284,6 +301,7 @@ js/sim/                 Simulation (no DOM, no display text)
 js/ai/                  Computer opponent (acts only through commands)
   economy.js            Villager jobs, building, training
   camps.js              Drop-off buildings, mill and farms, economy upgrades
+  age.js                Advancing the age (required buildings, saving up)
   tech.js               Blacksmith and research
   care.js               Repairing and sheltering
   hunt.js               Herding and hunting

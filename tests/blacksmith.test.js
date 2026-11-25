@@ -7,6 +7,7 @@ function base(resources) {
   RTS.world.addBuilding(w, 'townCenter', 0, 1, 1, true);
   RTS.world.addBuilding(w, 'townCenter', 1, 27, 27, true);
   const smith = RTS.world.addBuilding(w, 'blacksmith', 0, 10, 10, true);
+  w.players[0].upgrades.age = 2;     // 兩級都能研究（第 2 級要城堡時代）
   const research = track => RTS.commands.issue(w, 0, { type: 'research', buildingId: smith.id, track });
   return { w, smith, research };
 }

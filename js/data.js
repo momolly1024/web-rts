@@ -14,6 +14,9 @@
 
     resources: ['food', 'wood', 'gold', 'stone'],
 
+    // 時代：0 黑暗、1 封建、2 城堡。單位、建築與各級研究可用 age 標註最低時代（未標為 0）
+    ages: ['dark', 'feudal', 'castle'],
+
     players: [
       { color: '#3b82d6', dark: '#1d4b85' },    // 藍旗
       { color: '#d0473f', dark: '#7e211c' }     // 紅旗
@@ -29,9 +32,10 @@
     },
 
     // 傷害 = max(1, 攻擊力 * 相剋倍率 - 該攻擊類型的護甲)
+    // 單位的 attack.bonus 可針對特定護甲類型覆寫倍率（例如長槍兵對騎兵）
     damageBonus: {
-      melee:  { civilian: 1.0,  infantry: 1.0,  ranged: 1.4,  building: 0.8, animal: 1.0 },
-      pierce: { civilian: 1.0,  infantry: 1.25, ranged: 0.9,  building: 0.3, animal: 1.0 }
+      melee:  { civilian: 1.0,  infantry: 1.0,  ranged: 1.4,  cavalry: 1.0,  building: 0.8, animal: 1.0 },
+      pierce: { civilian: 1.0,  infantry: 1.25, ranged: 0.9,  cavalry: 0.75, building: 0.3, animal: 1.0 }
     },
 
     units: {
@@ -48,8 +52,22 @@
         attack: { type: 'melee', damage: 9, range: 0.8, cooldown: 1.2 },
         military: true, upgradeClass: 'melee'
       },
+      // 長槍兵：便宜、對騎兵傷害極高，但打不過劍士與弓箭手
+      spearman: {
+        cost: { food: 35, wood: 25 }, trainTime: 12, pop: 1, hotkey: 'E', age: 1,
+        hp: 45, speed: 2.4, vision: 5, armorType: 'infantry', armor: { melee: 0, pierce: 0 },
+        attack: { type: 'melee', damage: 4, range: 0.9, cooldown: 1.2, bonus: { cavalry: 5.5 } },
+        military: true, upgradeClass: 'melee'
+      },
+      // 騎兵：快、血厚、穿刺護甲高，衝散弓箭手
+      cavalry: {
+        cost: { food: 80, gold: 50 }, trainTime: 22, pop: 1, hotkey: 'Q', age: 1,
+        hp: 110, speed: 3.4, vision: 6, armorType: 'cavalry', armor: { melee: 2, pierce: 2 },
+        attack: { type: 'melee', damage: 8, range: 0.8, cooldown: 1.4 },
+        military: true, upgradeClass: 'melee'
+      },
       archer: {
-        cost: { wood: 40, gold: 35 }, trainTime: 16, pop: 1, hotkey: 'E',
+        cost: { wood: 40, gold: 35 }, trainTime: 16, pop: 1, hotkey: 'Q', age: 1,
         hp: 45, speed: 2.4, vision: 7, armorType: 'ranged', armor: { melee: 0, pierce: 0 },
         attack: { type: 'pierce', damage: 6, range: 4.5, cooldown: 1.6 },
         military: true, upgradeClass: 'ranged'
@@ -91,7 +109,7 @@
       townCenter: {
         cost: { wood: 300, gold: 100 }, size: 3, hp: 1200, buildTime: 80,
         pop: 5, vision: 7, trains: ['villager'], dropoff: ['food', 'wood', 'gold', 'stone'], hotkey: 'T',
-        researches: ['handcart'],
+        researches: ['handcart', 'age'],
         garrison: { capacity: 10, healRate: 1.5 },
         armorType: 'building', armor: { melee: 1, pierce: 2 }
       },
@@ -102,13 +120,23 @@
       },
       barracks: {
         cost: { wood: 150 }, size: 3, hp: 600, buildTime: 30,
-        pop: 0, vision: 4, trains: ['swordsman', 'archer'], dropoff: false, hotkey: 'B',
+        pop: 0, vision: 4, trains: ['swordsman', 'spearman'], dropoff: false, hotkey: 'B',
         armorType: 'building', armor: { melee: 1, pierce: 1 }
       },
       blacksmith: {
-        cost: { wood: 130 }, size: 2, hp: 450, buildTime: 28,
+        cost: { wood: 130 }, size: 2, hp: 450, buildTime: 28, age: 1,
         pop: 0, vision: 4, trains: [], dropoff: false, hotkey: 'K',
         researches: ['meleeAttack', 'rangedAttack', 'meleeArmor', 'rangedArmor'],
+        armorType: 'building', armor: { melee: 1, pierce: 1 }
+      },
+      archeryRange: {
+        cost: { wood: 150 }, size: 3, hp: 600, buildTime: 30, age: 1,
+        pop: 0, vision: 4, trains: ['archer'], dropoff: false, hotkey: 'R',
+        armorType: 'building', armor: { melee: 1, pierce: 1 }
+      },
+      stable: {
+        cost: { wood: 150 }, size: 3, hp: 600, buildTime: 30, age: 1,
+        pop: 0, vision: 4, trains: ['cavalry'], dropoff: false, hotkey: 'V',
         armorType: 'building', armor: { melee: 1, pierce: 1 }
       },
       // 收集建築：dropoff 列出收取的資源
@@ -145,14 +173,14 @@
         armorType: 'building', armor: { melee: 0, pierce: 1 }
       },
       market: {
-        cost: { wood: 175 }, size: 3, hp: 700, buildTime: 40,
+        cost: { wood: 175 }, size: 3, hp: 700, buildTime: 40, age: 1,
         pop: 0, vision: 5, trains: [], dropoff: false, hotkey: 'Y', market: true,
         armorType: 'building', armor: { melee: 1, pierce: 1 }
       }
     },
 
     buildOrderList: ['house', 'barracks', 'blacksmith', 'townCenter',
-      'lumberCamp', 'miningCamp', 'mill', 'farm', 'market', 'pen'],
+      'lumberCamp', 'miningCamp', 'mill', 'farm', 'market', 'pen', 'archeryRange', 'stable'],
 
     // 成就：「贏過了幾 % 的玩家」用的對照表 [數量, 百分比]。沒有真實玩家資料，這是估計值，可自行調整
     achievements: {
@@ -174,52 +202,58 @@
     // 經濟研究：effects 為該級增加量。gather.<資源> 為採集速度比例、carry 為村民負重、
     // speed 為村民移動速度比例、farmFood 為之後完成或重種的農田食物量
     upgrades: {
+      // 時代升級：在主堡研究；needs 為需先完工的本時代建築（from 其中 count 種）
+      age: {
+        age: true, hotkey: 'R', levels: [
+          { cost: { food: 400 }, time: 60, needs: { count: 2, from: ['barracks', 'lumberCamp', 'miningCamp', 'mill'] } },
+          { cost: { food: 700, gold: 200 }, time: 90, needs: { count: 2, from: ['blacksmith', 'archeryRange', 'stable', 'market'] } }]
+      },
       farmYield: {
         economy: true, hotkey: 'Q', levels: [
           { effects: { farmFood: 60 }, cost: { food: 75, wood: 75 }, time: 20 },
-          { effects: { farmFood: 75 }, cost: { food: 125, wood: 125 }, time: 35 },
-          { effects: { farmFood: 100 }, cost: { wood: 250, gold: 150 }, time: 50 }]
+          { age: 1, effects: { farmFood: 75 }, cost: { food: 125, wood: 125 }, time: 35 },
+          { age: 2, effects: { farmFood: 100 }, cost: { wood: 250, gold: 150 }, time: 50 }]
       },
       woodcutting: {
         economy: true, hotkey: 'Q', levels: [
           { effects: { 'gather.wood': 0.15 }, cost: { food: 100, wood: 50 }, time: 25 },
-          { effects: { 'gather.wood': 0.15 }, cost: { food: 150, wood: 100 }, time: 35 },
-          { effects: { 'gather.wood': 0.1 }, cost: { food: 300, wood: 200 }, time: 50 }]
+          { age: 1, effects: { 'gather.wood': 0.15 }, cost: { food: 150, wood: 100 }, time: 35 },
+          { age: 2, effects: { 'gather.wood': 0.1 }, cost: { food: 300, wood: 200 }, time: 50 }]
       },
       goldMining: {
         economy: true, hotkey: 'Q', levels: [
           { effects: { 'gather.gold': 0.15 }, cost: { food: 100, wood: 75 }, time: 25 },
-          { effects: { 'gather.gold': 0.15 }, cost: { food: 200, wood: 150 }, time: 40 }]
+          { age: 1, effects: { 'gather.gold': 0.15 }, cost: { food: 200, wood: 150 }, time: 40 }]
       },
       stoneMining: {
         economy: true, hotkey: 'E', levels: [
           { effects: { 'gather.stone': 0.15 }, cost: { food: 100, wood: 75 }, time: 25 },
-          { effects: { 'gather.stone': 0.15 }, cost: { food: 200, wood: 150 }, time: 40 }]
+          { age: 1, effects: { 'gather.stone': 0.15 }, cost: { food: 200, wood: 150 }, time: 40 }]
       },
       handcart: {
         economy: true, hotkey: 'E', levels: [
-          { effects: { carry: 3, speed: 0.1 }, cost: { food: 150, wood: 50 }, time: 30 },
-          { effects: { carry: 5, speed: 0.1 }, cost: { food: 250, wood: 150 }, time: 45 }]
+          { age: 1, effects: { carry: 3, speed: 0.1 }, cost: { food: 150, wood: 50 }, time: 30 },
+          { age: 2, effects: { carry: 5, speed: 0.1 }, cost: { food: 250, wood: 150 }, time: 45 }]
       },
       meleeAttack: {
         unitClass: 'melee', stat: 'attack', hotkey: 'Q', levels: [
-          { bonus: 2, cost: { food: 100, gold: 50 }, time: 30 },
-          { bonus: 2, cost: { food: 170, gold: 100 }, time: 45 }]
+          { age: 1, bonus: 2, cost: { food: 100, gold: 50 }, time: 30 },
+          { age: 2, bonus: 2, cost: { food: 170, gold: 100 }, time: 45 }]
       },
       rangedAttack: {
         unitClass: 'ranged', stat: 'attack', hotkey: 'E', levels: [
-          { bonus: 1, cost: { wood: 100, gold: 50 }, time: 30 },
-          { bonus: 1, cost: { wood: 170, gold: 100 }, time: 45 }]
+          { age: 1, bonus: 1, cost: { wood: 100, gold: 50 }, time: 30 },
+          { age: 2, bonus: 1, cost: { wood: 170, gold: 100 }, time: 45 }]
       },
       meleeArmor: {
         unitClass: 'melee', stat: 'armor', hotkey: 'R', levels: [
-          { bonus: 1, cost: { food: 90, gold: 40 }, time: 25 },
-          { bonus: 1, cost: { food: 150, gold: 80 }, time: 40 }]
+          { age: 1, bonus: 1, cost: { food: 90, gold: 40 }, time: 25 },
+          { age: 2, bonus: 1, cost: { food: 150, gold: 80 }, time: 40 }]
       },
       rangedArmor: {
         unitClass: 'ranged', stat: 'armor', hotkey: 'F', levels: [
-          { bonus: 1, cost: { wood: 90, gold: 40 }, time: 25 },
-          { bonus: 1, cost: { wood: 150, gold: 80 }, time: 40 }]
+          { age: 1, bonus: 1, cost: { wood: 90, gold: 40 }, time: 25 },
+          { age: 2, bonus: 1, cost: { wood: 150, gold: 80 }, time: 40 }]
       }
     },
 
@@ -236,7 +270,8 @@
           shelter: { radius: 6, minEnemies: 3, woundedBelow: 0 },
           hunt: { prey: false, range: 14, boarParty: 0 },
           scoutStart: 180,
-          economy: { campAt: 4, millAt: 11, maxFarms: 8, reseedBuffer: 1, techAt: 12, techLevel: 1 }
+          economy: { campAt: 4, millAt: 11, maxFarms: 8, reseedBuffer: 1, techAt: 12, techLevel: 1 },
+          age: { at: [10, 99], army: [4, 10], maxAge: 1 }
         }
       },
       normal: { ai: {} },
@@ -249,7 +284,8 @@
           shelter: { radius: 10, minEnemies: 2, woundedBelow: 0.5 },
           hunt: { prey: true, range: 20, boarParty: 4 },
           scoutStart: 45,
-          economy: { campAt: 3, millAt: 8, maxFarms: 16, reseedBuffer: 3, techAt: 10, techLevel: 3 }
+          economy: { campAt: 3, millAt: 8, maxFarms: 16, reseedBuffer: 3, techAt: 10, techLevel: 3 },
+          age: { at: [14, 17], army: [8, 26], maxAge: 2 }
         }
       }
     },
@@ -260,6 +296,7 @@
       graceTime: 300,        // 開局緩衝（秒），此前 AI 不進攻
       villagerTarget: 14,
       gatherRatio: { food: 0.45, wood: 0.35, gold: 0.20 },
+      gatherRatioDark: { food: 0.6, wood: 0.3, gold: 0.1 },   // 黑暗時代只有劍士能訓練，多採食物
       attackSize: 6,         // 第一波人數
       waveGrowth: 2,
       attackSizeMax: 14,
@@ -276,7 +313,9 @@
       scoutStart: 90,        // 開局多久後開始偵查敵人（秒）
       // 經濟建設：幾人採同一資源且離收取建築遠就蓋收集建築、村民達幾人蓋磨坊、農田上限、
       // 預付重種保持幾次、村民達幾人開始研究經濟科技、經濟科技最多研究到幾級
-      economy: { campAt: 3, millAt: 9, maxFarms: 12, reseedBuffer: 2, techAt: 12, techLevel: 2 }
+      economy: { campAt: 3, millAt: 9, maxFarms: 12, reseedBuffer: 2, techAt: 12, techLevel: 2 },
+      // 升時代：村民達 at[目前時代] 人、軍隊達 army[目前時代] 人才開始準備（存錢期間不訓練；封建取第一波人數，城堡取軍隊上限，滿編才存錢），最多升到 maxAge（at 不可超過 villagerTarget）
+      age: { at: [12, 14], army: [6, 18], maxAge: 2 }
     }
   };
 })();

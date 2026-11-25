@@ -146,5 +146,6 @@ test('經濟科技：在對應建築研究，完成後等級提升', () => {
   assert.ok(RTS.commands.issue(w, 0, { type: 'research', buildingId: camp.id, track: 'woodcutting' }).ok);
   assert.ok(runUntil(w, () => RTS.research.level(w, 0, 'woodcutting') === 1, 1000));
   const tc = RTS.world.list(w, e => e.type === 'townCenter' && e.owner === 0)[0];
+  w.players[0].upgrades.age = 1;     // 搬運推車要封建時代
   assert.ok(RTS.commands.issue(w, 0, { type: 'research', buildingId: tc.id, track: 'handcart' }).ok);
 });

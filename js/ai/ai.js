@@ -93,6 +93,7 @@
       army: units.filter(function (u) { return RTS.data.units[u.type].military; }),
       issue: function (cmd) { return RTS.commands.issue(world, pid, cmd); }
     };
+    AI.age.develop(ctx);       // 升時代優先：條件齊了就暫停訓練存資源
     AI.tech.develop(ctx);      // 排在訓練之前，軍隊成形後科技優先拿資源
     AI.economy.develop(ctx);
     AI.camps.develop(ctx);

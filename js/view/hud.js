@@ -77,6 +77,7 @@
       text($('clock'), Math.floor(s / 60) + ':' + String(s % 60).padStart(2, '0'));
       text($('btn-pause'), t(app.paused ? 'hud.resume' : 'hud.pause'));
       text($('difficulty-name'), t('difficulty.' + app.ai.difficulty));
+      text($('age-name'), t('age.' + RTS.research.age(world, app.human)));
     }
 
     function updateIdle() {

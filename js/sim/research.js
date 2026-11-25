@@ -7,6 +7,25 @@
     return world.players[pid].upgrades[track] || 0;
   }
 
+  // 目前時代（0 黑暗、1 封建、2 城堡）
+  function age(world, pid) {
+    return level(world, pid, 'age');
+  }
+
+  // 時代不夠時的失敗結果；夠就回傳 null
+  function ageFail(world, pid, need) {
+    if (!need || age(world, pid) >= need) return null;
+    return need === 1 ? { ok: false, reason: 'needsFeudal' } : { ok: false, reason: 'needsCastle' };
+  }
+
+  // 升時代需要的建築：from 中已完工的種類數
+  function needsMet(world, pid, needs) {
+    var have = needs.from.filter(function (type) {
+      return RTS.world.buildingsOf(world, pid, type).some(function (b) { return b.complete; });
+    });
+    return { have: have, ok: have.length >= needs.count };
+  }
+
   function pending(world, pid, track) {
     var found = false;
     world.entities.forEach(function (e) {
@@ -46,6 +65,9 @@
     if (!b.complete) return { ok: false, reason: 'notComplete' };
     var next = RTS.data.upgrades[track].levels[level(world, b.owner, track)];
     if (!next) return { ok: false, reason: 'maxLevel' };
+    var tooEarly = ageFail(world, b.owner, next.age);
+    if (tooEarly) return tooEarly;
+    if (next.needs && !needsMet(world, b.owner, next.needs).ok) return { ok: false, reason: 'needsBuildings' };
     if (pending(world, b.owner, track)) return { ok: false, reason: 'alreadyResearching' };
     if (b.queue.length >= RTS.data.QUEUE_MAX) return { ok: false, reason: 'queueFull' };
     if (!RTS.world.canAfford(world, b.owner, next.cost)) return { ok: false, reason: 'notEnoughResources' };
@@ -62,6 +84,6 @@
   }
 
   RTS.research = {
-    level: level, pending: pending, bonus: bonus, economy: economy, check: check, enqueue: enqueue
+    level: level, age: age, ageFail: ageFail, needsMet: needsMet, pending: pending, bonus: bonus, economy: economy, check: check, enqueue: enqueue
   };
 })();

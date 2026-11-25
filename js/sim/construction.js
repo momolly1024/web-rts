@@ -21,8 +21,10 @@
     return enemy ? { ok: false, reason: 'enemyUnit' } : { ok: true };
   }
 
-  // 前置建築：目前只有農田需要完工的磨坊。缺少時回傳失敗結果，否則 null
+  // 時代與前置建築（目前只有農田需要完工的磨坊）。缺少時回傳失敗結果，否則 null
   function missingRequirement(world, owner, type) {
+    var tooEarly = RTS.research.ageFail(world, owner, RTS.data.buildings[type].age);
+    if (tooEarly) return tooEarly;
     var need = RTS.data.buildings[type].requires;
     if (!need) return null;
     var has = RTS.world.buildingsOf(world, owner, need).some(function (b) { return b.complete; });

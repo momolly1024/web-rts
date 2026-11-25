@@ -37,8 +37,12 @@
   }
 
   // 依缺口大小排序的資源清單
+  function ratioOf(ctx) {
+    return RTS.research.age(ctx.world, ctx.pid) === 0 ? ctx.cfg.gatherRatioDark : ctx.cfg.gatherRatio;
+  }
+
   function wanted(ctx, counts, total) {
-    var ratio = ctx.cfg.gatherRatio;
+    var ratio = ratioOf(ctx);
     // 只分配 AI 會採的資源（比例表裡有的）
     return Object.keys(ratio).sort(function (a, b) {
       return (ratio[b] * total - counts[b]) - (ratio[a] * total - counts[a]);
@@ -66,7 +70,7 @@
 
     // 比例嚴重失衡時，每次調一個人
     var order = wanted(ctx, counts, total);
-    var need = order[0], surplus = order[order.length - 1], ratio = ctx.cfg.gatherRatio;
+    var need = order[0], surplus = order[order.length - 1], ratio = ratioOf(ctx);
     if (ratio[need] * total - counts[need] >= 2 && counts[surplus] > ratio[surplus] * total) {
       var mover = ctx.villagers.filter(function (u) {
         return u.order.type === 'gather' && u.order.resource === surplus && u.carry.amount < 3;
@@ -150,7 +154,8 @@
     // 避難中與外出偵查的單位也要算進目標人數
     var inside = (ctx.tc.garrison || []).concat(ctx.away);
     var queuedVillagers = countType(ctx.tc.queue, 'villager') + countType(inside, 'villager');
-    if (ctx.villagers.length + queuedVillagers < cfg.villagerTarget && countType(ctx.tc.queue, 'villager') < 1) {
+    var saving = ctx.state.saving;
+    if (!saving && ctx.villagers.length + queuedVillagers < cfg.villagerTarget && countType(ctx.tc.queue, 'villager') < 1) {
       ctx.issue({ type: 'train', buildingId: ctx.tc.id, unit: 'villager' });
     }
 
@@ -164,21 +169,40 @@
         (barracks > 0 && barracks < cfg.maxBarracks && res.wood > 320)) {
       startBuilding(ctx, 'barracks');
     }
+    // 封建時代後各蓋一座靶場與馬廄
+    if (RTS.research.age(ctx.world, ctx.pid) >= 1 && barracks > 0 && !saving) {
+      ['archeryRange', 'stable'].forEach(function (type) {
+        if (!countType(ctx.buildings, type) && res.wood > 160) startBuilding(ctx, type);
+      });
+    }
     tendSites(ctx);
+    if (saving) return;
 
-    var training = 0;
-    ctx.buildings.forEach(function (b) { if (b.type === 'barracks') training += b.queue.length; });
-    ctx.buildings.forEach(function (b) {
-      if (b.type !== 'barracks' || !b.complete || b.queue.length >= 2) return;
+    var trainers = ctx.buildings.filter(function (b) {
+      return b.complete && RTS.data.buildings[b.type].trains.some(function (u) { return RTS.data.units[u].military; });
+    });
+    var training = 0, queued = [];
+    trainers.forEach(function (b) { training += b.queue.length; queued = queued.concat(b.queue); });
+    function count(type) { return countType(ctx.army, type) + countType(queued, type); }
+    // 長槍兵打不過劍士與弓箭手：看到敵方騎兵時才訓練，人數不超過對方騎兵
+    var enemyCavalry = RTS.fog.perceived(ctx.world, ctx.pid).filter(function (e) {
+      return e.kind === 'unit' && e.owner !== ctx.pid && e.type === 'cavalry';
+    }).length;
+    function wanted(type) { return type !== 'spearman' || count(type) < enemyCavalry; }
+    trainers.forEach(function (b) {
+      if (b.queue.length >= 2) return;
       var sheltered = inside.length - countType(inside, 'villager');
       if (ctx.army.length + sheltered + training >= cfg.armyMax) return;
-      var swords = countType(ctx.army, 'swordsman') + countType(b.queue, 'swordsman');
-      var archers = countType(ctx.army, 'archer') + countType(b.queue, 'archer');
-      var picks = swords <= archers ? ['swordsman', 'archer'] : ['archer', 'swordsman'];
+      // 目前人數最少的兵種優先，各兵種大致平均
+      var picks = RTS.data.buildings[b.type].trains.filter(wanted).sort(function (x, y) { return count(x) - count(y); });
       for (var i = 0; i < picks.length; i++) {
-        // 缺房屋時不把木材花在弓箭手上
+        // 缺房屋時不把木材花在要木材的兵種上
         if (needHouse && RTS.data.units[picks[i]].cost.wood) continue;
-        if (ctx.issue({ type: 'train', buildingId: b.id, unit: picks[i] }).ok) { training++; break; }
+        if (ctx.issue({ type: 'train', buildingId: b.id, unit: picks[i] }).ok) {
+          training++;
+          queued.push({ type: picks[i] });
+          break;
+        }
       }
     });
   }
