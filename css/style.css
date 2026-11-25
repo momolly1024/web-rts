@@ -10,6 +10,9 @@
   --body: "Microsoft JhengHei", "PingFang TC", "Noto Sans TC", sans-serif;
 }
 
+/* 楷體的拉丁字母像打字機，英文介面改用襯線標題字 */
+:root:lang(en) { --display: "Palatino Linotype", "Book Antiqua", Georgia, serif; }
+
 * { box-sizing: border-box; margin: 0; padding: 0; }
 
 html, body { height: 100%; overflow: hidden; background: var(--ink); color: var(--vellum); }
@@ -45,6 +48,7 @@ button:disabled { opacity: 0.45; cursor: not-allowed; border-color: #6d7a84; }
 #difficulty { white-space: nowrap; }
 #difficulty b { color: var(--brass); }
 #topbar nav { display: flex; gap: 8px; }
+#topbar nav button { white-space: nowrap; }
 
 #panel {
   position: fixed; left: 0; right: 0; bottom: 0; height: 180px; display: grid;
@@ -76,7 +80,8 @@ h2 { font-size: 22px; color: var(--brass); }
 
 #hint, #toast {
   position: fixed; left: 50%; transform: translateX(-50%); pointer-events: none;
-  white-space: nowrap; padding: 4px 14px; border-radius: 3px; background: rgba(20, 32, 43, 0.88);
+  width: max-content; max-width: calc(100% - 32px); text-align: center;
+  padding: 4px 14px; border-radius: 3px; background: rgba(20, 32, 43, 0.88);
 }
 #hint { top: 60px; }
 #hint:empty { display: none; }
@@ -93,6 +98,7 @@ h2 { font-size: 22px; color: var(--brass); }
   background: var(--slate); border: 3px double var(--brass); border-radius: 6px;
 }
 .dialog h1 { font-size: 34px; color: var(--brass); margin-bottom: 8px; }
+#overlay-lang { float: right; }
 .dialog p { margin-bottom: 12px; }
 .dialog table { border-collapse: collapse; margin-bottom: 12px; width: 100%; }
 .dialog th, .dialog td { text-align: left; vertical-align: top; padding: 3px 0; }
@@ -110,21 +116,53 @@ h2 { font-size: 22px; color: var(--brass); }
 #overlay-primary { background: var(--brass); color: var(--ink); font-weight: 700; padding: 7px 24px; }
 #overlay-primary:hover { background: var(--vellum) !important; }
 
-@media (max-width: 800px) {
-  #topbar { gap: 10px; padding: 0 8px; }
-  #topbar dl { gap: 8px; }
-  #topbar dt { font-size: 0; }
-  #clock, #btn-help { display: none; }
-  #panel { grid-template-columns: 1fr 1.4fr; gap: 8px; padding: 8px; }
-  #production { display: none; }
-  #actions { grid-template-columns: repeat(2, 1fr); }
+/* 較矮或較窄的畫面：讓視窗的主要按鈕永遠看得到 */
+.buttons { position: sticky; bottom: -24px; padding: 8px 0; background: var(--slate); }
+
+@media (max-width: 1200px) {
+  #topbar { gap: 12px; padding: 0 10px; }
+  #topbar dl { gap: 10px; }
+  #topbar dd { min-width: 2.4em; font-size: 16px; }
+  #topbar nav { gap: 6px; }
+  #topbar nav button { padding: 3px 8px; font-size: 13px; }
 }
 
-@media (max-width: 560px) {
-  #topbar dd { min-width: 0; font-size: 14px; }
-  #topbar nav { margin-left: auto; }
+@media (max-width: 1040px) {
+  #topbar dt { font-size: 0; }
   #difficulty .prefix { display: none; }
-  #topbar nav button { white-space: nowrap; padding: 2px 6px; font-size: 12px; }
+  #panel { grid-template-columns: minmax(190px, 1fr) minmax(90px, 0.4fr) minmax(0, 2fr); gap: 10px; }
+  .action { font-size: 13px; line-height: 1.35; column-gap: 6px; }
+  .action .cost { font-size: 11px; }
+}
+
+@media (max-width: 800px) {
+  #clock, #btn-help { display: none; }
+  #topbar nav { margin-left: auto; }
+  #panel { grid-template-columns: minmax(0, 1fr) minmax(0, 1.8fr); padding: 8px; }
+  #production { display: none; }
+}
+
+@media (max-width: 620px) {
+  #topbar { gap: 8px; padding: 0 8px; }
+  #topbar dl { gap: 6px; }
+  #topbar dl div { gap: 3px; }
+  #topbar dt::before { margin-right: 0; width: 8px; height: 8px; }
+  #topbar dd { min-width: 0; font-size: 13px; white-space: nowrap; }
+  #topbar nav button { padding: 2px 5px; font-size: 12px; }
   #btn-restart { display: none; }
-  #hint, #toast { white-space: normal; width: calc(100% - 32px); text-align: center; }
+  #difficulty {
+    position: fixed; top: 56px; right: 8px; padding: 2px 8px;
+    background: rgba(20, 32, 43, 0.88); border-radius: 3px;
+  }
+  #difficulty .prefix { display: inline; }
+  #hint { top: 86px; }
+  #panel { grid-template-columns: minmax(0, 1fr); grid-template-rows: auto minmax(0, 1fr); gap: 4px; }
+  #sel-body { display: none; }
+  h2 { font-size: 17px; }
+  #actions { grid-template-columns: repeat(3, 1fr); gap: 4px; }
+  .action { grid-template-columns: minmax(0, 1fr); font-size: 12px; min-height: 44px; padding: 3px 5px !important; }
+  .action kbd { display: none; }
+  .dialog { padding: 24px 16px; }
+  #difficulty-picker label { grid-template-columns: auto 1fr; row-gap: 0; }
+  #difficulty-picker label span { grid-column: 2; }
 }

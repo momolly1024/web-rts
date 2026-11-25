@@ -142,7 +142,7 @@
       world.seed = seed;
       return world;
     }
-    throw new Error('無法產生可遊玩的地圖（seed ' + seed + '）');
+    throw new Error('mapgen failed: no playable map for seed ' + seed);
   }
 
   RTS.mapgen = { generate: generate, startPositions: startPositions, isPlayable: isPlayable };

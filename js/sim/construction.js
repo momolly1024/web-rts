@@ -8,8 +8,8 @@
     var size = RTS.data.buildings[type].size, map = world.map;
     for (var y = ty; y < ty + size; y++) {
       for (var x = tx; x < tx + size; x++) {
-        if (!RTS.map.inBounds(map, x, y)) return { ok: false, reason: '超出地圖' };
-        if (!RTS.map.isWalkable(map, x, y)) return { ok: false, reason: '位置被擋住' };
+        if (!RTS.map.inBounds(map, x, y)) return { ok: false, reason: 'outOfMap' };
+        if (!RTS.map.isWalkable(map, x, y)) return { ok: false, reason: 'blocked' };
       }
     }
     var enemy = false;
@@ -17,7 +17,7 @@
       if (u.kind === 'unit' && u.owner !== owner &&
           u.x >= tx && u.x < tx + size && u.y >= ty && u.y < ty + size) enemy = true;
     });
-    return enemy ? { ok: false, reason: '有敵方單位' } : { ok: true };
+    return enemy ? { ok: false, reason: 'enemyUnit' } : { ok: true };
   }
 
   function place(world, owner, type, tx, ty) {

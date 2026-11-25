@@ -102,7 +102,7 @@ test('人口上限限制訓練，蓋房屋後解除', () => {
   const food = w.players[0].res.food;
   const refused = train();
   assert.strictEqual(refused.ok, false);
-  assert.ok(/人口/.test(refused.reason));
+  assert.strictEqual(refused.reason, 'popCap');
   assert.strictEqual(w.players[0].res.food, food);
   assert.ok(runUntil(w, () => RTS.world.unitsOf(w, 0).length === 5, 1000));
   assert.strictEqual(train().ok, false);

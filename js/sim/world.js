@@ -10,7 +10,7 @@
       var res = {};
       var start = opts.resources || data.START_RESOURCES;
       data.resources.forEach(function (r) { res[r] = start[r] || 0; });
-      return { id: id, name: p.name, res: res };
+      return { id: id, res: res };
     });
     return {
       map: RTS.map.create(opts.width || data.MAP_SIZE, opts.height || data.MAP_SIZE),

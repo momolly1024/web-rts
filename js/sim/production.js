@@ -6,12 +6,12 @@
   // 能否加入佇列（介面按鈕與指令共用）
   function check(world, b, unitType) {
     var def = RTS.data.buildings[b.type], unit = RTS.data.units[unitType];
-    if (!unit || def.trains.indexOf(unitType) < 0) return { ok: false, reason: '這裡無法訓練該單位' };
-    if (!b.complete) return { ok: false, reason: '建築尚未完工' };
-    if (b.queue.length >= RTS.data.QUEUE_MAX) return { ok: false, reason: '生產佇列已滿' };
+    if (!unit || def.trains.indexOf(unitType) < 0) return { ok: false, reason: 'cannotTrain' };
+    if (!b.complete) return { ok: false, reason: 'notComplete' };
+    if (b.queue.length >= RTS.data.QUEUE_MAX) return { ok: false, reason: 'queueFull' };
     var pop = RTS.world.population(world, b.owner);
-    if (pop.used + pop.queued + unit.pop > pop.cap) return { ok: false, reason: '人口已達上限，請蓋房屋' };
-    if (!RTS.world.canAfford(world, b.owner, unit.cost)) return { ok: false, reason: '資源不足' };
+    if (pop.used + pop.queued + unit.pop > pop.cap) return { ok: false, reason: 'popCap' };
+    if (!RTS.world.canAfford(world, b.owner, unit.cost)) return { ok: false, reason: 'notEnoughResources' };
     return { ok: true };
   }
 

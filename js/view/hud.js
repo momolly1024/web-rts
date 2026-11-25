@@ -17,13 +17,32 @@
     return node;
   }
 
+  function t(key, params) {
+    return RTS.i18n.t(key, params);
+  }
+
+  // 靜態文字：依 data-i18n 填入，切換語言時重跑一次
+  function applyStatic() {
+    document.documentElement.lang = RTS.i18n.current() === 'en' ? 'en' : 'zh-Hant-TW';
+    document.title = t('app.title');
+    document.querySelectorAll('[data-i18n]').forEach(function (node) {
+      text(node, t(node.dataset.i18n));
+    });
+    document.querySelectorAll('[data-i18n-aria]').forEach(function (node) {
+      node.setAttribute('aria-label', t(node.dataset.i18nAria));
+    });
+  }
+
   function create(app) {
     var actionsBox = $('actions'), queueBox = $('queue');
     var actionSig = null, queueSig = null, current = [], toastTimer = 0, overlayKind = null;
+    var toastCode = null;
 
-    function notify(message) {
-      if (!message) return;
-      text($('toast'), message);
+    // code 是模擬層回傳的錯誤代碼
+    function notify(code) {
+      if (!code) return;
+      toastCode = code;
+      text($('toast'), t('error.' + code));
       $('toast').classList.add('show');
       toastTimer = 2.2;
     }
@@ -36,8 +55,8 @@
       $('res-pop').classList.toggle('warn', pop.used + pop.queued >= pop.cap);
       var s = Math.floor(world.time);
       text($('clock'), Math.floor(s / 60) + ':' + String(s % 60).padStart(2, '0'));
-      text($('btn-pause'), app.paused ? '繼續 (P)' : '暫停 (P)');
-      text($('difficulty-name'), RTS.data.difficulties[app.ai.difficulty].name);
+      text($('btn-pause'), t(app.paused ? 'hud.resume' : 'hud.pause'));
+      text($('difficulty-name'), t('difficulty.' + app.ai.difficulty));
     }
 
     function updateActions() {
@@ -51,15 +70,17 @@
           button.type = 'button';
           button.dataset.id = a.id;
           button.appendChild(el('kbd', '', a.hotkey));
-          button.appendChild(el('span', 'label', a.label));
-          button.appendChild(el('span', 'cost', a.cost));
+          button.appendChild(el('span', 'label'));
+          button.appendChild(el('span', 'cost'));
           actionsBox.appendChild(button);
         });
       }
       current.forEach(function (a, i) {
         var button = actionsBox.children[i];
+        text(button.children[1], a.label);
+        text(button.children[2], a.cost);
         button.disabled = !a.enabled;
-        button.title = a.reason || '';
+        button.title = a.reason ? t('error.' + a.reason) : '';
         button.classList.toggle('active', !!a.active);
       });
     }
@@ -76,17 +97,19 @@
           var item = el('button', 'queued');
           item.type = 'button';
           item.dataset.index = i;
-          item.title = '點擊取消並退款';
-          item.appendChild(el('span', '', RTS.data.units[q.type].name));
+          item.appendChild(el('span'));
           item.appendChild(el('i'));
           queueBox.appendChild(item);
         });
       }
       queue.forEach(function (q, i) {
+        var item = queueBox.children[i];
+        item.title = t('queue.cancelTitle');
+        text(item.firstChild, t('unit.' + q.type));
         queueBox.children[i].lastChild.style.width = Math.floor(q.progress * 100) + '%';
       });
       var stalled = queue.length && queue[0].progress >= 1;
-      text($('queue-note'), stalled ? '等待人口空位或出兵空間' : queue.length ? '生產中，點項目可取消' : '');
+      text($('queue-note'), stalled ? t('queue.stalled') : queue.length ? t('queue.active') : '');
     }
 
     function updateInfo() {
@@ -98,17 +121,17 @@
     }
 
     function updateHint() {
-      var hint = app.placement
-        ? '選擇建地：左鍵放置（Shift 可連續放置），右鍵或 Esc 取消'
-        : app.mode === 'attackMove' ? '攻擊移動：左鍵指定目的地，右鍵或 Esc 取消' : '';
+      var hint = app.placement ? t('hint.placement')
+        : app.mode === 'attackMove' ? t('hint.attackMove') : '';
       text($('hint'), hint);
     }
 
     // 說明文字直接由資料表產生，調參數後不必另外改介面
     function difficultySummary(key) {
       var cfg = RTS.ai.config(key);
-      return '約 ' + cfg.graceTime / 60 + ' 分鐘後才進攻，第一波 ' + cfg.attackSize +
-        ' 人，軍隊最多 ' + cfg.armyMax + ' 人';
+      return t('difficulty.summary', {
+        minutes: cfg.graceTime / 60, first: cfg.attackSize, max: cfg.armyMax
+      });
     }
 
     function buildDifficultyPicker() {
@@ -119,12 +142,27 @@
         input.value = key;
         input.addEventListener('change', function () { app.chosenDifficulty = key; });
         label.appendChild(input);
-        label.appendChild(el('b', '', RTS.data.difficulties[key].name));
-        label.appendChild(el('span', '', difficultySummary(key)));
+        label.appendChild(el('b'));
+        label.appendChild(el('span'));
         $('difficulty-picker').appendChild(label);
       });
     }
     buildDifficultyPicker();
+
+    function labelDifficulties() {
+      $('difficulty-picker').querySelectorAll('input').forEach(function (input) {
+        text(input.parentNode.children[1], t('difficulty.' + input.value));
+        text(input.parentNode.children[2], difficultySummary(input.value));
+      });
+    }
+
+    // 切換語言後重寫所有不是每幀更新的文字
+    function relocalize() {
+      applyStatic();
+      labelDifficulties();
+      if (toastCode) text($('toast'), t('error.' + toastCode));
+      if (overlayKind) showOverlay(overlayKind);
+    }
 
     // kind: 'help' | 'pause' | 'restart' | 'over' | null
     function showOverlay(kind) {
@@ -141,23 +179,25 @@
       if (picking) {
         $('difficulty-picker').querySelector('input[value="' + app.chosenDifficulty + '"]').checked = true;
       }
-      var title = '玩法說明', primary = app.world.tick === 0 ? '開始遊戲' : '回到戰場', note = '';
+      var start = app.world.tick === 0;
+      var title = start ? 'app.title' : 'overlay.help', note = '';
+      var primary = start ? 'button.start' : 'button.back';
       if (kind === 'pause') {
-        title = '遊戲暫停';
-        primary = '繼續遊戲';
+        title = 'overlay.pause';
+        primary = 'button.resume';
       } else if (kind === 'restart') {
-        title = '重新開始';
-        note = '開新局會放棄目前戰局。';
-        primary = '開始新局';
+        title = 'overlay.restart';
+        note = 'overlay.restartNote';
+        primary = 'button.newGame';
       } else if (kind === 'over') {
         var won = app.world.winner === app.human;
-        title = won ? '勝利' : '戰敗';
-        note = won ? '敵方主堡已被摧毀。' : '你的主堡已被摧毀。';
-        primary = '再玩一局';
+        title = won ? 'overlay.victory' : 'overlay.defeat';
+        note = won ? 'overlay.victoryNote' : 'overlay.defeatNote';
+        primary = 'button.playAgain';
       }
-      text($('overlay-title'), title);
-      text($('overlay-note'), note);
-      text($('overlay-primary'), primary);
+      text($('overlay-title'), t(title));
+      text($('overlay-note'), note ? t(note) : '');
+      text($('overlay-primary'), t(primary));
       $('overlay-restart').hidden = kind === 'over' || kind === 'restart' || app.world.tick === 0;
       $('overlay-cancel').hidden = kind !== 'restart';
     }
@@ -176,11 +216,20 @@
       RTS.actions.issue(app, { type: 'cancelTrain', buildingId: app.selection[0], index: +button.dataset.index });
     });
 
+    relocalize();
+
     return {
+      relocalize: relocalize,
       notify: notify,
       showOverlay: showOverlay,
       overlay: function () { return overlayKind; },
-      reset: function () { actionSig = null; queueSig = null; toastTimer = 0; $('toast').classList.remove('show'); },
+      reset: function () {
+        actionSig = null;
+        queueSig = null;
+        toastTimer = 0;
+        toastCode = null;
+        $('toast').classList.remove('show');
+      },
       update: function (dt) {
         updateTop();
         updateInfo();

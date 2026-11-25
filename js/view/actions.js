@@ -7,8 +7,13 @@
     return app.selection.map(function (id) { return RTS.world.get(app.world, id); }).filter(Boolean);
   }
 
+  function t(key, params) {
+    return RTS.i18n.t(key, params);
+  }
+
   function costText(cost) {
-    return Object.keys(cost).map(function (k) { return RTS.data.resourceNames[k] + ' ' + cost[k]; }).join('、');
+    return Object.keys(cost).map(function (k) { return t('resource.' + k) + ' ' + cost[k]; })
+      .join(t('list.separator'));
   }
 
   function issue(app, command) {
@@ -25,21 +30,23 @@
         var def = data.buildings[type];
         var ok = RTS.world.canAfford(app.world, app.human, def.cost);
         out.push({
-          id: 'build:' + type, label: '建造' + def.name, hotkey: def.hotkey, cost: costText(def.cost),
-          enabled: ok, reason: ok ? '' : '資源不足', active: app.placement === type,
+          id: 'build:' + type, label: t('action.build', { name: t('building.' + type) }),
+          hotkey: def.hotkey, cost: costText(def.cost),
+          enabled: ok, reason: ok ? '' : 'notEnoughResources', active: app.placement === type,
           run: function () { app.placement = type; app.mode = null; }
         });
       });
     }
     if (units.some(function (u) { return data.units[u.type].military; })) {
       out.push({
-        id: 'attackMove', label: '攻擊移動', hotkey: 'F', cost: '沿途迎敵', enabled: true,
+        id: 'attackMove', label: t('action.attackMove'), hotkey: 'F',
+        cost: t('action.attackMoveNote'), enabled: true,
         active: app.mode === 'attackMove',
         run: function () { app.mode = 'attackMove'; app.placement = null; }
       });
     }
     out.push({
-      id: 'stop', label: '停止', hotkey: 'X', cost: '', enabled: true,
+      id: 'stop', label: t('action.stop'), hotkey: 'X', cost: '', enabled: true,
       run: function () { issue(app, { type: 'stop', unitIds: ids }); }
     });
     return out;
@@ -49,7 +56,8 @@
     var data = RTS.data;
     if (!b.complete) {
       return [{
-        id: 'cancelBuild', label: '取消建造', hotkey: 'X', cost: '退回全部資源', enabled: true,
+        id: 'cancelBuild', label: t('action.cancelBuild'), hotkey: 'X',
+        cost: t('action.refundAll'), enabled: true,
         run: function () { issue(app, { type: 'cancelBuild', buildingId: b.id }); }
       }];
     }
@@ -57,7 +65,8 @@
       var def = data.units[type];
       var check = RTS.production.check(app.world, b, type);
       return {
-        id: 'train:' + type, label: '訓練' + def.name, hotkey: def.hotkey, cost: costText(def.cost),
+        id: 'train:' + type, label: t('action.train', { name: t('unit.' + type) }),
+        hotkey: def.hotkey, cost: costText(def.cost),
         enabled: check.ok, reason: check.reason || '',
         run: function () { issue(app, { type: 'train', buildingId: b.id, unit: type }); }
       };
@@ -72,52 +81,68 @@
       : own.length === 1 && own[0].kind === 'building' ? buildingActions(app, own[0]) : [];
     if (app.placement || app.mode) {
       out.push({
-        id: 'cancelMode', label: '取消', hotkey: 'Esc', cost: '', enabled: true,
+        id: 'cancelMode', label: t('action.cancel'), hotkey: 'Esc', cost: '', enabled: true,
         run: function () { app.placement = null; app.mode = null; }
       });
     }
     return out;
   }
 
-  var ORDER_TEXT = {
-    idle: '待命', move: '移動中', gather: '採集中', deposit: '運送中',
-    build: '施工中', attack: '作戰中', attackMove: '攻擊移動中'
-  };
+  function nameOf(e) {
+    return t(e.kind + '.' + e.type);
+  }
+
+  function describeUnit(app, e, def) {
+    var lines = [
+      t('info.attack', {
+        type: t('attackType.' + def.attack.type), damage: def.attack.damage,
+        armor: t('armorType.' + def.armorType)
+      }),
+      t('info.defense', { melee: def.armor.melee, pierce: def.armor.pierce, vision: def.vision })
+    ];
+    if (e.owner === app.human) {
+      var carry = e.carry.amount > 0
+        ? t('info.carry', { resource: t('resource.' + e.carry.resource), amount: e.carry.amount }) : '';
+      lines.push(t('order.' + e.order.type) + carry);
+    }
+    return lines;
+  }
+
+  function describeBuilding(e, def) {
+    var lines = [];
+    if (!e.complete) lines.push(t('info.progress', { percent: Math.floor(e.progress * 100) }));
+    if (def.pop) lines.push(t('info.providesPop', { amount: def.pop }));
+    return lines;
+  }
 
   function describe(app) {
-    var data = RTS.data, sel = selected(app);
-    if (!sel.length) {
-      return { title: '尚未選取', lines: ['左鍵點選或拖曳框選，右鍵下達指令。'] };
-    }
+    var sel = selected(app);
+    if (!sel.length) return { title: t('selection.none'), lines: [t('selection.hint')] };
     if (sel.length > 1) {
       var counts = {};
       sel.forEach(function (e) { counts[e.type] = (counts[e.type] || 0) + 1; });
       return {
-        title: '已選取 ' + sel.length + ' 個單位',
-        lines: Object.keys(counts).map(function (t) { return data.units[t].name + ' × ' + counts[t]; })
+        title: t('selection.many', { count: sel.length }),
+        lines: Object.keys(counts).map(function (type) {
+          return t('selection.countLine', { name: t('unit.' + type), count: counts[type] });
+        })
       };
     }
-    var e = sel[0], def = RTS.world.defOf(e), lines = [];
+    var e = sel[0], def = RTS.world.defOf(e);
     if (e.kind === 'node') {
-      lines.push(def.resource ? '剩餘' + data.resourceNames[def.resource] + ' ' + e.amount : '無法通行');
-      return { title: def.name, lines: lines };
+      return {
+        title: nameOf(e),
+        lines: [def.resource
+          ? t('info.remaining', { resource: t('resource.' + def.resource), amount: e.amount })
+          : t('info.impassable')]
+      };
     }
-    var title = def.name + (e.owner === app.human ? '' : '（敵方）');
-    lines.push('生命 ' + Math.ceil(e.hp) + ' / ' + e.maxHp);
-    if (e.kind === 'unit') {
-      lines.push(data.attackTypes[def.attack.type] + '攻擊 ' + def.attack.damage +
-        '　護甲類型 ' + data.armorTypes[def.armorType]);
-      lines.push('護甲 近戰 ' + def.armor.melee + '／穿刺 ' + def.armor.pierce + '　視野 ' + def.vision);
-      if (e.owner === app.human) {
-        var carry = e.carry.amount > 0
-          ? '　攜帶' + data.resourceNames[e.carry.resource] + ' ' + e.carry.amount : '';
-        lines.push((ORDER_TEXT[e.order.type] || '') + carry);
-      }
-    } else {
-      if (!e.complete) lines.push('施工進度 ' + Math.floor(e.progress * 100) + '%（右鍵派村民協助）');
-      if (def.pop) lines.push('提供人口 ' + def.pop);
-    }
-    return { title: title, lines: lines };
+    var title = e.owner === app.human ? nameOf(e) : t('selection.enemy', { name: nameOf(e) });
+    var lines = [t('info.hp', { hp: Math.ceil(e.hp), max: e.maxHp })];
+    return {
+      title: title,
+      lines: lines.concat(e.kind === 'unit' ? describeUnit(app, e, def) : describeBuilding(e, def))
+    };
   }
 
   RTS.actions = { list: list, describe: describe, selected: selected, issue: issue };

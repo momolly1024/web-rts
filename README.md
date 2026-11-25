@@ -1,126 +1,167 @@
-# 烽土領主（web-rts）
+# Lords at War
 
-原創的中世紀即時戰略原型：單機對電腦，純 JavaScript + HTML5 Canvas，零相依、免建置。
+English | [繁體中文](README.zh-TW.md)
 
-## 開始遊戲
+An original medieval real-time strategy prototype: single player against the computer, plain
+JavaScript and HTML5 Canvas, no dependencies and no build step.
 
-雙擊 `index.html`（`file://` 即可）。建議使用桌面版 Chrome 或 Edge，需要滑鼠與鍵盤。
+## Run it
 
-## 玩法
+Double-click `index.html` (`file://` works). A desktop browser such as Chrome or Edge with a
+mouse and keyboard is recommended.
 
-- 你是藍旗領主（地圖左上），對手是紅旗領主（右下）。雙方地圖完全點對稱。
-- 開局有一座主堡與 4 位村民，資源：食物 200、木材 200、黃金 100。
-- 摧毀敵方**所有完工的主堡**即獲勝；己方完工主堡全毀即落敗（未完工的不算）。
-- 敵軍在緩衝期後才會進攻，之後每波人數增加；緩衝長短與兵力依難度而定。
+## How to play
 
-## 難度
+- You are the Blue lord (top left of the map); the opponent is the Red lord (bottom right).
+  Both halves of the map are point-symmetric.
+- You start with a Town Center, 4 villagers, 200 food, 200 wood and 100 gold.
+- Destroy **every finished enemy Town Center** to win. You lose when all of your finished
+  Town Centers are gone (unfinished ones do not count).
+- The enemy waits for a grace period before attacking, and later waves grow. The grace period
+  and army size depend on the difficulty.
 
-開場說明畫面與「重新開始」視窗可選難度，預設普通；重新開始時預選本局難度（重新整理頁面後回到普通）。
-目前難度顯示在上方資源列。難度**只改變電腦的行為參數**，不給它額外資源或戰鬥數值加成，
-電腦也和玩家一樣只能透過指令介面操作。
+| Building | Cost | Purpose |
+|------|------|------|
+| Town Center | 300 wood, 100 gold | Trains villagers, receives resources, +5 population |
+| House | 50 wood | +5 population (total limit 50) |
+| Barracks | 150 wood | Trains swordsmen and archers |
 
-| 參數（`js/data.js`） | 簡單 | 普通 | 困難 |
+| Unit | Cost | Traits |
+|------|------|------|
+| Villager | 50 food | Gathers and builds; weak fighter, does not retaliate on its own |
+| Swordsman | 60 food, 20 gold | Tough melee unit; x1.4 damage against ranged units |
+| Archer | 40 wood, 35 gold | Range 4.5; x1.25 damage against infantry, slow against buildings |
+
+Other rules: every builder after the first works at half speed; villagers who finish a building
+help at a nearby site or return to gathering; switching resource drops the current load;
+cancelling a building site or a unit in training refunds it in full.
+
+## Difficulty
+
+Pick a difficulty on the start screen or in the Restart dialog. The default is Normal; Restart
+preselects the current game's difficulty (reloading the page returns to Normal). The current
+difficulty is shown in the top bar. Difficulty **only changes how the computer behaves**. It gets
+no extra resources or combat stats, and it can act only through the same command interface as you.
+
+| Parameter (`js/data.js`) | Easy | Normal | Hard |
 |------|------|------|------|
-| 開局緩衝 `graceTime`（秒） | 480 | 300 | 240 |
-| 思考間隔 `thinkInterval`（秒） | 2.5 | 1.0 | 0.5 |
-| 村民目標 `villagerTarget` | 10 | 14 | 18 |
-| 第一波人數 `attackSize` | 4 | 6 | 8 |
-| 每波增加 `waveGrowth` | 1 | 2 | 3 |
-| 單波上限 `attackSizeMax` | 8 | 14 | 20 |
-| 波次最短間隔 `waveInterval`（秒） | 150 | 75 | 55 |
-| 軍隊上限 `armyMax` | 10 | 18 | 26 |
-| 兵營上限 `maxBarracks` | 1 | 2 | 3 |
+| Grace period `graceTime` (s) | 480 | 300 | 240 |
+| Think interval `thinkInterval` (s) | 2.5 | 1.0 | 0.5 |
+| Villager target `villagerTarget` | 10 | 14 | 18 |
+| First wave `attackSize` | 4 | 6 | 8 |
+| Growth per wave `waveGrowth` | 1 | 2 | 3 |
+| Largest wave `attackSizeMax` | 8 | 14 | 20 |
+| Minimum gap between waves `waveInterval` (s) | 150 | 75 | 55 |
+| Army limit `armyMax` | 10 | 18 | 26 |
+| Barracks limit `maxBarracks` | 1 | 2 | 3 |
 
-| 建築 | 成本 | 用途 |
-|------|------|------|
-| 主堡 | 木材 300、黃金 100 | 訓練村民、收資源、人口 +5 |
-| 房屋 | 木材 50 | 人口 +5（總上限 50） |
-| 兵營 | 木材 150 | 訓練劍士與弓箭手 |
+## Language
 
-| 單位 | 成本 | 特性 |
-|------|------|------|
-| 村民 | 食物 50 | 採集、建造；戰力很弱，不會自動反擊 |
-| 劍士 | 食物 60、黃金 20 | 近戰、血厚；對射手傷害 x1.4 |
-| 弓箭手 | 木材 40、黃金 35 | 射程 4.5；對步兵傷害 x1.25，拆建築很慢 |
+The interface is available in English and Traditional Chinese. Switch at any time with the
+language button on the start screen or in the top bar; the game keeps running as it was.
+The default follows the browser language (Traditional Chinese for any `zh` locale, otherwise
+English). Your choice is saved in `localStorage`. Where that is unavailable (some browsers under
+`file://`, or private mode) switching still works but is not remembered.
 
-其他規則：第二位以後的施工村民效率減半；村民蓋完會支援附近工地或回去採集；
-改採別種資源時會丟棄手上的貨；取消工地與取消生產全額退款。
+## Controls
 
-## 操作
-
-| 輸入 | 功能 |
+| Input | Action |
 |------|------|
-| 左鍵／拖曳 | 點選、框選（Shift 加選，雙擊選畫面內同類） |
-| 右鍵 | 移動／採集／攻擊／協助施工／交付資源（依目標自動判斷） |
-| 方向鍵、WASD、滑鼠移到視窗邊緣 | 捲動畫面 |
-| H、B、T | 選村民時：建造房屋、兵營、主堡（Shift + 左鍵可連續放置） |
-| Q、E | 主堡：訓練村民；兵營：劍士、弓箭手 |
-| F | 攻擊移動（沿途迎敵） |
-| X | 停止／取消工地 |
-| Esc | 取消放置或指令、取消選取、關閉視窗 |
-| P、空白鍵 | 暫停／繼續 |
-| F1 | 玩法說明 |
-| 點生產佇列項目 | 取消該生產並退款 |
+| Left-click / drag | Select (Shift adds, double-click selects the same type on screen) |
+| Right-click | Move, gather, attack, help build or deliver, depending on the target |
+| Arrow keys, WASD, mouse at the window edge | Scroll |
+| H, B, T | With villagers: build House, Barracks, Town Center (Shift + click to keep placing) |
+| Q, E | Town Center: Villager. Barracks: Swordsman, Archer |
+| F | Attack move |
+| X | Stop, or cancel a building site |
+| Esc | Cancel placement or order, clear selection, close a dialog |
+| P, Space | Pause and resume |
+| F1 | Help |
+| Click an item in the training queue | Cancel it and get a refund |
 
-## 測試
+## Roadmap
+
+None of the following is implemented yet. These are plans and may change.
+
+- **B1**: isometric view, minimap (click to move the camera), fog of war
+- **B2**: Town Center age upgrades (Frontier → Town → Castle, unlocking new buildings, units and
+  technologies), more unit counters (spearmen, cavalry), arrow towers and stone walls
+- **B3**: smarter AI (scouting, expanding, rebuilding the Town Center, adapting its army to yours)
+- **Under consideration**: drop-off buildings such as lumber camps and mills, rally points,
+  control groups, sound, saving
+
+## Tests
 
 ```
 node tests/run-tests.js
 ```
 
-只需要 node，無任何套件。測試依 `index.html` 的 `<script>` 順序載入模擬層。
+Only Node.js is needed. The tests load the simulation and language files in the `<script>` order
+of `index.html`.
 
-## 檔案結構
+## Layout
 
 ```
-index.html              頁面與介面骨架、script 載入順序
-css/style.css           介面樣式
-js/namespace.js         全域命名空間 RTS 與共用工具
-js/data.js              資料表：單位、建築、資源、相剋、AI 參數
-js/sim/                 模擬層（不依賴 DOM）
-  map.js                格子地圖、可走判定、空位搜尋
-  pathfind.js           A* 尋路
-  world.js              實體、資源、人口與查詢
-  mapgen.js             對稱隨機地圖
-  movement.js           沿路徑移動、重新尋路、站位分散
-  gather.js             採集與入庫
-  construction.js       放置檢查與施工
-  production.js         生產佇列
-  combat.js             傷害、追擊、反擊、攻擊移動
-  orders.js             單位指令狀態機
-  commands.js           指令介面（玩家與 AI 共用）
-  game.js               固定步長推進與勝負判定
-js/ai/                  電腦對手（只透過指令介面操作）
-  economy.js            分工、建造、訓練
-  ai.js                 AI 主控、防守與分波進攻
-js/view/                繪圖與輸入
-  camera.js             世界與螢幕座標轉換（唯一出處）
-  sprites.js            原創向量圖形
-  render.js             畫面繪製
-  actions.js            指令按鈕與選取資訊
-  hud.js                資源列、面板、覆蓋視窗
-  input.js              滑鼠、鍵盤、鏡頭捲動
-js/main.js              啟動與主迴圈
-tests/                  node 測試
+index.html              Page skeleton and script order
+css/style.css           Interface styles
+js/namespace.js         Global RTS namespace and helpers
+js/data.js              Tables: units, buildings, resources, counters, difficulty and AI settings
+js/i18n/                Interface text
+  zh-TW.js              Traditional Chinese strings
+  en.js                 English strings
+  i18n.js               Language detection, switching and lookup
+js/sim/                 Simulation (no DOM, no display text)
+  map.js                Tile grid, walkability, free-tile search
+  pathfind.js           A* pathfinding
+  world.js              Entities, resources, population and queries
+  mapgen.js             Symmetric random maps
+  movement.js           Path following, re-planning, spreading out
+  gather.js             Gathering and delivery
+  construction.js       Placement checks and building
+  production.js         Training queues
+  combat.js             Damage, chasing, retaliation, attack move
+  orders.js             Unit order state machine
+  commands.js           Command interface shared by player and AI
+  game.js               Fixed-step update and victory check
+js/ai/                  Computer opponent (acts only through commands)
+  economy.js            Villager jobs, building, training
+  ai.js                 Difficulty settings, defence and attack waves
+js/view/                Rendering and input
+  camera.js             The only place that converts world and screen coordinates
+  sprites.js            Original vector art
+  render.js             Drawing
+  actions.js            Command buttons and selection details
+  hud.js                Top bar, panel, dialogs
+  input.js              Mouse, keyboard, scrolling
+js/main.js              Start-up and main loop
+tests/                  Node tests
 ```
 
-## 擴充指引
+Code comments and test names are written in Traditional Chinese.
 
-- **等角視角**：改 `camera.js` 的轉換與範圍限制，並重畫 `sprites.js`；`render.js` 的地面、
-  占地框已用四頂點多邊形繪製，深度排序依螢幕高度。模擬層不需更動。
-- **小地圖**：新增 `js/view/minimap.js`，讀取 `world.map` 與 `world.entities`。
-- **戰爭迷霧**：單位與建築已有 `vision`。新增模擬層的可見格資料，再讓 `render.js`、
-  `input.js` 的點選與 AI 的查詢（`ai.js`、`economy.js`）套用過濾。
-- **升級時代**：在 `data.js` 增加時代需求與研究項目，`production.js` 的佇列可擴充研究類型。
-- **多兵種相剋**：在 `data.js` 增加單位、`armorTypes` 與 `damageBonus`；
-  並在 `sprites.js` 加圖形、AI 的出兵挑選（`economy.js`）納入新兵種。
-- **更聰明的 AI**：沿用 `RTS.commands.issue`，不要直接改世界狀態。
+## Extending
 
-## 已知限制
+- **New text**: add the same key to `zh-TW.js` and `en.js`. Simulation errors are returned as
+  codes and shown through `error.<code>`.
+- **Isometric view**: change the conversion and limits in `camera.js` and redraw `sprites.js`.
+  Ground and footprints are already drawn as four-point polygons and sprites are sorted by screen
+  height. The simulation needs no change.
+- **Minimap**: add `js/view/minimap.js` reading `world.map` and `world.entities`.
+- **Fog of war**: units and buildings already have `vision`. Add visibility data to the
+  simulation, then filter in `render.js`, in picking (`input.js`) and in AI queries
+  (`ai.js`, `economy.js`).
+- **Ages**: add requirements and research to `data.js`; the queue in `production.js` can take
+  research items.
+- **More units**: add them and their `damageBonus` to `data.js`, art to `sprites.js`, names to the
+  language files, and include them in the AI's training choice (`economy.js`).
+- **Smarter AI**: keep using `RTS.commands.issue`; do not modify world state directly.
 
-- AI 能看到整張地圖（包括玩家主堡位置），尚無偵查行為；三種難度只差在行為參數，戰術相同。
-- AI 不會重建被毀的主堡（唯一主堡一毀即分出勝負）。
-- 移動中的單位彼此不做碰撞，行軍時可能暫時重疊；靜止後才會推開。
-- 沒有集結點、編隊快捷鍵、修理、建築自衛、音效、存檔。
-- 金礦有限，長局後期黃金會枯竭，只能靠村民（不耗黃金）作戰。
-- 介面以桌面操作為主，不支援觸控。
+## Known limits
+
+- The AI sees the whole map, including your Town Center, and does not scout. The three
+  difficulties differ only in settings, not tactics.
+- The AI does not rebuild a destroyed Town Center (losing the only one ends the game).
+- Moving units do not collide, so they can overlap on the march; they spread out once still.
+- There is no repairing, and buildings cannot defend themselves.
+- Gold is limited. In long games it runs out and only villagers (who cost no gold) can still be trained.
+- Designed for desktop input; touch is not supported.

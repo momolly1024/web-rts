@@ -14,6 +14,10 @@
     keys: {}, paused: true,
     chosenDifficulty: RTS.data.defaultDifficulty    // 下一局要用的難度
   };
+  RTS.i18n.init({
+    language: window.navigator.language,
+    storage: function () { return window.localStorage; }
+  });
   app.hud = RTS.hud.create(app);
   app.notify = app.hud.notify;
 
@@ -95,6 +99,13 @@
   });
   click('overlay-restart', app.askRestart);
   click('overlay-cancel', app.closeOverlay);
+
+  function switchLanguage() {
+    RTS.i18n.toggle();
+    app.hud.relocalize();
+  }
+  click('btn-lang', switchLanguage);
+  click('overlay-lang', switchLanguage);
 
   window.addEventListener('resize', resize);
   RTS.input.bind(app, canvas);

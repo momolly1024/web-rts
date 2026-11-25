@@ -21,7 +21,7 @@ test('難度只覆寫 AI 行為參數，不改資源與戰鬥數值', () => {
   const before = tables();
   for (const key of RTS.data.difficultyOrder) {
     const entry = RTS.data.difficulties[key];
-    assert.deepStrictEqual(Object.keys(entry).sort(), ['ai', 'name']);
+    assert.deepStrictEqual(Object.keys(entry), ['ai']);
     Object.keys(entry.ai).forEach(k => assert.ok(k in RTS.data.ai, key + ' 含未知參數 ' + k));
     const world = RTS.game.create(7);
     const ai = RTS.ai.create(AI_ID, key);
