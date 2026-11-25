@@ -205,6 +205,9 @@
     }
     var enemy = e.owner !== app.human && e.owner !== null;
     var title = enemy ? t('selection.enemy', { name: nameOf(e) }) : nameOf(e);
+    if (e.kind === 'animal' && def.behavior === 'herd' && !enemy) {
+      title = t(e.owner === null ? 'selection.unclaimed' : 'selection.own', { name: nameOf(e) });
+    }
     var lines = [t('info.hp', { hp: Math.ceil(e.hp), max: e.maxHp })];
     return {
       title: title,

@@ -36,7 +36,7 @@
   function create(app) {
     var actionsBox = $('actions'), queueBox = $('queue');
     var actionSig = null, queueSig = null, current = [], toastTimer = 0, overlayKind = null;
-    var toastMessage = null;
+    var toastMessage = null, claimed = null;
 
     // code 是模擬層回傳的錯誤代碼
     function notify(code) {
@@ -48,7 +48,16 @@
       $('toast').classList.toggle('info', key.indexOf('error.') !== 0);
       text($('toast'), t(key, params));
       $('toast').classList.add('show');
-      toastTimer = 2.2;
+      toastTimer = 3.5;
+    }
+
+    // 新認領到牲畜時提示一次
+    function watchClaims() {
+      var now = RTS.world.list(app.world, function (e) {
+        return e.kind === 'animal' && e.owner === app.human;
+      }).map(function (e) { return e.id; });
+      if (claimed && now.some(function (id) { return claimed.indexOf(id) < 0; })) say('hint.sheepClaimed');
+      claimed = now;
     }
 
     function updateTop() {
@@ -233,9 +242,11 @@
         queueSig = null;
         toastTimer = 0;
         toastMessage = null;
+        claimed = null;
         $('toast').classList.remove('show');
       },
       update: function (dt) {
+        watchClaims();
         updateTop();
         updateInfo();
         updateActions();

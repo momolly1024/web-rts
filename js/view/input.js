@@ -31,15 +31,14 @@
     return RTS.world.get(app.world, RTS.map.occupantAt(app.world.map, Math.floor(w.x), Math.floor(w.y)));
   }
 
-  // 框內的己方單位；一個單位都沒有時才選牲畜
+  // 框內的己方單位與牲畜
   function ownUnitsInRect(app, x0, y0, x1, y1, type) {
     var found = RTS.world.list(app.world, function (e) {
       if (e.w !== undefined || e.owner !== app.human || (type && e.type !== type)) return false;
       var p = RTS.camera.worldToScreen(app.cam, e.x, e.y - 0.15);
       return p.x >= x0 && p.x <= x1 && p.y >= y0 && p.y <= y1;
     });
-    var units = found.filter(function (e) { return e.kind === 'unit'; });
-    return (units.length ? units : found).map(function (e) { return e.id; });
+    return RTS.groups.boxSelection(found).map(function (e) { return e.id; });
   }
 
   function finishSelection(app, drag, shift) {
@@ -53,9 +52,9 @@
     var e = pick(app, drag.x1, drag.y1);
     if (!e) { if (!shift) app.selection = []; return; }
     var onlyOwnUnits = RTS.actions.selected(app).every(function (s) {
-      return s.kind === 'unit' && s.owner === app.human;
+      return s.w === undefined && s.owner === app.human;
     });
-    if (shift && onlyOwnUnits && e.kind === 'unit' && e.owner === app.human) {
+    if (shift && onlyOwnUnits && e.w === undefined && e.owner === app.human) {
       var i = app.selection.indexOf(e.id);
       if (i < 0) app.selection.push(e.id); else app.selection.splice(i, 1);
     } else {
@@ -89,7 +88,13 @@
     // 沒選單位、只選一座生產建築時，右鍵設定集結點
     var sel = RTS.actions.selected(app);
     var producer = sel.length === 1 && sel[0].owner === app.human && RTS.rally.canRally(sel[0]) ? sel[0] : null;
-    if (!hasUnits && !producer) return;
+    if (!hasUnits && !producer) {
+      // 選著還不屬於自己的羊下指令時，說明怎麼認領，而不是毫無反應
+      var stray = sel.length === 1 && sel[0].kind === 'animal' &&
+        RTS.data.animals[sel[0].type].behavior === 'herd';
+      if (stray) app.hud.say(sel[0].owner === null ? 'hint.claimSheep' : 'hint.enemySheep');
+      return;
+    }
     var w = RTS.camera.screenToWorld(app.cam, x, y), target = pick(app, x, y);
     var command = hasUnits ? { type: 'smart', unitIds: app.selection }
       : { type: 'setRally', buildingId: producer.id };

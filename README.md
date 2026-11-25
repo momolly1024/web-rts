@@ -86,7 +86,7 @@ Each side gets the same animals in mirrored positions.
 
 | Animal | Meat | Behaviour |
 |------|------|------|
-| Sheep | 90 food | Belongs to whoever comes within 3 tiles; move it home like a unit. Cannot be taken while its owner stands next to it |
+| Sheep | 90 food | Belongs to whoever comes within 3 tiles (marked with a ring and flag in the owner's color). Select it and right-click the ground to move it, or box-select it together with villagers. Cannot be taken while its owner stands next to it |
 | Deer | 130 food | Runs when startled, then needs a rest |
 | Wild boar | 260 food | Fights back; one villager will lose, hunt it in a group |
 

@@ -179,7 +179,9 @@
         if (RTS.repair.canRepair(t)) dispatch('repair', villagersIn(left));
         if (RTS.garrison.hasRoom(t)) dispatch('garrison', left);
       }
-      var followers = left.concat((herd || []).filter(function (a) { return a !== t; }));
+      // 牲畜只跟著走向空地；村民去採集或施工時牠們留在原地
+      var busy = animal || (t && (t.kind === 'building' || (t.kind === 'node' && RTS.data.nodes[t.type].resource)));
+      var followers = left.concat((herd || []).filter(function (a) { return !busy && a !== t; }));
       if (followers.length) {
         var moved = moveUnits(world, followers, c.x, c.y);
         result = result || moved;

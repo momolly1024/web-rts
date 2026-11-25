@@ -40,6 +40,30 @@
     ctx.restore();
   }
 
+  // 已認領的牲畜：腳下色環加上方小旗，一眼看出是誰的
+  function ownerMark(ctx, player) {
+    ctx.beginPath();
+    ctx.ellipse(0, 0.17, 0.42, 0.17, 0, 0, Math.PI * 2);
+    ctx.fillStyle = player.color;
+    ctx.fill();
+    ctx.lineWidth = 0.04;
+    ctx.strokeStyle = '#f4f1e6';
+    ctx.stroke();
+    ctx.beginPath();
+    ctx.moveTo(-0.04, -0.28);
+    ctx.lineTo(-0.04, -0.66);
+    ctx.strokeStyle = '#1c1a17';
+    ctx.stroke();
+    ctx.beginPath();
+    ctx.moveTo(-0.04, -0.66);
+    ctx.lineTo(0.26, -0.57);
+    ctx.lineTo(-0.04, -0.48);
+    ctx.closePath();
+    ctx.fill();
+    ctx.lineWidth = 1 / 36;
+    ctx.stroke();
+  }
+
   function drawEntity(ctx, cam, e) {
     var players = RTS.data.players;
     if (e.kind === 'node') {
@@ -51,6 +75,7 @@
       });
     } else if (e.kind === 'animal') {
       local(ctx, cam, e.x, e.y, function () {
+        if (e.owner !== null) ownerMark(ctx, players[e.owner]);
         ctx.scale(e.facing, 1);
         RTS.sprites.animals[e.type](ctx, e.owner === null ? null : players[e.owner].color);
       });

@@ -1,4 +1,4 @@
-// 部隊編號：把目前選取存到數字鍵，再按取回；連按兩下回傳鏡頭應跳往的位置。不碰 DOM。
+// 選取規則與部隊編號：框選過濾、數字鍵儲存與取回（連按兩下回傳鏡頭位置）。不碰 DOM。
 (function () {
   'use strict';
   var RTS = globalThis.RTS || (globalThis.RTS = {});
@@ -42,5 +42,11 @@
     return { ids: list.map(function (e) { return e.id; }), center: center };
   }
 
-  RTS.groups = { create: create, assign: assign, recall: recall };
+  // 框到的己方移動物：一般全選（村民可連同牲畜一起趕）；框內有軍事單位時不帶牲畜上戰場
+  function boxSelection(found) {
+    var fighting = found.some(function (e) { return e.kind === 'unit' && RTS.data.units[e.type].military; });
+    return fighting ? found.filter(function (e) { return e.kind === 'unit'; }) : found;
+  }
+
+  RTS.groups = { create: create, assign: assign, recall: recall, boxSelection: boxSelection };
 })();
