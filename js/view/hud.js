@@ -136,6 +136,7 @@
     function updateInfo() {
       var info = RTS.actions.describe(app);
       text($('sel-title'), info.title);
+      text($('sel-rally'), RTS.actions.rallyNote(app));
       var body = $('sel-body');
       var joined = info.lines.join('\n');
       if (body.textContent !== joined) body.textContent = joined;

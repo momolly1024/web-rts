@@ -54,6 +54,7 @@
     'upgrade.meleeArmor': '近戰護甲',
     'upgrade.rangedArmor': '遠程護甲',
     'hud.popFullTitle': '人口已滿',
+    'rally.ground': '地面',
     'selection.none': '尚未選取',
     'selection.hint': '左鍵點選或拖曳框選，右鍵下達指令。',
     'selection.many': '已選取 {count} 個單位',
@@ -76,8 +77,8 @@
     'info.carry': '　攜帶{resource} {amount}',
     'info.progress': '施工進度 {percent}%（右鍵派村民協助）',
     'info.garrison': '避難中 {count} / {max}（緩慢回血）',
-    'info.rallyHint': '右鍵地面或資源設定集結點',
-    'info.rallySet': '已設集結點（右鍵本建築取消）',
+    'info.rallyHint': '右鍵設定集結點（地面或資源）',
+    'info.rallySet': '集結點：{target}（右鍵點建築本身取消）',
     'info.repairHint': '受損：右鍵派村民修理（花費資源）',
     'info.providesPop': '提供人口 {amount}',
 

@@ -54,6 +54,7 @@
     'upgrade.meleeArmor': 'Melee armor',
     'upgrade.rangedArmor': 'Ranged armor',
     'hud.popFullTitle': 'Population is full',
+    'rally.ground': 'Ground',
     'selection.none': 'Nothing selected',
     'selection.hint': 'Left-click or drag to select, right-click to give orders.',
     'selection.many': '{count} units selected',
@@ -76,8 +77,8 @@
     'info.carry': ' · carrying {amount} {resource}',
     'info.progress': 'Construction {percent}% (right-click with villagers to help)',
     'info.garrison': 'Sheltering {count} / {max} (slow healing)',
-    'info.rallyHint': 'Right-click ground or a resource to set a rally point',
-    'info.rallySet': 'Rally point set (right-click this building to clear)',
+    'info.rallyHint': 'Right-click to set a rally point (ground or resource)',
+    'info.rallySet': 'Rally point: {target} (right-click the building itself to clear)',
     'info.repairHint': 'Damaged: right-click with villagers to repair (costs resources)',
     'info.providesPop': 'Population +{amount}',
 

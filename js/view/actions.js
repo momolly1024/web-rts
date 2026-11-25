@@ -171,9 +171,6 @@
     var lines = [];
     if (!e.complete) lines.push(t('info.progress', { percent: Math.floor(e.progress * 100) }));
     if (def.pop) lines.push(t('info.providesPop', { amount: def.pop }));
-    if (e.complete && e.owner === human && RTS.rally.canRally(e)) {
-      lines.push(t(e.rally ? 'info.rallySet' : 'info.rallyHint'));
-    }
     if (e.complete && e.owner === human && def.trains.length) {
       var pop = RTS.world.population(app.world, human);
       if (pop.used + pop.queued >= pop.cap) {
@@ -185,6 +182,14 @@
     }
     if (RTS.repair.canRepair(e) && e.owner === human) lines.push(t('info.repairHint'));
     return lines;
+  }
+
+  // 生產建築的集結點提示（獨立一行，窄視窗也看得到）
+  function rallyNote(app) {
+    var sel = selected(app);
+    if (sel.length !== 1 || !RTS.rally.showsHint(sel[0], app.human)) return '';
+    if (!sel[0].rally) return t('info.rallyHint');
+    return t('info.rallySet', { target: t(RTS.rally.targetKey(app.world, sel[0])) });
   }
 
   function describe(app) {
@@ -228,5 +233,5 @@
     return item.research ? upgradeName(item.research, item.level + 1) : t('unit.' + item.type);
   }
 
-  RTS.actions = { list: list, describe: describe, selected: selected, issue: issue, queueName: queueName };
+  RTS.actions = { rallyNote: rallyNote, list: list, describe: describe, selected: selected, issue: issue, queueName: queueName };
 })();

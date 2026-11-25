@@ -19,6 +19,19 @@
     };
   }
 
+  // 面板提示用：只有己方完工的生產建築才顯示
+  function showsHint(b, owner) {
+    return canRally(b) && b.complete && b.owner === owner;
+  }
+
+  // 集結目標的語言鍵；原資源已耗盡時仍回報資源種類
+  function targetKey(world, b) {
+    var r = b.rally;
+    var target = r.targetId ? RTS.world.get(world, r.targetId) : null;
+    if (target) return target.kind + '.' + target.type;
+    return r.resource ? 'resource.' + r.resource : 'rally.ground';
+  }
+
   // 新單位沿用右鍵智慧指令：村民到資源點會直接採集
   function apply(world, b, u) {
     var r = b.rally;
@@ -32,5 +45,7 @@
     });
   }
 
-  RTS.rally = { canRally: canRally, set: set, apply: apply };
+  RTS.rally = {
+    canRally: canRally, set: set, apply: apply, showsHint: showsHint, targetKey: targetKey
+  };
 })();
