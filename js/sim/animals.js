@@ -47,7 +47,8 @@
     if (a.timer <= 0) {
       a.timer = SCAN;
       var radius = def(a).claimRadius;
-      if (a.owner === null || !nearestUnit(world, a, radius, a.owner)) {
+      // 圈在自己牲畜圈裡的羊搶不走
+      if (!RTS.pen.penOf(world, a) && (a.owner === null || !nearestUnit(world, a, radius, a.owner))) {
         var u = nearestUnit(world, a, radius);
         if (u && u.owner !== a.owner) { a.owner = u.owner; halt(a); }
       }

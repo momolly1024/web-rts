@@ -45,7 +45,10 @@
       return RTS.util.dist(a.x, a.y, tx, ty) - RTS.util.dist(b.x, b.y, tx, ty);
     }).forEach(function (u, i) {
       var t = tiles[Math.min(i, tiles.length - 1)];
-      if (u.kind === 'animal') RTS.animals.walk(u, t.x, t.y);
+      if (u.kind === 'animal') {
+        var dest = RTS.pen.confine(world, u, t);       // 圈裡的羊出不了圈
+        RTS.animals.walk(u, dest.x, dest.y);
+      }
       else RTS.orders.set(u, { type: type || 'move', x: t.x, y: t.y });
     });
     return done(type || 'move');
@@ -176,11 +179,18 @@
     },
     // 右鍵智慧指令：依目標決定移動、採集、攻擊、施工或交付
     smart: function (world, pid, c, units, herd) {
+      var t = visibleTarget(world, pid, c.targetId), penned = null;
+      // 右鍵己方牲畜圈：選到的羊趕進圈裡（從圈中央往外分配站位）
+      if (RTS.pen.isPen(t) && t.owner === pid && t.complete && herd && herd.length) {
+        var mid = RTS.world.center(t);
+        penned = moveUnits(world, herd, mid.x, mid.y);
+        herd = [];
+        if (!units.length) return penned;
+      }
       if (!units.length) return handlers.move(world, pid, c, units, herd);
-      var t = visibleTarget(world, pid, c.targetId);
       var animal = t && t.kind === 'animal';
       if (t && !animal && t.owner !== null && t.owner !== pid) return handlers.attack(world, pid, c, units);
-      var left = units.slice(), result = null;
+      var left = units.slice(), result = penned;
       // 把符合條件的單位分去做特定工作，其餘的照常移動
       function dispatch(type, takers) {
         if (!takers.length) return;

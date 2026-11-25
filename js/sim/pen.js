@@ -1,4 +1,4 @@
-// 牲畜圈與小羊：圈定時長出己方小黑羊，小羊長大後變成一般綿羊。
+// 牲畜圈與小羊：圈內有兩隻以上己方白羊時，過一段時間生出小黑羊；小羊長大後變成一般綿羊。另含拆除建築。
 (function () {
   'use strict';
   var RTS = globalThis.RTS || (globalThis.RTS = {});
@@ -7,30 +7,61 @@
     return !!(e && e.kind === 'building' && RTS.data.buildings[e.type].pen);
   }
 
-  // 圈附近己方的羊（含小羊）
+  function within(pen, e) {
+    return e.x >= pen.x && e.x < pen.x + pen.w && e.y >= pen.y && e.y < pen.y + pen.h;
+  }
+
+  // 圈內己方的羊（含小羊）
   function flock(world, pen) {
-    var cfg = RTS.data.buildings[pen.type].pen, c = RTS.world.center(pen);
     return RTS.world.list(world, function (e) {
       return e.kind === 'animal' && e.owner === pen.owner && RTS.data.animals[e.type].behavior === 'herd' &&
-        RTS.util.dist(e.x, e.y, c.x, c.y) <= cfg.radius;
+        within(pen, e);
     });
+  }
+
+  function adults(world, pen) {
+    return flock(world, pen).filter(function (a) { return !RTS.data.animals[a.type].young; }).length;
   }
 
   function full(world, pen) {
     return flock(world, pen).length >= RTS.data.buildings[pen.type].pen.cap;
   }
 
-  // 每步累積時間；羊滿時停在即將出生的狀態，空出位置就馬上補
+  // 白羊夠才計時（不夠就暫停、不歸零）；羊滿時停在即將出生的狀態，空出位置就馬上補
   function update(world, pen, dt) {
     if (!isPen(pen) || !pen.complete) return;
-    var cfg = RTS.data.buildings[pen.type].pen;
+    var cfg = RTS.data.buildings[pen.type].pen, c = RTS.world.center(pen);
+    // 進了圈的羊就被圈住：以圈中央為活動中心，之後的移動都限制在圈內
+    flock(world, pen).forEach(function (a) {
+      a.penId = pen.id;
+      if (a.order.type === 'idle') { a.home.x = c.x; a.home.y = c.y; }
+    });
+    if (adults(world, pen) < cfg.parents) return;
     pen.breed = Math.min(cfg.interval, (pen.breed || 0) + dt);
     if (pen.breed < cfg.interval || full(world, pen)) return;
     pen.breed = 0;
-    var c = RTS.world.center(pen);
     var lamb = RTS.world.addAnimal(world, 'lamb', c.x, c.y);
     lamb.owner = pen.owner;
     lamb.age = 0;
+    lamb.penId = pen.id;
+  }
+
+  // 圈住這隻羊的牲畜圈；圈被拆或換了主人就放開
+  function penOf(world, a) {
+    var pen = a.penId ? RTS.world.get(world, a.penId) : null;
+    if (pen && pen.owner === a.owner) return pen;
+    a.penId = 0;
+    return null;
+  }
+
+  // 被圈住的羊：把目的格限制在圈內
+  function confine(world, a, tile) {
+    var pen = penOf(world, a);
+    if (!pen) return tile;
+    return {
+      x: RTS.util.clamp(tile.x, pen.x, pen.x + pen.w - 1),
+      y: RTS.util.clamp(tile.y, pen.y, pen.y + pen.h - 1)
+    };
   }
 
   function secondsLeft(pen) {
@@ -76,7 +107,7 @@
   }
 
   RTS.pen = {
-    isPen: isPen, flock: flock, full: full, update: update, secondsLeft: secondsLeft,
+    isPen: isPen, within: within, penOf: penOf, confine: confine, flock: flock, adults: adults, full: full, update: update, secondsLeft: secondsLeft,
     grow: grow, growLeft: growLeft, refundOf: refundOf, canDemolish: canDemolish, demolish: demolish
   };
 })();

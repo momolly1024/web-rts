@@ -137,11 +137,11 @@
         walkable: true, farm: { food: 175 }, requires: 'mill',
         armorType: 'building', armor: { melee: 0, pierce: 0 }
       },
-      // 牲畜圈：每 interval 秒長出一隻小黑羊；圈附近 radius 格內己方羊（含小羊）達 cap 隻就暫停
+      // 牲畜圈：圈內有 parents 隻以上己方白羊時計時，每 interval 秒生一隻小黑羊；圈內羊（含小羊）達 cap 隻就暫停
       pen: {
         cost: { wood: 120 }, size: 3, hp: 350, buildTime: 25,
         pop: 0, vision: 3, trains: [], dropoff: false, hotkey: 'O',
-        walkable: true, pen: { interval: 50, cap: 5, radius: 4 },
+        walkable: true, pen: { interval: 50, cap: 6, parents: 2 },
         armorType: 'building', armor: { melee: 0, pierce: 1 }
       },
       market: {

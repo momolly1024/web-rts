@@ -210,6 +210,10 @@
   }
 
   function describeAnimal(app, e, def) {
+    if (e.owner === app.human && RTS.pen.penOf(app.world, e)) {
+      return [t('info.penned'), t(def.young ? 'info.young' : 'info.food', def.young
+        ? { seconds: RTS.pen.growLeft(e) } : { amount: def.food })];
+    }
     var owner = e.owner === null ? 'info.animal.' + def.behavior
       : e.owner === app.human ? 'info.animalOwn' : 'info.animalEnemy';
     if (def.young) return [t(owner), t('info.young', { seconds: RTS.pen.growLeft(e) })];
@@ -234,8 +238,9 @@
     }
     if (def.market && e.owner === human) lines.push(t('info.market'));
     if (def.pen && e.complete && e.owner === human) {
-      var count = RTS.pen.flock(app.world, e).length;
-      lines.push(count >= def.pen.cap ? t('info.penFull', { count: count, max: def.pen.cap })
+      var count = RTS.pen.flock(app.world, e).length, grown = RTS.pen.adults(app.world, e);
+      lines.push(grown < def.pen.parents ? t('info.penNeed', { adults: grown, need: def.pen.parents })
+        : count >= def.pen.cap ? t('info.penFull', { count: count, max: def.pen.cap })
         : t('info.pen', { count: count, max: def.pen.cap, seconds: RTS.pen.secondsLeft(e) }));
     }
     if (e.complete && e.owner === human && def.trains.length) {

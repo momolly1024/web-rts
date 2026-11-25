@@ -33,7 +33,7 @@ mouse and keyboard is recommended.
 | Mill | 100 wood | Receives food; researches Rich harvest; queues farm reseeds |
 | Farm | 60 wood | Needs a finished Mill; one villager farms it, 175 food each |
 | Market | 175 wood | Buys and sells food, wood and stone for gold |
-| Pen | 120 wood | Grows one black lamb of yours every 50 s; lambs become white sheep after 60 s |
+| Pen | 120 wood | With 2 white sheep inside, a black lamb is born every 50 s; lambs become white sheep after 60 s |
 
 | Unit | Cost | Traits |
 |------|------|------|
@@ -89,12 +89,17 @@ your current and future units of that class (villagers are unaffected).
 
 ### Pens
 
-- A finished pen grows a black lamb of yours every 50 s. After 60 s it becomes an ordinary white
-  sheep worth 90 food when slaughtered.
-- Lambs cannot be slaughtered (villagers just walk to them) and leave no meat if enemy soldiers kill them.
-- The pen pauses when 5 of your sheep (lambs included) are within 4 tiles, and starts again as soon as
-  one is slaughtered or led away.
-- Like wild sheep, an enemy unit can take them when none of yours is nearby.
+- Select your sheep and right-click a pen to lead them in. Once inside they cannot leave: move orders
+  only move them around within the pen. Villagers can walk in to slaughter white sheep.
+- Enemies cannot take penned sheep (they can still kill them). If the pen is demolished or destroyed,
+  the sheep are free again.
+- With at least 2 of your white sheep inside, a black lamb is born every 50 s; with fewer the timer
+  pauses (progress is kept).
+- After 60 s a lamb becomes an ordinary white sheep worth 90 food when slaughtered. Lambs cannot be
+  slaughtered (villagers just walk to them) and leave no meat if enemy soldiers kill them.
+- No more lambs are born while 6 of your sheep (lambs included) are inside; slaughter or lead one out
+  and the next arrives right away.
+- Sheep outside a pen are like wild ones: an enemy unit can take them when none of yours is nearby.
 
 ### Repairing
 

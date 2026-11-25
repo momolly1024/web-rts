@@ -12,34 +12,95 @@ function field(size = 30) {
 const lambs = (w, owner) => RTS.world.list(w, e => e.kind === 'animal' && e.type === 'lamb' && e.owner === owner);
 const steps = seconds => Math.ceil(seconds / RTS.data.TICK);
 
-test('牲畜圈：定時在圈裡長出己方小黑羊，工地不會長', () => {
+// 在圈中央放幾隻己方白羊
+function sheepIn(w, pen, n, owner = 0) {
+  const c = RTS.world.center(pen);
+  return Array.from({ length: n }, () => {
+    const s = RTS.world.addAnimal(w, 'sheep', c.x, c.y);
+    s.owner = owner;
+    return s;
+  });
+}
+
+test('牲畜圈：圈內有兩隻白羊才計時，時間到生出己方小黑羊', () => {
   const w = field();
   const cfg = RTS.data.buildings.pen.pen;
-  const site = RTS.world.addBuilding(w, 'pen', 0, 20, 10, false);
   const pen = RTS.world.addBuilding(w, 'pen', 0, 10, 10, true);
+  runUntil(w, () => false, steps(cfg.interval) + 20);
+  assert.strictEqual(lambs(w, 0).length, 0, '空圈不生');
+  sheepIn(w, pen, 1);
+  runUntil(w, () => false, steps(cfg.interval) + 20);
+  assert.strictEqual(lambs(w, 0).length, 0, '只有一隻不生');
+  assert.strictEqual(pen.breed || 0, 0, '不到兩隻不計時');
+  sheepIn(w, pen, 1);
   runUntil(w, () => false, steps(cfg.interval) - 5);
   assert.strictEqual(lambs(w, 0).length, 0, '還沒到時間');
   assert.ok(runUntil(w, () => lambs(w, 0).length === 1, 20));
   const lamb = lambs(w, 0)[0];
-  assert.ok(lamb.x >= pen.x && lamb.x <= pen.x + pen.w && lamb.y >= pen.y && lamb.y <= pen.y + pen.h);
-  assert.ok(RTS.pen.flock(w, site).length === 0 || site.x - pen.x > cfg.radius);
+  assert.ok(RTS.pen.within(pen, lamb), '生在圈裡');
   assert.ok(RTS.map.isWalkable(w.map, 11, 11), '圈內可行走');
   assert.strictEqual(RTS.construction.canPlace(w, 0, 'house', 10, 10).reason, 'blocked');
 });
 
-test('牲畜圈：附近己方羊達上限就暫停，空出位置後立刻補', () => {
+test('牲畜圈：圈外的羊、小羊、別人的羊都不算種羊；工地不會生', () => {
   const w = field();
   const cfg = RTS.data.buildings.pen.pen;
   const pen = RTS.world.addBuilding(w, 'pen', 0, 10, 10, true);
-  for (let i = 0; i < cfg.cap; i++) {
-    const s = RTS.world.addAnimal(w, 'sheep', 11.5, 11.5);
-    s.owner = 0;
-  }
+  const outside = RTS.world.addAnimal(w, 'sheep', 9.5, 9.5);
+  outside.owner = 0;
+  const lamb = RTS.world.addAnimal(w, 'lamb', 11.5, 11.5);
+  lamb.owner = 0;
+  sheepIn(w, pen, 1, 1).concat(sheepIn(w, pen, 1));
+  assert.strictEqual(RTS.pen.adults(w, pen), 1);
+  const site = RTS.world.addBuilding(w, 'pen', 0, 20, 10, false);
+  sheepIn(w, site, 2);
+  runUntil(w, () => false, steps(cfg.interval) + 20);
+  assert.strictEqual(lambs(w, 0).length, 1, '只有原本那隻小羊');
+});
+
+test('牲畜圈：圈內羊達上限就暫停，空出位置後立刻補', () => {
+  const w = field();
+  const cfg = RTS.data.buildings.pen.pen;
+  const pen = RTS.world.addBuilding(w, 'pen', 0, 10, 10, true);
+  const flock = sheepIn(w, pen, cfg.cap);
   runUntil(w, () => false, steps(cfg.interval) + 40);
-  assert.strictEqual(lambs(w, 0).length, 0, '滿了不長');
-  RTS.world.remove(w, RTS.pen.flock(w, pen)[0]);
+  assert.strictEqual(lambs(w, 0).length, 0, '滿了不生');
+  assert.ok(flock.every(s => RTS.pen.within(pen, s)), '閒逛不會走出圈');
+  RTS.world.remove(w, flock[0]);
   runUntil(w, () => false, 2);
   assert.strictEqual(lambs(w, 0).length, 1);
+});
+
+test('牲畜圈：選羊右鍵點圈子，羊走進圈裡並留在裡面', () => {
+  const w = field();
+  const pen = RTS.world.addBuilding(w, 'pen', 0, 10, 10, true);
+  const herd = [RTS.world.addAnimal(w, 'sheep', 16.5, 16.5), RTS.world.addAnimal(w, 'sheep', 17.5, 16.5)];
+  herd.forEach(s => { s.owner = 0; });
+  const r = RTS.commands.issue(w, 0, { type: 'smart', unitIds: herd.map(s => s.id), targetId: pen.id, x: 10.2, y: 10.2 });
+  assert.ok(r.ok);
+  assert.ok(runUntil(w, () => herd.every(s => RTS.pen.within(pen, s)), 1200));
+  runUntil(w, () => false, 1200);
+  assert.ok(herd.every(s => RTS.pen.within(pen, s)), '待一陣子仍在圈裡');
+});
+
+test('牲畜圈：羊進去就出不來，移動只在圈內；敵人搶不走；拆掉圈後恢復自由', () => {
+  const w = field();
+  const pen = RTS.world.addBuilding(w, 'pen', 0, 10, 10, true);
+  const herd = sheepIn(w, pen, 2);
+  runUntil(w, () => false, 2);
+  assert.ok(herd.every(s => RTS.pen.penOf(w, s) === pen));
+  RTS.commands.issue(w, 0, { type: 'move', unitIds: herd.map(s => s.id), x: 20.5, y: 20.5 });
+  runUntil(w, () => false, 600);
+  assert.ok(herd.every(s => RTS.pen.within(pen, s)), '帶不出圈');
+  const thief = unit(w, 'villager', 1, 12, 13);
+  runUntil(w, () => false, 100);
+  assert.ok(herd.every(s => s.owner === 0), '敵方村民搶不走');
+  RTS.world.remove(w, thief);
+  const lamb = runUntil(w, () => lambs(w, 0).length > 0, steps(60)) && lambs(w, 0)[0];
+  assert.ok(lamb && RTS.pen.penOf(w, lamb) === pen, '新生小羊也在圈裡');
+  RTS.commands.issue(w, 0, { type: 'demolish', buildingId: pen.id });
+  RTS.commands.issue(w, 0, { type: 'move', unitIds: [herd[0].id], x: 20.5, y: 20.5 });
+  assert.ok(runUntil(w, () => RTS.util.dist(herd[0].x, herd[0].y, 20.5, 20.5) < 1.5, 1200), '拆圈後可以帶走');
 });
 
 test('小黑羊：時間到長成白羊，保留主人', () => {
