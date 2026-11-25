@@ -9,6 +9,7 @@
 
     'hud.population': 'Pop',
     'hud.difficulty': 'Difficulty',
+    'hud.idle': 'Idle villagers',
     'hud.pause': 'Pause (P)',
     'hud.resume': 'Resume (P)',
     'hud.help': 'Help (F1)',
@@ -147,6 +148,8 @@
     'help.commandText': 'Attack move, garrison, release, stop or cancel a site, cancel an action',
     'help.groupKeys': 'Ctrl / Alt + digit',
     'help.groupText': 'Set a group; press the digit to select it, twice to jump there',
+    'help.idleKeys': '. (period)',
+    'help.idleText': 'Select the next idle villager and jump there',
     'help.pauseKeys': 'P / Space',
     'help.pauseText': 'Pause and resume',
     'help.tip': 'To start: claim nearby sheep, hunt for meat, and gather berries and wood. Keep training villagers, add houses before you hit the population limit, then build a barracks and a blacksmith. Swordsmen beat archers up close; archers deal bonus damage to swordsmen from range. Wild boar are fierce, so bring several villagers.',

@@ -48,5 +48,19 @@
     return fighting ? found.filter(function (e) { return e.kind === 'unit'; }) : found;
   }
 
-  RTS.groups = { create: create, assign: assign, recall: recall, boxSelection: boxSelection };
+  // 地圖上待命的村民（依 id 排序）；避難中的不算
+  function idleVillagers(world, owner) {
+    return RTS.world.unitsOf(world, owner).filter(function (u) {
+      return RTS.data.units[u.type].canBuild && u.order.type === 'idle';
+    }).sort(function (a, b) { return a.id - b.id; });
+  }
+
+  // 輪流挑下一位：id 比上次大的第一位，沒有就回到開頭
+  function nextIdle(world, owner, lastId) {
+    var list = idleVillagers(world, owner);
+    return list.filter(function (u) { return u.id > (lastId || 0); })[0] || list[0] || null;
+  }
+
+  RTS.groups = { create: create, assign: assign, recall: recall, boxSelection: boxSelection,
+    idleVillagers: idleVillagers, nextIdle: nextIdle };
 })();

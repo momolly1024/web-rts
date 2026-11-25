@@ -143,6 +143,7 @@
       return;
     }
     if (app.hud.overlay() || ev.repeat) return;
+    if (ev.code === 'Period') { app.selectIdle(); return; }
     var key = ev.code.replace(/^Key/, '');
     var action = RTS.actions.list(app).filter(function (a) { return a.hotkey === key; })[0];
     if (!action) return;

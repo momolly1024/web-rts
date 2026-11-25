@@ -72,6 +72,12 @@
       text($('difficulty-name'), t('difficulty.' + app.ai.difficulty));
     }
 
+    function updateIdle() {
+      var n = RTS.groups.idleVillagers(app.world, app.human).length;
+      text($('idle-count'), String(n));
+      $('btn-idle').disabled = n === 0;
+    }
+
     function updateActions() {
       current = RTS.actions.list(app);
       var sig = app.selection.join(',') + '|' + current.map(function (a) { return a.id; }).join(',');
@@ -248,6 +254,7 @@
       update: function (dt) {
         watchClaims();
         updateTop();
+        updateIdle();
         updateInfo();
         updateActions();
         updateQueue();

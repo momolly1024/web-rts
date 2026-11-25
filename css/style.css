@@ -92,6 +92,14 @@ h2 { font-size: 22px; color: var(--brass); }
 #toast.show { visibility: visible; }
 #toast.info { color: var(--vellum); }
 
+#btn-idle { position: fixed; left: 12px; bottom: 188px; background: rgba(34, 50, 64, 0.94); }
+#btn-idle:disabled { opacity: 0.6; }
+#btn-idle b { color: var(--brass); margin-left: 4px; }
+#btn-idle kbd {
+  margin-left: 6px; padding: 0 6px; font: 700 12px/1.4 var(--body);
+  color: var(--ink); background: var(--brass); border-radius: 2px;
+}
+
 #overlay {
   position: fixed; inset: 0; display: grid; place-items: center; padding: 16px;
   background: rgba(10, 16, 22, 0.66); z-index: 10;
