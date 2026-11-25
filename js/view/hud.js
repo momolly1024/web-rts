@@ -89,7 +89,7 @@
       var sel = RTS.actions.selected(app);
       var b = sel.length === 1 && sel[0].kind === 'building' && sel[0].owner === app.human ? sel[0] : null;
       var queue = b ? b.queue : [];
-      var sig = (b ? b.id : '') + '|' + queue.map(function (q) { return q.type; }).join(',');
+      var sig = (b ? b.id : '') + '|' + queue.map(function (q) { return q.type || q.research + q.level; }).join(',');
       if (sig !== queueSig) {
         queueSig = sig;
         queueBox.textContent = '';
@@ -105,7 +105,7 @@
       queue.forEach(function (q, i) {
         var item = queueBox.children[i];
         item.title = t('queue.cancelTitle');
-        text(item.firstChild, t('unit.' + q.type));
+        text(item.firstChild, RTS.actions.queueName(q));
         queueBox.children[i].lastChild.style.width = Math.floor(q.progress * 100) + '%';
       });
       var stalled = queue.length && queue[0].progress >= 1;

@@ -167,5 +167,5 @@
     });
   }
 
-  AI.economy = { assignVillagers: assignVillagers, develop: develop };
+  AI.economy = { assignVillagers: assignVillagers, develop: develop, startBuilding: startBuilding };
 })();

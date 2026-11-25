@@ -61,7 +61,7 @@
         run: function () { issue(app, { type: 'cancelBuild', buildingId: b.id }); }
       }];
     }
-    return data.buildings[b.type].trains.map(function (type) {
+    return researchActions(app, b).concat(data.buildings[b.type].trains.map(function (type) {
       var def = data.units[type];
       var check = RTS.production.check(app.world, b, type);
       return {
@@ -69,6 +69,26 @@
         hotkey: def.hotkey, cost: costText(def.cost),
         enabled: check.ok, reason: check.reason || '',
         run: function () { issue(app, { type: 'train', buildingId: b.id, unit: type }); }
+      };
+    }));
+  }
+
+  function upgradeName(track, level) {
+    return t('upgrade.' + track) + ' ' + level;
+  }
+
+  function researchActions(app, b) {
+    return (RTS.data.buildings[b.type].researches || []).map(function (track) {
+      var up = RTS.data.upgrades[track];
+      var level = RTS.research.level(app.world, app.human, track);
+      var next = up.levels[level];
+      var check = RTS.research.check(app.world, b, track);
+      return {
+        id: 'research:' + track, hotkey: up.hotkey,
+        label: next ? t('action.research', { name: upgradeName(track, level + 1) })
+          : t('action.maxed', { name: t('upgrade.' + track) }),
+        cost: next ? costText(next.cost) : '', enabled: check.ok, reason: check.reason || '',
+        run: function () { issue(app, { type: 'research', buildingId: b.id, track: track }); }
       };
     });
   }
@@ -93,12 +113,17 @@
   }
 
   function describeUnit(app, e, def) {
+    var atk = RTS.research.bonus(app.world, e.owner, e.type, 'attack');
+    var arm = RTS.research.bonus(app.world, e.owner, e.type, 'armor');
+    function plus(base, extra) { return extra ? base + '+' + extra : base; }
     var lines = [
       t('info.attack', {
-        type: t('attackType.' + def.attack.type), damage: def.attack.damage,
+        type: t('attackType.' + def.attack.type), damage: plus(def.attack.damage, atk),
         armor: t('armorType.' + def.armorType)
       }),
-      t('info.defense', { melee: def.armor.melee, pierce: def.armor.pierce, vision: def.vision })
+      t('info.defense', {
+        melee: plus(def.armor.melee, arm), pierce: plus(def.armor.pierce, arm), vision: def.vision
+      })
     ];
     if (e.owner === app.human) {
       var carry = e.carry.amount > 0
@@ -145,5 +170,10 @@
     };
   }
 
-  RTS.actions = { list: list, describe: describe, selected: selected, issue: issue };
+  // 生產佇列項目的顯示名稱
+  function queueName(item) {
+    return item.research ? upgradeName(item.research, item.level + 1) : t('unit.' + item.type);
+  }
+
+  RTS.actions = { list: list, describe: describe, selected: selected, issue: issue, queueName: queueName };
 })();

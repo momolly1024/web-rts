@@ -23,7 +23,7 @@
     nodes: {
       tree:  { resource: 'wood', amount: 100 },
       berry: { resource: 'food', amount: 200 },
-      gold:  { resource: 'gold', amount: 500 },
+      gold:  { resource: 'gold', amount: 700 },
       rock:  { resource: null,   amount: 0 }
     },
 
@@ -44,13 +44,13 @@
         cost: { food: 60, gold: 20 }, trainTime: 14, pop: 1, hotkey: 'Q',
         hp: 75, speed: 2.3, vision: 5, armorType: 'infantry', armor: { melee: 1, pierce: 1 },
         attack: { type: 'melee', damage: 9, range: 0.8, cooldown: 1.2 },
-        military: true
+        military: true, upgradeClass: 'melee'
       },
       archer: {
         cost: { wood: 40, gold: 35 }, trainTime: 16, pop: 1, hotkey: 'E',
         hp: 45, speed: 2.4, vision: 7, armorType: 'ranged', armor: { melee: 0, pierce: 0 },
         attack: { type: 'pierce', damage: 6, range: 4.5, cooldown: 1.6 },
-        military: true
+        military: true, upgradeClass: 'ranged'
       }
     },
 
@@ -69,10 +69,40 @@
         cost: { wood: 150 }, size: 3, hp: 600, buildTime: 30,
         pop: 0, vision: 4, trains: ['swordsman', 'archer'], dropoff: false, hotkey: 'B',
         armorType: 'building', armor: { melee: 1, pierce: 1 }
+      },
+      blacksmith: {
+        cost: { wood: 130 }, size: 2, hp: 450, buildTime: 28,
+        pop: 0, vision: 4, trains: [], dropoff: false, hotkey: 'K',
+        researches: ['meleeAttack', 'rangedAttack', 'meleeArmor', 'rangedArmor'],
+        armorType: 'building', armor: { melee: 1, pierce: 1 }
       }
     },
 
-    buildOrderList: ['house', 'barracks', 'townCenter'],
+    buildOrderList: ['house', 'barracks', 'blacksmith', 'townCenter'],
+
+    // 鐵匠鋪研究：對該類別所有單位（現有與之後訓練的）生效。bonus 為該級增加量
+    upgrades: {
+      meleeAttack: {
+        unitClass: 'melee', stat: 'attack', hotkey: 'Q', levels: [
+          { bonus: 2, cost: { food: 100, gold: 50 }, time: 30 },
+          { bonus: 2, cost: { food: 170, gold: 100 }, time: 45 }]
+      },
+      rangedAttack: {
+        unitClass: 'ranged', stat: 'attack', hotkey: 'E', levels: [
+          { bonus: 1, cost: { wood: 100, gold: 50 }, time: 30 },
+          { bonus: 1, cost: { wood: 170, gold: 100 }, time: 45 }]
+      },
+      meleeArmor: {
+        unitClass: 'melee', stat: 'armor', hotkey: 'R', levels: [
+          { bonus: 1, cost: { food: 90, gold: 40 }, time: 25 },
+          { bonus: 1, cost: { food: 150, gold: 80 }, time: 40 }]
+      },
+      rangedArmor: {
+        unitClass: 'ranged', stat: 'armor', hotkey: 'F', levels: [
+          { bonus: 1, cost: { wood: 90, gold: 40 }, time: 25 },
+          { bonus: 1, cost: { wood: 150, gold: 80 }, time: 40 }]
+      }
+    },
 
     // 難度：只能覆寫下方 ai 的行為參數，不得改資源或戰鬥數值。普通即基準值
     difficultyOrder: ['easy', 'normal', 'hard'],
@@ -81,14 +111,16 @@
       easy: {
         ai: {
           thinkInterval: 2.5, graceTime: 480, villagerTarget: 10, attackSize: 4, waveGrowth: 1,
-          attackSizeMax: 8, waveInterval: 150, armyMax: 10, maxBarracks: 1
+          attackSizeMax: 8, waveInterval: 150, armyMax: 10, maxBarracks: 1,
+          blacksmith: { atArmy: 7, maxLevel: 1 }
         }
       },
       normal: { ai: {} },
       hard: {
         ai: {
           thinkInterval: 0.5, graceTime: 240, villagerTarget: 18, attackSize: 8, waveGrowth: 3,
-          attackSizeMax: 20, waveInterval: 55, armyMax: 26, maxBarracks: 3
+          attackSizeMax: 20, waveInterval: 55, armyMax: 26, maxBarracks: 3,
+          blacksmith: { atArmy: 5, maxLevel: 2 }
         }
       }
     },
@@ -105,7 +137,8 @@
       waveInterval: 75,      // 兩波之間至少間隔（秒）
       armyMax: 18,           // 軍隊人數上限（含訓練中）
       defendRadius: 11,
-      maxBarracks: 2
+      maxBarracks: 2,
+      blacksmith: { atArmy: 6, maxLevel: 2 }   // 軍隊達幾人後投資科技、最多研究到幾級
     }
   };
 })();

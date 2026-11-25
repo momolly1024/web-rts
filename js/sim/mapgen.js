@@ -76,7 +76,7 @@
       }
     }
     scatter(4, 6, 16, water);
-    scatter(2, 4, 6, node('gold'));
+    scatter(4, 4, 6, node('gold'));
     scatter(2, 4, 6, node('berry'));
     scatter(15, 8, 24, node('tree'));
     scatter(10, 1, 4, node('rock'));

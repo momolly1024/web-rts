@@ -23,11 +23,18 @@
     return result;
   }
 
+  // 佇列項目是訓練單位或研究升級
+  function itemSpec(item) {
+    if (item.research) return RTS.data.upgrades[item.research].levels[item.level];
+    var unit = RTS.data.units[item.type];
+    return { cost: unit.cost, time: unit.trainTime };
+  }
+
   function cancel(world, b, index) {
     var item = b.queue[index];
     if (!item) return false;
     b.queue.splice(index, 1);
-    RTS.world.refund(world, b.owner, RTS.data.units[item.type].cost);
+    RTS.world.refund(world, b.owner, itemSpec(item).cost);
     return true;
   }
 
@@ -52,9 +59,14 @@
   function update(world, b, dt) {
     var item = b.queue[0];
     if (!b.complete || !item) return;
-    var unit = RTS.data.units[item.type];
-    item.progress = Math.min(1, item.progress + dt / unit.trainTime);
+    item.progress = Math.min(1, item.progress + dt / itemSpec(item).time);
     if (item.progress < 1 - 1e-9) return;
+    if (item.research) {
+      world.players[b.owner].upgrades[item.research] = item.level + 1;
+      b.queue.shift();
+      return;
+    }
+    var unit = RTS.data.units[item.type];
     var pop = RTS.world.population(world, b.owner);
     if (pop.used + unit.pop > pop.cap) return;      // 房屋被拆時暫停在 100%
     var tile = spawnTile(world, b);

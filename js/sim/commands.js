@@ -99,6 +99,10 @@
       var b = ownBuilding(world, pid, c.buildingId);
       return b && RTS.production.cancel(world, b, c.index) ? done('cancelTrain') : fail('cannotCancel');
     },
+    research: function (world, pid, c) {
+      var b = ownBuilding(world, pid, c.buildingId);
+      return b ? RTS.research.enqueue(world, b, c.track) : fail('buildingNotFound');
+    },
     // 右鍵智慧指令：依目標決定移動、採集、攻擊、施工或交付
     smart: function (world, pid, c, units) {
       if (!units.length) return fail('noUnits');

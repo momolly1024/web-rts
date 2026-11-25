@@ -10,7 +10,7 @@
       var res = {};
       var start = opts.resources || data.START_RESOURCES;
       data.resources.forEach(function (r) { res[r] = start[r] || 0; });
-      return { id: id, res: res };
+      return { id: id, res: res, upgrades: {} };
     });
     return {
       map: RTS.map.create(opts.width || data.MAP_SIZE, opts.height || data.MAP_SIZE),
@@ -137,7 +137,7 @@
       if (e.kind === 'unit') used += RTS.data.units[e.type].pop;
       else if (e.kind === 'building') {
         if (e.complete) cap += RTS.data.buildings[e.type].pop;
-        e.queue.forEach(function (q) { queued += RTS.data.units[q.type].pop; });
+        e.queue.forEach(function (q) { if (!q.research) queued += RTS.data.units[q.type].pop; });
       }
     });
     return { used: used, queued: queued, cap: Math.min(cap, RTS.data.POP_MAX) };

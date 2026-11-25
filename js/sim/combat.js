@@ -6,10 +6,12 @@
   var SCAN_INTERVAL = 0.4;
   var LEASH = 5;             // 自動反擊最多追出「視野 + LEASH」格
 
-  function damageOf(attackerType, targetDef) {
+  // attackBonus、armorBonus 為雙方的研究加成
+  function damageOf(attackerType, targetDef, attackBonus, armorBonus) {
     var atk = RTS.data.units[attackerType].attack;
     var bonus = RTS.data.damageBonus[atk.type][targetDef.armorType];
-    return Math.max(1, atk.damage * bonus - targetDef.armor[atk.type]);
+    var armor = targetDef.armor[atk.type] + (armorBonus || 0);
+    return Math.max(1, (atk.damage + (attackBonus || 0)) * bonus - armor);
   }
 
   // 視野內最近的敵人：單位優先，需要時才找建築
@@ -37,7 +39,8 @@
       type: atk.range > 1.5 ? 'arrow' : 'hit',
       x1: u.x, y1: u.y, x2: to.x, y2: to.y, age: 0, life: 0.25
     });
-    target.hp -= damageOf(u.type, def);
+    var armor = target.kind === 'unit' ? RTS.research.bonus(world, target.owner, target.type, 'armor') : 0;
+    target.hp -= damageOf(u.type, def, RTS.research.bonus(world, u.owner, u.type, 'attack'), armor);
     if (target.kind === 'building') target.lastHit = world.time;
     if (target.hp <= 0) {
       world.effects.push({ type: 'death', x1: to.x, y1: to.y, x2: to.x, y2: to.y, age: 0, life: 0.8 });
