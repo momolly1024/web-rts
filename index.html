@@ -18,6 +18,7 @@
       <div class="pop"><dt>人口</dt><dd id="res-pop">0 / 0</dd></div>
     </dl>
     <span id="clock">0:00</span>
+    <span id="difficulty"><span class="prefix">難度 </span><b id="difficulty-name">普通</b></span>
     <nav>
       <button type="button" id="btn-pause">暫停 (P)</button>
       <button type="button" id="btn-help">說明 (F1)</button>
@@ -45,7 +46,7 @@
       <h1 id="overlay-title">玩法說明</h1>
       <p id="overlay-note"></p>
       <div id="help-text">
-        <p>經營村莊、組織軍隊，摧毀紅旗領主的主堡。你的主堡（藍旗）全部被毀就算戰敗。敵軍開局約五分鐘後才會進攻。</p>
+        <p>經營村莊、組織軍隊，摧毀紅旗領主的主堡。你的主堡（藍旗）全部被毀就算戰敗。開局有一段敵軍不進攻的緩衝期，長短依難度而定。</p>
         <table>
           <tbody>
             <tr><th>左鍵／拖曳</th><td>點選、框選（Shift 加選，雙擊選同類）</td></tr>
@@ -59,9 +60,13 @@
         </table>
         <p>起手建議：讓村民採果叢與樹木，持續訓練村民，人口快滿時蓋房屋，再蓋兵營。劍士近身後剋弓箭手；弓箭手隔著距離射劍士，傷害有加成。</p>
       </div>
+      <fieldset id="difficulty-picker">
+        <legend>對手強度</legend>
+      </fieldset>
       <div class="buttons">
         <button type="button" id="overlay-primary">開始遊戲</button>
         <button type="button" id="overlay-restart">重新開始</button>
+        <button type="button" id="overlay-cancel">回到戰場</button>
       </div>
     </div>
   </div>

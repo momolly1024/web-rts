@@ -28,7 +28,7 @@
 
   // 依缺口大小排序的資源清單
   function wanted(ctx, counts, total) {
-    var ratio = RTS.data.ai.gatherRatio;
+    var ratio = ctx.cfg.gatherRatio;
     return RTS.data.resources.slice().sort(function (a, b) {
       return (ratio[b] * total - counts[b]) - (ratio[a] * total - counts[a]);
     });
@@ -55,7 +55,7 @@
 
     // 比例嚴重失衡時，每次調一個人
     var order = wanted(ctx, counts, total);
-    var need = order[0], surplus = order[order.length - 1], ratio = RTS.data.ai.gatherRatio;
+    var need = order[0], surplus = order[order.length - 1], ratio = ctx.cfg.gatherRatio;
     if (ratio[need] * total - counts[need] >= 2 && counts[surplus] > ratio[surplus] * total) {
       var mover = ctx.villagers.filter(function (u) {
         return u.order.type === 'gather' && u.order.resource === surplus && u.carry.amount < 3;
@@ -132,7 +132,7 @@
   }
 
   function develop(ctx) {
-    var cfg = RTS.data.ai;
+    var cfg = ctx.cfg;
     var pop = RTS.world.population(ctx.world, ctx.pid);
     var queuedVillagers = countType(ctx.tc.queue, 'villager');
     if (ctx.villagers.length + queuedVillagers < cfg.villagerTarget && ctx.tc.queue.length < 1) {

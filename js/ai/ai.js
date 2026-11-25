@@ -4,8 +4,15 @@
   var RTS = globalThis.RTS || (globalThis.RTS = {});
   var AI = RTS.ai || (RTS.ai = {});
 
+  // 基準參數套上該難度的覆寫值；未知難度一律視為預設
+  function config(difficulty) {
+    var data = RTS.data;
+    var key = data.difficultyOrder.indexOf(difficulty) >= 0 ? difficulty : data.defaultDifficulty;
+    return Object.assign({ difficulty: key }, data.ai, data.difficulties[key].ai);
+  }
+
   function findThreat(ctx) {
-    var radius = RTS.data.ai.defendRadius, threat = null;
+    var radius = ctx.cfg.defendRadius, threat = null;
     ctx.world.entities.forEach(function (e) {
       if (threat || e.kind !== 'unit' || e.owner === ctx.pid) return;
       var near = ctx.buildings.some(function (b) { return RTS.world.distTo(e.x, e.y, b) <= radius; });
@@ -38,7 +45,7 @@
   }
 
   function command(ctx) {
-    var cfg = RTS.data.ai, state = ctx.state;
+    var cfg = ctx.cfg, state = ctx.state;
     var threat = findThreat(ctx);
     if (threat) {
       var defenders = ctx.army.filter(function (u) {
@@ -71,13 +78,13 @@
     driveWave(ctx, target);
   }
 
-  function think(world, pid, state) {
+  function think(world, pid, state, cfg) {
     var buildings = RTS.world.buildingsOf(world, pid);
     var tc = buildings.filter(function (b) { return b.type === 'townCenter' && b.complete; })[0];
     if (!tc) return;
     var units = RTS.world.unitsOf(world, pid);
     var ctx = {
-      world: world, pid: pid, state: state, tc: tc, buildings: buildings,
+      world: world, pid: pid, state: state, cfg: cfg, tc: tc, buildings: buildings,
       villagers: units.filter(function (u) { return !RTS.data.units[u.type].military; }),
       army: units.filter(function (u) { return RTS.data.units[u.type].military; }),
       issue: function (cmd) { return RTS.commands.issue(world, pid, cmd); }
@@ -87,16 +94,20 @@
     command(ctx);
   }
 
-  AI.create = function (pid) {
+  AI.config = config;
+
+  AI.create = function (pid, difficulty) {
+    var cfg = config(difficulty);
     var state = { timer: 0, waves: 0, lastWave: 0, wave: {}, assigned: {}, badNodes: {}, sites: {} };
     return {
+      difficulty: cfg.difficulty,
       state: state,
       update: function (world, dt) {
         if (world.over) return;
         state.timer -= dt;
         if (state.timer > 0) return;
-        state.timer = RTS.data.ai.thinkInterval;
-        think(world, pid, state);
+        state.timer = cfg.thinkInterval;
+        think(world, pid, state, cfg);
       }
     };
   };

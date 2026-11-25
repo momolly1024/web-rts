@@ -37,6 +37,7 @@
       var s = Math.floor(world.time);
       text($('clock'), Math.floor(s / 60) + ':' + String(s % 60).padStart(2, '0'));
       text($('btn-pause'), app.paused ? '繼續 (P)' : '暫停 (P)');
+      text($('difficulty-name'), RTS.data.difficulties[app.ai.difficulty].name);
     }
 
     function updateActions() {
@@ -103,16 +104,51 @@
       text($('hint'), hint);
     }
 
-    // kind: 'help' | 'pause' | 'over' | null
+    // 說明文字直接由資料表產生，調參數後不必另外改介面
+    function difficultySummary(key) {
+      var cfg = RTS.ai.config(key);
+      return '約 ' + cfg.graceTime / 60 + ' 分鐘後才進攻，第一波 ' + cfg.attackSize +
+        ' 人，軍隊最多 ' + cfg.armyMax + ' 人';
+    }
+
+    function buildDifficultyPicker() {
+      RTS.data.difficultyOrder.forEach(function (key) {
+        var label = el('label'), input = el('input');
+        input.type = 'radio';
+        input.name = 'difficulty';
+        input.value = key;
+        input.addEventListener('change', function () { app.chosenDifficulty = key; });
+        label.appendChild(input);
+        label.appendChild(el('b', '', RTS.data.difficulties[key].name));
+        label.appendChild(el('span', '', difficultySummary(key)));
+        $('difficulty-picker').appendChild(label);
+      });
+    }
+    buildDifficultyPicker();
+
+    // kind: 'help' | 'pause' | 'restart' | 'over' | null
     function showOverlay(kind) {
       overlayKind = kind;
       $('overlay').hidden = !kind;
-      if (!kind) return;
+      if (!kind) {
+        if (document.activeElement) document.activeElement.blur();
+        return;
+      }
       $('help-text').hidden = kind !== 'help';
+      // 只有「開局前」與「要開新局」時能選難度
+      var picking = kind === 'restart' || kind === 'over' || (kind === 'help' && app.world.tick === 0);
+      $('difficulty-picker').hidden = !picking;
+      if (picking) {
+        $('difficulty-picker').querySelector('input[value="' + app.chosenDifficulty + '"]').checked = true;
+      }
       var title = '玩法說明', primary = app.world.tick === 0 ? '開始遊戲' : '回到戰場', note = '';
       if (kind === 'pause') {
         title = '遊戲暫停';
         primary = '繼續遊戲';
+      } else if (kind === 'restart') {
+        title = '重新開始';
+        note = '開新局會放棄目前戰局。';
+        primary = '開始新局';
       } else if (kind === 'over') {
         var won = app.world.winner === app.human;
         title = won ? '勝利' : '戰敗';
@@ -122,7 +158,8 @@
       text($('overlay-title'), title);
       text($('overlay-note'), note);
       text($('overlay-primary'), primary);
-      $('overlay-restart').hidden = kind === 'over' || app.world.tick === 0;
+      $('overlay-restart').hidden = kind === 'over' || kind === 'restart' || app.world.tick === 0;
+      $('overlay-cancel').hidden = kind !== 'restart';
     }
 
     // 事件只綁一次，按鈕重建也不受影響

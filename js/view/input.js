@@ -95,6 +95,7 @@
 
   function onKey(app, ev) {
     if (ev.ctrlKey || ev.metaKey || ev.altKey) return;
+    if (app.hud.overlay() && SCROLL_KEYS[ev.code]) return;    // 讓方向鍵能切換難度選項
     if (SCROLL_KEYS[ev.code]) { app.keys[ev.code] = true; ev.preventDefault(); return; }
     if (ev.code === 'F1') { ev.preventDefault(); app.toggleHelp(); return; }
     if (ev.code === 'KeyP' || ev.code === 'Space') {

@@ -47,22 +47,24 @@ for (const seed of [7, 2024, 31337, 5, 88]) {
   });
 }
 
-test('AI 只透過指令介面操作（拒絕所有指令時世界不被 AI 改動）', () => {
-  const world = RTS.game.create(11);
-  const ai = RTS.ai.create(AI_ID);
-  const original = RTS.commands.issue;
-  const seen = [];
-  const snapshot = () => JSON.stringify({
-    p: world.players,
-    e: [...world.entities.values()].map(e => [e.id, e.x, e.y, e.hp, e.order, e.queue])
+for (const difficulty of RTS.data.difficultyOrder) {
+  test(`AI 只透過指令介面操作（拒絕所有指令時世界不被 AI 改動，${difficulty}）`, () => {
+    const world = RTS.game.create(11);
+    const ai = RTS.ai.create(AI_ID, difficulty);
+    const original = RTS.commands.issue;
+    const seen = [];
+    const snapshot = () => JSON.stringify({
+      p: world.players,
+      e: [...world.entities.values()].map(e => [e.id, e.x, e.y, e.hp, e.order, e.queue])
+    });
+    RTS.commands.issue = (w, pid, cmd) => { seen.push(pid); return { ok: false }; };
+    try {
+      const before = snapshot();
+      for (let i = 0; i < 400; i++) ai.update(world, 3);
+      assert.strictEqual(snapshot(), before);
+      assert.ok(seen.length > 0 && seen.every(pid => pid === AI_ID));
+    } finally {
+      RTS.commands.issue = original;
+    }
   });
-  RTS.commands.issue = (w, pid, cmd) => { seen.push(pid); return { ok: false }; };
-  try {
-    const before = snapshot();
-    for (let i = 0; i < 400; i++) ai.update(world, 1);
-    assert.strictEqual(snapshot(), before);
-    assert.ok(seen.length > 0 && seen.every(pid => pid === AI_ID));
-  } finally {
-    RTS.commands.issue = original;
-  }
-});
+}

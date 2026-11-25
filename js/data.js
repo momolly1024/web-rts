@@ -76,6 +76,28 @@
 
     buildOrderList: ['house', 'barracks', 'townCenter'],
 
+    // 難度：只能覆寫下方 ai 的行為參數，不得改資源或戰鬥數值。普通即基準值
+    difficultyOrder: ['easy', 'normal', 'hard'],
+    defaultDifficulty: 'normal',
+    difficulties: {
+      easy: {
+        name: '簡單',
+        ai: {
+          thinkInterval: 2.5, graceTime: 480, villagerTarget: 10, attackSize: 4, waveGrowth: 1,
+          attackSizeMax: 8, waveInterval: 150, armyMax: 10, maxBarracks: 1
+        }
+      },
+      normal: { name: '普通', ai: {} },
+      hard: {
+        name: '困難',
+        ai: {
+          thinkInterval: 0.5, graceTime: 240, villagerTarget: 18, attackSize: 8, waveGrowth: 3,
+          attackSizeMax: 20, waveInterval: 55, armyMax: 26, maxBarracks: 3
+        }
+      }
+    },
+
+    // AI 基準參數
     ai: {
       thinkInterval: 1.0,
       graceTime: 300,        // 開局緩衝（秒），此前 AI 不進攻

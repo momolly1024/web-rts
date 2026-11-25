@@ -11,7 +11,8 @@
     human: 0, world: null, ai: null, cam: null,
     selection: [], placement: null, mode: null, drag: null,
     mouse: { x: 0, y: 0, inside: false, overCanvas: false },
-    keys: {}, paused: true
+    keys: {}, paused: true,
+    chosenDifficulty: RTS.data.defaultDifficulty    // 下一局要用的難度
   };
   app.hud = RTS.hud.create(app);
   app.notify = app.hud.notify;
@@ -24,9 +25,13 @@
     if (app.cam) RTS.camera.resize(app.cam, window.innerWidth, window.innerHeight);
   }
 
+  function createOpponent() {
+    return RTS.ai.create(1 - app.human, app.chosenDifficulty);
+  }
+
   function newGame(seed) {
     app.world = RTS.game.create(seed);
-    app.ai = RTS.ai.create(1 - app.human);
+    app.ai = createOpponent();
     app.cam = RTS.camera.create(app.world.map.width, app.world.map.height);
     app.selection = [];
     app.placement = app.mode = app.drag = null;
@@ -49,6 +54,7 @@
 
   app.closeOverlay = function () {
     if (app.world.over) return;
+    if (app.world.tick === 0) app.ai = createOpponent();    // 開局前套用選好的難度
     app.paused = false;
     app.hud.showOverlay(null);
   };
@@ -65,6 +71,14 @@
     else { app.paused = true; app.hud.showOverlay('help'); }
   };
 
+  // 開啟「重新開始」視窗，預選本局難度
+  app.askRestart = function () {
+    if (app.world.over) return;
+    app.chosenDifficulty = app.ai.difficulty;
+    app.paused = true;
+    app.hud.showOverlay('restart');
+  };
+
   function click(id, handler) {
     document.getElementById(id).addEventListener('click', function (ev) {
       ev.currentTarget.blur();
@@ -74,13 +88,13 @@
 
   click('btn-pause', app.togglePause);
   click('btn-help', app.toggleHelp);
-  click('btn-restart', function () {
-    if (window.confirm('放棄目前戰局，重新開始？')) app.restart();
-  });
+  click('btn-restart', app.askRestart);
   click('overlay-primary', function () {
-    if (app.world.over) app.restart(); else app.closeOverlay();
+    if (app.world.over || app.hud.overlay() === 'restart') app.restart();
+    else app.closeOverlay();
   });
-  click('overlay-restart', app.restart);
+  click('overlay-restart', app.askRestart);
+  click('overlay-cancel', app.closeOverlay);
 
   window.addEventListener('resize', resize);
   RTS.input.bind(app, canvas);
