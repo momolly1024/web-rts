@@ -95,6 +95,7 @@
     'queue.stalled': '等待人口空位或出兵空間',
     'queue.active': '進行中，點項目可取消',
 
+    'group.assigned': '已將 {count} 個單位編為第 {group} 隊',
     'hint.placement': '選擇建地：左鍵放置（Shift 可連續放置），右鍵或 Esc 取消',
     'hint.attackMove': '攻擊移動：左鍵指定目的地，右鍵或 Esc 取消',
 
@@ -127,6 +128,8 @@
     'help.trainText': '主堡訓練村民；兵營訓練劍士、弓箭手；鐵匠鋪研究攻擊與護甲',
     'help.commandKeys': 'F、G、U、X、Esc',
     'help.commandText': '攻擊移動、進駐主堡、放出、停止或取消工地、取消操作',
+    'help.groupKeys': 'Ctrl／Alt + 數字',
+    'help.groupText': '設定部隊編號；按數字選取，連按兩下跳到該處',
     'help.pauseKeys': 'P／空白鍵',
     'help.pauseText': '暫停與繼續',
     'help.tip': '起手建議：讓村民採果叢與樹木，持續訓練村民，人口快滿時蓋房屋，再蓋兵營。劍士近身後剋弓箭手；弓箭手隔著距離射劍士，傷害有加成。',

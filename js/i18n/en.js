@@ -95,6 +95,7 @@
     'queue.stalled': 'Waiting for population room or space',
     'queue.active': 'In progress. Click an item to cancel',
 
+    'group.assigned': 'Group {group} set ({count} selected)',
     'hint.placement': 'Pick a site: left-click to place (Shift to keep placing), right-click or Esc to cancel',
     'hint.attackMove': 'Attack move: left-click a destination, right-click or Esc to cancel',
 
@@ -127,6 +128,8 @@
     'help.trainText': 'Town Center trains Villagers; Barracks trains soldiers; Blacksmith researches attack and armor',
     'help.commandKeys': 'F, G, U, X, Esc',
     'help.commandText': 'Attack move, garrison, release, stop or cancel a site, cancel an action',
+    'help.groupKeys': 'Ctrl / Alt + digit',
+    'help.groupText': 'Set a group; press the digit to select it, twice to jump there',
     'help.pauseKeys': 'P / Space',
     'help.pauseText': 'Pause and resume',
     'help.tip': 'To start: gather berries and wood, keep training villagers, add houses before you hit the population limit, then build a barracks. Swordsmen beat archers up close; archers deal bonus damage to swordsmen from range.',

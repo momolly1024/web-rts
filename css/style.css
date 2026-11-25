@@ -87,6 +87,7 @@ h2 { font-size: 22px; color: var(--brass); }
 #hint:empty { display: none; }
 #toast { bottom: 192px; color: var(--alert); font-weight: 700; visibility: hidden; }
 #toast.show { visibility: visible; }
+#toast.info { color: var(--vellum); }
 
 #overlay {
   position: fixed; inset: 0; display: grid; place-items: center; padding: 16px;

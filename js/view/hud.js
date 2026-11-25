@@ -36,13 +36,17 @@
   function create(app) {
     var actionsBox = $('actions'), queueBox = $('queue');
     var actionSig = null, queueSig = null, current = [], toastTimer = 0, overlayKind = null;
-    var toastCode = null;
+    var toastMessage = null;
 
     // code 是模擬層回傳的錯誤代碼
     function notify(code) {
-      if (!code) return;
-      toastCode = code;
-      text($('toast'), t('error.' + code));
+      if (code) say('error.' + code);
+    }
+
+    function say(key, params) {
+      toastMessage = { key: key, params: params };
+      $('toast').classList.toggle('info', key.indexOf('error.') !== 0);
+      text($('toast'), t(key, params));
       $('toast').classList.add('show');
       toastTimer = 2.2;
     }
@@ -160,7 +164,7 @@
     function relocalize() {
       applyStatic();
       labelDifficulties();
-      if (toastCode) text($('toast'), t('error.' + toastCode));
+      if (toastMessage) text($('toast'), t(toastMessage.key, toastMessage.params));
       if (overlayKind) showOverlay(overlayKind);
     }
 
@@ -221,13 +225,14 @@
     return {
       relocalize: relocalize,
       notify: notify,
+      say: say,
       showOverlay: showOverlay,
       overlay: function () { return overlayKind; },
       reset: function () {
         actionSig = null;
         queueSig = null;
         toastTimer = 0;
-        toastCode = null;
+        toastMessage = null;
         $('toast').classList.remove('show');
       },
       update: function (dt) {

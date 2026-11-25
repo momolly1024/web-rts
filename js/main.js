@@ -38,6 +38,7 @@
     app.ai = createOpponent();
     app.cam = RTS.camera.create(app.world.map.width, app.world.map.height);
     app.selection = [];
+    app.groups = RTS.groups.create();
     app.placement = app.mode = app.drag = null;
     app.hud.reset();
     resize();

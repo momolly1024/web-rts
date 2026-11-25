@@ -99,7 +99,26 @@
     }
   }
 
+  // Ctrl+數字（或 Alt+數字）設定編號，數字鍵選取，連按兩下跳到隊伍位置
+  function groupKey(app, ev, digit) {
+    var setting = ev.ctrlKey || ev.metaKey || ev.altKey;
+    ev.preventDefault();      // 阻止瀏覽器用 Ctrl+數字切換分頁
+    if (app.hud.overlay() || ev.repeat) return;
+    if (setting) {
+      var n = RTS.groups.assign(app.groups, digit, app.world, app.human, app.selection);
+      if (n) app.hud.say('group.assigned', { group: digit, count: n });
+      return;
+    }
+    var found = RTS.groups.recall(app.groups, digit, app.world, app.human, ev.timeStamp / 1000);
+    if (!found) return;
+    app.selection = found.ids;
+    app.placement = app.mode = null;
+    if (found.center) RTS.camera.centerOn(app.cam, found.center.x, found.center.y);
+  }
+
   function onKey(app, ev) {
+    var digit = /^(?:Digit|Numpad)(\d)$/.exec(ev.code);
+    if (digit) { groupKey(app, ev, +digit[1]); return; }
     if (ev.ctrlKey || ev.metaKey || ev.altKey) return;
     if (app.hud.overlay() && SCROLL_KEYS[ev.code]) return;    // 讓方向鍵能切換難度選項
     if (SCROLL_KEYS[ev.code]) { app.keys[ev.code] = true; ev.preventDefault(); return; }
