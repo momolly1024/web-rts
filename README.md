@@ -177,6 +177,7 @@ English). Your choice is saved in `localStorage`. Where that is unavailable (som
 
 None of the following is implemented yet. These are plans and may change.
 
+- **Next**: scenery beyond the map edge (decorative terrain and a border line, not passable)
 - **Batch 3**: lumber camp and mining camp, mill, farms, economic technologies, market
 - **Batch 4**: age upgrades and unit tiers; archery range, stable, spearmen, cavalry; arrow towers,
   walls and gates; healer units; siege weapons
