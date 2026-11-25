@@ -15,7 +15,7 @@ mouse and keyboard is recommended.
 - You are the Blue lord (top left of the map); the opponent is the Red lord (bottom right).
   Both halves of the map are point-symmetric.
 - You start with a Town Center, 4 villagers, 200 food, 200 wood, 100 gold and no stone.
-- Grey stone deposits can be gathered like other resources (4 near each start, more in the wild).
+- Grey rocks (stone) can be gathered like other resources (4 near each start, more in the wild).
   Nothing costs stone yet.
 - Destroy **every finished enemy Town Center** to win. You lose when all of your finished
   Town Centers are gone (unfinished ones do not count).
