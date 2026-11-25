@@ -50,7 +50,11 @@
       // 圈在自己牲畜圈裡的羊搶不走
       if (!RTS.pen.penOf(world, a) && (a.owner === null || !nearestUnit(world, a, radius, a.owner))) {
         var u = nearestUnit(world, a, radius);
-        if (u && u.owner !== a.owner) { a.owner = u.owner; halt(a); }
+        if (u && u.owner !== a.owner) {
+          a.owner = u.owner;
+          RTS.achievements.gainSheep(world, u.owner, a);
+          halt(a);
+        }
       }
     }
     // 走到主人指定處後，就在那附近活動

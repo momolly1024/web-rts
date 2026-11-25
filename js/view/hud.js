@@ -227,6 +227,20 @@
       text($('overlay-primary'), t(primary));
       $('overlay-restart').hidden = kind === 'over' || kind === 'restart' || app.world.tick === 0;
       $('overlay-cancel').hidden = kind !== 'restart';
+      showAchievements(kind === 'over');
+    }
+
+    // 遊戲結束時列出成就
+    function showAchievements(show) {
+      $('achievements').hidden = !show;
+      var list = $('achievement-list');
+      while (list.firstChild) list.removeChild(list.firstChild);
+      if (!show) return;
+      RTS.achievements.summary(app.world, app.human).forEach(function (a) {
+        var li = document.createElement('li');
+        li.textContent = t('achievement.' + a.id, { count: a.count, percent: a.percent });
+        list.appendChild(li);
+      });
     }
 
     // 事件只綁一次，按鈕重建也不受影響

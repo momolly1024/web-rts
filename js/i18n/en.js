@@ -160,6 +160,8 @@
     'overlay.victory': 'Victory',
     'overlay.victoryNote': 'The enemy town center has been destroyed.',
     'overlay.defeat': 'Defeat',
+    'achievement.title': 'Achievements',
+    'achievement.sheep': '{count} sheep became your property (better than {percent}% of players)',
     'overlay.defeatNote': 'Your town center has been destroyed.',
 
     'button.start': 'Start game',

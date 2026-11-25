@@ -43,6 +43,7 @@
     var lamb = RTS.world.addAnimal(world, 'lamb', c.x, c.y);
     lamb.owner = pen.owner;
     lamb.age = 0;
+    RTS.achievements.gainSheep(world, pen.owner, lamb);
     lamb.penId = pen.id;
   }
 

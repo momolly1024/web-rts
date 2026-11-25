@@ -160,6 +160,8 @@
     'overlay.victory': '勝利',
     'overlay.victoryNote': '敵方主堡已被摧毀。',
     'overlay.defeat': '戰敗',
+    'achievement.title': '成就',
+    'achievement.sheep': '讓 {count} 隻羊成為你的資產（贏過了 {percent}% 的玩家）',
     'overlay.defeatNote': '你的主堡已被摧毀。',
 
     'button.start': '開始遊戲',

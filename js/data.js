@@ -154,6 +154,11 @@
     buildOrderList: ['house', 'barracks', 'blacksmith', 'townCenter',
       'lumberCamp', 'miningCamp', 'mill', 'farm', 'market', 'pen'],
 
+    // 成就：「贏過了幾 % 的玩家」用的對照表 [數量, 百分比]。沒有真實玩家資料，這是估計值，可自行調整
+    achievements: {
+      sheep: [[0, 0], [1, 10], [2, 25], [4, 45], [6, 62], [8, 75], [10, 84], [12, 90], [15, 95], [20, 98], [30, 99]]
+    },
+
     // 拆除完工建築：退回造價 × refund × 剩餘生命比例（無條件捨去）
     demolish: { refund: 0.75, exclude: ['townCenter', 'farm'] },
 
