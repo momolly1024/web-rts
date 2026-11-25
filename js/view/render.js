@@ -45,7 +45,7 @@
   }
 
   // 兵種升級：頭頂加羽飾，第一級白、第二級金
-  var HEAD = { swordsman: -0.52, spearman: -0.5, archer: -0.58, cavalry: -0.74 };
+  var HEAD = { swordsman: -0.52, spearman: -0.5, archer: -0.58, longbowman: -0.58, cavalry: -0.74 };
   function plume(ctx, type, tier) {
     if (!tier || HEAD[type] === undefined) return;
     var y = HEAD[type];

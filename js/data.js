@@ -86,6 +86,13 @@
         attack: { type: 'pierce', damage: 3, range: 4, cooldown: 2, bonus: { ranged: 3.5 } },
         military: true, upgradeClass: 'ranged'
       },
+      // 長弓手：靶場的強化弓兵，射得更遠更痛也更耐打，較貴
+      longbowman: {
+        cost: { wood: 50, gold: 45 }, trainTime: 18, pop: 1, hotkey: 'E', age: 1,
+        hp: 55, speed: 2.3, vision: 8, armorType: 'ranged', armor: { melee: 0, pierce: 1 },
+        attack: { type: 'pierce', damage: 7, range: 5.5, cooldown: 1.6 },
+        military: true, upgradeClass: 'ranged'
+      },
       archer: {
         cost: { wood: 40, gold: 35 }, trainTime: 16, pop: 1, hotkey: 'E',
         hp: 45, speed: 2.4, vision: 7, armorType: 'ranged', armor: { melee: 0, pierce: 0 },
@@ -151,7 +158,7 @@
       },
       archeryRange: {
         cost: { wood: 150 }, size: 3, hp: 600, buildTime: 30, age: 1,
-        pop: 0, vision: 4, trains: ['skirmisher', 'archer'], dropoff: false, hotkey: 'R', researches: ['archerLine'],
+        pop: 0, vision: 4, trains: ['skirmisher', 'longbowman'], dropoff: false, hotkey: 'R', researches: ['archerLine'],
         armorType: 'building', armor: { melee: 1, pierce: 1 }
       },
       stable: {
@@ -297,7 +304,7 @@
           { age: 2, tier: { hp: 20, attack: 2, armor: 1 }, cost: { food: 200, gold: 100 }, time: 45 }]
       },
       archerLine: {
-        unitType: 'archer', hotkey: 'R', levels: [
+        unitType: 'longbowman', hotkey: 'R', levels: [
           { age: 2, tier: { hp: 10, attack: 1, range: 1 }, cost: { food: 150, gold: 100 }, time: 40 }]
       },
       cavalryLine: {

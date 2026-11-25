@@ -196,7 +196,7 @@
     });
     function wanted(type) {
       if (type === 'spearman') return count(type) < (seen.cavalry || 0);
-      if (type === 'skirmisher') return count(type) < (seen.archer || 0);
+      if (type === 'skirmisher') return count(type) < (seen.archer || 0) + (seen.longbowman || 0);
       if (type === 'ram') return count(type) < cfg.military.rams;
       return !RTS.data.units[type].heal;          // AI 不訓練治療者
     }

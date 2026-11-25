@@ -30,12 +30,13 @@ test('兵種升級：劍士兩級（封建、城堡），現有與新訓練的�
   assert.strictEqual(RTS.research.tier(w, 1, 'swordsman'), 0, '對手不受影響');
 });
 
-test('兵種升級：長弓手射程 +1、重騎兵更強', () => {
+test('兵種升級：精銳長弓手射程 +1、重騎兵更強', () => {
   const w = field();
   w.players[0].upgrades.archerLine = 1;
   w.players[0].upgrades.cavalryLine = 1;
-  const a = unit(w, 'archer', 0, 5, 5);
-  assert.strictEqual(RTS.combat.rangeOf(w, a), RTS.data.units.archer.attack.range + 1);
+  const a = unit(w, 'longbowman', 0, 5, 5);
+  assert.strictEqual(RTS.combat.rangeOf(w, a), RTS.data.units.longbowman.attack.range + 1);
+  assert.strictEqual(RTS.combat.rangeOf(w, unit(w, 'archer', 0, 6, 5)), RTS.data.units.archer.attack.range, '兵營的弓箭手沒有升級');
   assert.ok(RTS.research.bonus(w, 0, 'cavalry', 'attack') > 0);
 });
 

@@ -81,6 +81,8 @@ test('兵種相剋：長槍兵剋騎兵、騎兵剋弓箭手、弓箭手剋長�
   assert.strictEqual(duel('skirmisher', 'archer'), 'skirmisher');
   assert.strictEqual(duel('swordsman', 'skirmisher'), 'swordsman');
   assert.strictEqual(duel('cavalry', 'skirmisher'), 'cavalry');
+  assert.strictEqual(duel('longbowman', 'archer'), 'longbowman', '靶場的長弓手比兵營的弓箭手強');
+  assert.strictEqual(duel('skirmisher', 'longbowman'), 'skirmisher');
 });
 
 test('AI 會升到封建時代並訓練新兵種', () => {

@@ -148,6 +148,19 @@
       line(ctx, [0.12, -0.1 - a, 0.42, -0.5 - a], '#6b4a2b', 0.04);
       poly(ctx, [0.42, -0.5 - a, 0.38, -0.42 - a, 0.47, -0.43 - a], '#e4e8ec');
     },
+    longbowman: function (ctx, c, swing) {
+      body(ctx, c, '#3e5a2c');
+      poly(ctx, [-0.18, -0.26, 0, -0.6, 0.18, -0.26, 0, -0.4], '#2f4a22');
+      line(ctx, [-0.13, -0.13, 0.13, 0.04], c.color, 0.09);
+      ctx.beginPath();
+      ctx.arc(0.12, -0.12, 0.42, -1.3, 1.3);
+      ctx.strokeStyle = '#5c3d22';
+      ctx.lineWidth = 0.07;
+      ctx.stroke();
+      ctx.lineWidth = 1 / 36;
+      var pull = swing > 0 ? 0.3 : 0.12;
+      line(ctx, [0.23, -0.52, pull, -0.12, 0.23, 0.28], '#e8e2d0', 0.025);
+    },
     archer: function (ctx, c, swing) {
       body(ctx, c, '#4f6b3a');
       poly(ctx, [-0.18, -0.28, 0, -0.55, 0.18, -0.28, 0, -0.4], c.color);
