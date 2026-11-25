@@ -49,13 +49,16 @@
 
   function updateGather(world, u, dt) {
     var o = u.order, def = RTS.data.units[u.type];
-    var full = u.carry.resource === o.resource && u.carry.amount >= def.carry;
-    if (o.returning || full) {
+    var other = u.carry.amount > 0 && u.carry.resource !== o.resource;
+    var full = !other && u.carry.amount >= def.carry;
+    // 滿載或手上是別種資源：先交貨
+    if (o.returning || full || other) {
       o.returning = true;
       var r = returnCargo(world, u, dt);
       if (r === 'done') o.returning = false;
-      else if (r === 'none') RTS.orders.set(u, { type: 'idle' });
-      return;
+      if (r !== 'none') return;
+      if (!other) { RTS.orders.set(u, { type: 'idle' }); return; }
+      o.returning = false;      // 沒有主堡可交：照樣前往新資源，貨物留著
     }
 
     var node = RTS.world.get(world, o.targetId);
@@ -83,9 +86,10 @@
 
   function harvest(world, u, node, dt) {
     var o = u.order, def = RTS.data.units[u.type];
-    if (u.carry.resource !== o.resource) {    // 改採別種資源時丟棄原本手上的
+    // 手上還有別種資源（沒地方交）時不開採，避免貨物被蓋掉
+    if (u.carry.resource !== o.resource) {
+      if (u.carry.amount > 0) return;
       u.carry.resource = o.resource;
-      u.carry.amount = 0;
     }
     u.facing = node.x + 0.5 > u.x ? 1 : -1;
     u.swing = (u.swing + dt) % 0.6;
@@ -103,7 +107,7 @@
   }
 
   RTS.gather = {
-    findResource: findResource, makeOrder: makeOrder,
+    findResource: findResource, makeOrder: makeOrder, returnCargo: returnCargo,
     update: updateGather, updateDeposit: updateDeposit
   };
 })();

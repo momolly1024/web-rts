@@ -18,6 +18,13 @@
   function update(world, u, dt) {
     if (u.cooldown > 0) u.cooldown -= dt;
     var type = u.order.type;
+    // 被派去施工、修理或狩獵時，先把手上的貨交回主堡
+    if (u.order.deliver) {
+      if (RTS.gather.returnCargo(world, u, dt) === 'going') return;
+      u.order.deliver = false;
+      u.nav = null;
+      u.wait = 0;
+    }
     if (type !== 'gather' && type !== 'build' && type !== 'repair' && u.swing > 0) u.swing = Math.max(0, u.swing - dt);
     switch (type) {
       case 'move': updateMove(world, u, dt); break;

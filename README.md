@@ -34,7 +34,10 @@ mouse and keyboard is recommended.
 | Archer | 40 wood, 35 gold | Range 4.5; x1.25 damage against infantry, slow against buildings |
 
 Other rules: every builder after the first works at half speed; villagers who finish a building
-help at a nearby site or return to gathering; switching resource drops the current load;
+help at a nearby site or return to gathering; a villager carrying a load who is told to gather
+something else, build, repair or hunt delivers it first (more of the same resource just continues;
+move, attack and shelter orders happen at once and keep the load, as does any order when there is no
+Town Center to deliver to);
 cancelling a building site or a unit in training refunds it in full.
 
 ## Features

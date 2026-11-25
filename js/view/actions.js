@@ -155,7 +155,7 @@
     if (e.owner === app.human) {
       var carry = e.carry.amount > 0
         ? t('info.carry', { resource: t('resource.' + e.carry.resource), amount: e.carry.amount }) : '';
-      lines.push(t('order.' + e.order.type) + carry);
+      lines.push(t(e.order.deliver ? 'order.deposit' : 'order.' + e.order.type) + carry);
     }
     return lines;
   }

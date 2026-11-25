@@ -70,7 +70,9 @@
       var t = RTS.world.get(world, c.targetId), workers = villagersIn(units);
       if (!t || t.kind !== 'animal') return fail('noHuntTarget');
       if (!workers.length) return fail('villagersOnlyHunt');
-      workers.forEach(function (u) { RTS.orders.set(u, { type: 'hunt', targetId: t.id, fails: 0 }); });
+      workers.forEach(function (u) {
+        RTS.orders.set(u, { type: 'hunt', targetId: t.id, fails: 0, deliver: u.carry.amount > 0 });
+      });
       return done('hunt');
     },
     deposit: function (world, pid, c, units) {
@@ -186,11 +188,12 @@
     }
   };
 
-  // 施工或修理；記下原本的採集工作，做完後接續
+  // 施工、修理或進駐；記下原本的採集工作，做完後接續。進駐屬緊急指令，不繞去交貨
   function assignJob(u, type, building) {
     var prev = u.order;
     var resume = prev.type === 'gather' ? prev : prev.resume || null;
-    RTS.orders.set(u, { type: type, targetId: building.id, resume: resume, fails: 0 });
+    var deliver = type !== 'garrison' && u.carry.amount > 0;
+    RTS.orders.set(u, { type: type, targetId: building.id, resume: resume, fails: 0, deliver: deliver });
   }
 
   function issue(world, pid, command) {
