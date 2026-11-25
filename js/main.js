@@ -166,6 +166,7 @@
     if (!app.selection.length) app.placement = app.mode = null;
     RTS.input.scroll(app, dt);
     RTS.render.draw(ctx, app);
+    RTS.cursor.update(app, canvas);
     app.hud.update(dt);
     app.minimap.update(dt);
     window.requestAnimationFrame(frame);

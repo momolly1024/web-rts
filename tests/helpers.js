@@ -8,7 +8,7 @@ const html = fs.readFileSync(path.join(root, 'index.html'), 'utf8');
 const scripts = [...html.matchAll(/<script src="([^"]+)"/g)].map(m => m[1]);
 
 scripts
-  .filter(s => !/^js\/(view\/|main\.js)/.test(s) || /view\/(camera|groups|minimap|depth|scenery)\.js$/.test(s))
+  .filter(s => !/^js\/(view\/|main\.js)/.test(s) || /view\/(camera|groups|minimap|depth|scenery|cursor)\.js$/.test(s))
   .forEach(s => require(path.join(root, s)));
 
 const RTS = globalThis.RTS;

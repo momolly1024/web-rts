@@ -101,6 +101,13 @@ your current and future units of that class (villagers are unaffected).
   and the next arrives right away.
 - Sheep outside a pen are like wild ones: an enemy unit can take them when none of yours is nearby.
 
+### Cursor hints
+
+With units selected, the cursor over a target shows what a right-click will do: an axe (cut wood),
+a pickaxe (mine gold or stone), a basket (berries, farms, meat), a spear (hunt or slaughter), a sword
+(attack), a hammer (build; with a green cross, repair), a sack (deliver), a shield (garrison) or a
+fence (lead sheep into a pen). Otherwise it stays the normal cursor (move).
+
 ### Repairing
 
 Right-click a damaged finished building with villagers. Health returns at 80% of building speed
@@ -296,6 +303,7 @@ js/view/                Rendering and input
   actions.js            Command buttons and selection details
   hud.js                Top bar, panel, dialogs
   input.js              Mouse, keyboard, scrolling
+  cursor.js             Cursor icons for the right-click action
 js/main.js              Start-up and main loop
 tests/                  Node tests
 ```
