@@ -21,14 +21,15 @@
   function pick(app, sx, sy) {
     var best = null, bestD = app.cam.scale * 0.5;
     app.world.entities.forEach(function (e) {
-      if (e.w !== undefined) return;
+      if (e.w !== undefined || !RTS.fog.sees(app.world, app.human, e)) return;
       var p = RTS.camera.worldToScreen(app.cam, e.x, e.y - 0.15);
       var d = Math.hypot(p.x - sx, p.y - sy);
       if (d < bestD) { bestD = d; best = e; }
     });
     if (best) return best;
     var w = RTS.camera.screenToWorld(app.cam, sx, sy);
-    return RTS.world.get(app.world, RTS.map.occupantAt(app.world.map, Math.floor(w.x), Math.floor(w.y)));
+    var hit = RTS.world.get(app.world, RTS.map.occupantAt(app.world.map, Math.floor(w.x), Math.floor(w.y)));
+    return hit && RTS.fog.targetable(app.world, app.human, hit) ? hit : null;
   }
 
   // 框內的己方單位與牲畜

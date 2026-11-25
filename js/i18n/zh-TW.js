@@ -182,6 +182,7 @@
     'error.noHuntTarget': '這不是可狩獵的動物',
     'error.villagersOnlyHunt': '只有村民能狩獵',
     'error.noUnits': '沒有可指揮的單位',
+    'error.unexplored': '不能蓋在尚未探索的地方',
     'error.noDestination': '沒有可到達的位置',
     'error.notGatherable': '這裡沒有可採集的資源',
     'error.villagersOnlyGather': '只有村民能採集',

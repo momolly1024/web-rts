@@ -14,21 +14,22 @@
   function findThreat(ctx) {
     var radius = ctx.cfg.defendRadius, threat = null;
     ctx.world.entities.forEach(function (e) {
-      if (threat || e.kind !== 'unit' || e.owner === ctx.pid) return;
+      if (threat || e.kind !== 'unit' || e.owner === ctx.pid || !RTS.fog.sees(ctx.world, ctx.pid, e)) return;
       var near = ctx.buildings.some(function (b) { return RTS.world.distTo(e.x, e.y, b) <= radius; });
       if (near) threat = e;
     });
     return threat;
   }
 
+  // 只從看得到與記得的敵方建築裡挑（主堡優先、近者優先）；沒看過就沒有目標
   function enemyTarget(ctx) {
     var from = RTS.world.center(ctx.tc);
-    function enemy(type) {
-      return RTS.world.nearest(ctx.world, from.x, from.y, function (e) {
-        return e.kind === 'building' && e.owner !== ctx.pid && (!type || e.type === type);
-      });
+    function rank(b) {
+      return (b.type === 'townCenter' ? 0 : 1000) + RTS.world.distTo(from.x, from.y, b);
     }
-    return enemy('townCenter') || enemy(null);
+    return RTS.fog.perceived(ctx.world, ctx.pid).filter(function (e) {
+      return e.kind === 'building' && e.owner !== ctx.pid;
+    }).sort(function (a, b) { return rank(a) - rank(b); })[0] || null;
   }
 
   // 讓抵達或閒下來的進攻部隊繼續推進
@@ -37,7 +38,7 @@
     var c = RTS.world.center(target);
     ctx.army.forEach(function (u) {
       if (!ctx.state.wave[u.id] || u.order.type !== 'idle') return;
-      if (RTS.world.distTo(u.x, u.y, target) <= 6) assault.push(u.id);
+      if (!target.ghost && RTS.world.distTo(u.x, u.y, target) <= 6) assault.push(u.id);
       else march.push(u.id);
     });
     if (march.length) ctx.issue({ type: 'attackMove', unitIds: march, x: c.x, y: c.y });
@@ -55,6 +56,7 @@
     }
 
     var target = enemyTarget(ctx);
+    AI.scout.develop(ctx, !!target && target.type === 'townCenter');
     if (!target) return;
     if (ctx.world.time >= cfg.graceTime && !threat) {
       var reserve = ctx.army.filter(function (u) { return !state.wave[u.id]; });
@@ -82,9 +84,11 @@
     var buildings = RTS.world.buildingsOf(world, pid);
     var tc = buildings.filter(function (b) { return b.type === 'townCenter' && b.complete; })[0];
     if (!tc) return;
-    var units = RTS.world.unitsOf(world, pid);
+    // 偵查中的單位由偵查模組管，其他模組不指派它
+    var units = RTS.world.unitsOf(world, pid).filter(function (u) { return u.id !== state.scoutId; });
     var ctx = {
       world: world, pid: pid, state: state, cfg: cfg, tc: tc, buildings: buildings,
+      away: RTS.world.unitsOf(world, pid).filter(function (u) { return u.id === state.scoutId; }),
       villagers: units.filter(function (u) { return !RTS.data.units[u.type].military; }),
       army: units.filter(function (u) { return RTS.data.units[u.type].military; }),
       issue: function (cmd) { return RTS.commands.issue(world, pid, cmd); }
@@ -103,7 +107,7 @@
   AI.create = function (pid, difficulty) {
     var cfg = config(difficulty);
     var state = { timer: 0, waves: 0, lastWave: 0, wave: {}, assigned: {}, badNodes: {}, sites: {},
-      badPrey: {}, huntStart: 0 };
+      badPrey: {}, huntStart: 0, sightings: {}, lookTime: -60, scoutId: 0, route: null, heading: null, leg: 0, laps: 0 };
     return {
       difficulty: cfg.difficulty,
       state: state,

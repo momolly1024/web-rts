@@ -158,7 +158,11 @@
       if (app.world.over) app.hud.showOverlay('over');
     }
 
-    app.selection = app.selection.filter(function (id) { return app.world.entities.has(id); });
+    // 目標消失或看不見了就取消選取
+    app.selection = app.selection.filter(function (id) {
+      var e = app.world.entities.get(id);
+      return !!e && RTS.fog.targetable(app.world, app.human, e);
+    });
     if (!app.selection.length) app.placement = app.mode = null;
     RTS.input.scroll(app, dt);
     RTS.render.draw(ctx, app);

@@ -7,9 +7,11 @@
   var RETRY_WAIT = 1.0;
 
   // 找離 from 最近、且旁邊有空位的同類資源
-  function findResource(world, from, resource, skip) {
+  // owner 只會找到自己看過的資源
+  function findResource(world, owner, from, resource, skip) {
     return RTS.world.nearest(world, from.x, from.y, function (e) {
       return e.kind === 'node' && RTS.data.nodes[e.type].resource === resource &&
+        RTS.fog.knows(world, owner, e) &&
         !(skip && skip[e.id]) && RTS.map.hasFreeNeighbor(world.map, e);
     }, SEARCH_RADIUS);
   }
@@ -63,7 +65,7 @@
 
     var node = RTS.world.get(world, o.targetId);
     if (!node) {
-      var next = findResource(world, o.last, o.resource, o.skip);
+      var next = findResource(world, u.owner, o.last, o.resource, o.skip);
       if (!next) {
         if (u.carry.amount > 0) o.returning = true;
         else RTS.orders.set(u, { type: 'idle' });

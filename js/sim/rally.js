@@ -11,6 +11,7 @@
   function set(world, b, x, y, targetId) {
     if (targetId === b.id) { b.rally = null; return; }
     var t = targetId ? RTS.world.get(world, targetId) : null;
+    if (t && !RTS.fog.targetable(world, b.owner, t)) t = null;
     b.rally = {
       x: RTS.util.clamp(x, 0, world.map.width - 0.01),
       y: RTS.util.clamp(y, 0, world.map.height - 0.01),
@@ -38,7 +39,7 @@
     if (!r) return;
     var target = r.targetId ? RTS.world.get(world, r.targetId) : null;
     if (!target && r.resource && RTS.data.units[u.type].canBuild) {
-      target = RTS.gather.findResource(world, r, r.resource);
+      target = RTS.gather.findResource(world, b.owner, r, r.resource);
     }
     RTS.commands.issue(world, b.owner, {
       type: 'smart', unitIds: [u.id], targetId: target ? target.id : null, x: r.x, y: r.y

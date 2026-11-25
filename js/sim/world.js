@@ -20,6 +20,7 @@
       time: 0,
       tick: 0,
       effects: [],        // 繪圖用的短暫效果（箭矢、打擊）
+      fog: null,          // 戰爭迷霧（見 fog.js）；null 代表全部看得見
       pathBudget: 0,
       over: false,
       winner: null

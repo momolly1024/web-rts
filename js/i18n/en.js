@@ -182,6 +182,7 @@
     'error.noHuntTarget': 'That cannot be hunted',
     'error.villagersOnlyHunt': 'Only villagers can hunt',
     'error.noUnits': 'No units to command',
+    'error.unexplored': 'You cannot build in unexplored ground',
     'error.noDestination': 'No reachable position',
     'error.notGatherable': 'Nothing to gather there',
     'error.villagersOnlyGather': 'Only villagers can gather',

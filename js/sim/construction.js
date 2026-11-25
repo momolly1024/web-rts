@@ -9,12 +9,13 @@
     for (var y = ty; y < ty + size; y++) {
       for (var x = tx; x < tx + size; x++) {
         if (!RTS.map.inBounds(map, x, y)) return { ok: false, reason: 'outOfMap' };
+        if (RTS.fog.tile(world, owner, x, y) === RTS.fog.UNEXPLORED) return { ok: false, reason: 'unexplored' };
         if (!RTS.map.isWalkable(map, x, y)) return { ok: false, reason: 'blocked' };
       }
     }
     var enemy = false;
     world.entities.forEach(function (u) {
-      if (u.kind === 'unit' && u.owner !== owner &&
+      if (u.kind === 'unit' && u.owner !== owner && RTS.fog.sees(world, owner, u) &&
           u.x >= tx && u.x < tx + size && u.y >= ty && u.y < ty + size) enemy = true;
     });
     return enemy ? { ok: false, reason: 'enemyUnit' } : { ok: true };

@@ -42,6 +42,7 @@
       }
     }
     RTS.move.separate(world, dt);
+    RTS.fog.step(world);
 
     world.effects = world.effects.filter(function (fx) {
       fx.age += dt;

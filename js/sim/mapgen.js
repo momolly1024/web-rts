@@ -177,6 +177,7 @@
         });
       });
       world.seed = seed;
+      if (!opts || opts.fog !== false) RTS.fog.enable(world);
       return world;
     }
     throw new Error('mapgen failed: no playable map for seed ' + seed);

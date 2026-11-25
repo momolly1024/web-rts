@@ -15,7 +15,8 @@
     var from = RTS.world.center(ctx.tc);
     return RTS.world.nearest(ctx.world, from.x, from.y, function (e) {
       return e.kind === 'node' && RTS.data.nodes[e.type].resource === resource &&
-        !ctx.state.badNodes[e.id] && RTS.map.hasFreeNeighbor(ctx.world.map, e);
+        !ctx.state.badNodes[e.id] && RTS.fog.knows(ctx.world, ctx.pid, e) &&
+        RTS.map.hasFreeNeighbor(ctx.world.map, e);
     });
   }
 
@@ -138,7 +139,8 @@
   function develop(ctx) {
     var cfg = ctx.cfg;
     var pop = RTS.world.population(ctx.world, ctx.pid);
-    var inside = ctx.tc.garrison || [];      // 避難中的單位也要算進目標人數
+    // 避難中與外出偵查的單位也要算進目標人數
+    var inside = (ctx.tc.garrison || []).concat(ctx.away);
     var queuedVillagers = countType(ctx.tc.queue, 'villager') + countType(inside, 'villager');
     if (ctx.villagers.length + queuedVillagers < cfg.villagerTarget && countType(ctx.tc.queue, 'villager') < 1) {
       ctx.issue({ type: 'train', buildingId: ctx.tc.id, unit: 'villager' });

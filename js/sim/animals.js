@@ -156,6 +156,12 @@
     var o = u.order, hunt = RTS.data.units[u.type].hunt;
     var a = RTS.world.get(world, o.targetId);
     if (!a || a.kind !== 'animal') { RTS.orders.set(u, { type: 'idle' }); return; }
+    // 獵物跑出視野太遠就放棄
+    if (!RTS.fog.sees(world, u.owner, a) &&
+        RTS.util.dist(u.x, u.y, a.x, a.y) > RTS.data.units[u.type].vision + 3) {
+      RTS.orders.set(u, { type: 'idle' });
+      return;
+    }
     if (u.wait > 0) { u.wait -= dt; return; }
     var status = RTS.move.approach(world, u, RTS.move.entityGoal(a, hunt.range), dt, { eager: true });
     if (status === 'blocked') {

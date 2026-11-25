@@ -79,6 +79,16 @@
       goHome(u, o.home);
       return;
     }
+    // 追的單位或動物離開視野：走到最後看到的地方，不再鎖定
+    if (target.w === undefined) {
+      if (RTS.fog.sees(world, u.owner, target) || RTS.util.dist(u.x, u.y, target.x, target.y) <= def.vision) {
+        o.seen = { x: target.x, y: target.y };
+      } else {
+        if (o.then || o.home || !o.seen) finish(world, u);
+        else goHome(u, o.seen);
+        return;
+      }
+    }
     // 攻擊移動途中拆建築時，敵軍靠近就先處理敵軍
     if (o.then && target.kind === 'building') {
       u.scanTimer -= dt;

@@ -145,7 +145,8 @@
           blacksmith: { atArmy: 7, maxLevel: 1 },
           repair: { threshold: 0.4, workers: 1 },
           shelter: { radius: 6, minEnemies: 3, woundedBelow: 0 },
-          hunt: { prey: false, range: 14, boarParty: 0 }
+          hunt: { prey: false, range: 14, boarParty: 0 },
+          scoutStart: 180
         }
       },
       normal: { ai: {} },
@@ -156,7 +157,8 @@
           blacksmith: { atArmy: 5, maxLevel: 2 },
           repair: { threshold: 0.9, workers: 3 },
           shelter: { radius: 10, minEnemies: 2, woundedBelow: 0.5 },
-          hunt: { prey: true, range: 20, boarParty: 4 }
+          hunt: { prey: true, range: 20, boarParty: 4 },
+          scoutStart: 45
         }
       }
     },
@@ -179,7 +181,8 @@
       // 敵兵進入主堡 radius 格且達 minEnemies 人時村民避難；士兵生命低於 woundedBelow 時回堡療傷
       shelter: { radius: 8, minEnemies: 2, woundedBelow: 0.3 },
       // 是否獵鹿、獵食範圍、獵猛獸的人數（0 表示不獵）
-      hunt: { prey: true, range: 16, boarParty: 0 }
+      hunt: { prey: true, range: 16, boarParty: 0 },
+      scoutStart: 90         // 開局多久後開始偵查敵人（秒）
     }
   };
 })();

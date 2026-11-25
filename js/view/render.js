@@ -5,6 +5,9 @@
 
   var GRASS = ['#7b9a4b', '#759447', '#80a04f'];
   var WATER = ['#3f74a0', '#4580ac'];
+  // 已探索但不在視野內的暗色
+  var GRASS_DIM = ['#45562a', '#425229', '#48592d'];
+  var WATER_DIM = ['#23415a', '#264761'];
 
   function path(ctx, pts) {
     ctx.beginPath();
@@ -12,13 +15,16 @@
     ctx.closePath();
   }
 
-  function drawGround(ctx, world, cam) {
+  function drawGround(ctx, world, cam, human) {
     var map = world.map, v = RTS.camera.visibleTiles(cam);
     for (var y = v.y0; y <= v.y1; y++) {
       for (var x = v.x0; x <= v.x1; x++) {
         var hash = (x * 73 + y * 151 + x * y * 7) % 17;
         var water = map.terrain[y * map.width + x] === RTS.map.TERRAIN.WATER;
-        ctx.fillStyle = water ? WATER[hash % 2] : GRASS[hash % 3];
+        var seen = RTS.fog.tile(world, human, x, y);
+        if (seen === RTS.fog.UNEXPLORED) ctx.fillStyle = '#000';
+        else if (seen === RTS.fog.EXPLORED) ctx.fillStyle = water ? WATER_DIM[hash % 2] : GRASS_DIM[hash % 3];
+        else ctx.fillStyle = water ? WATER[hash % 2] : GRASS[hash % 3];
         path(ctx, RTS.camera.quad(cam, x - 0.02, y - 0.02, 1.04, 1.04));
         ctx.fill();
       }
@@ -155,8 +161,9 @@
     ctx.stroke();
   }
 
-  function drawEffects(ctx, cam, world) {
+  function drawEffects(ctx, cam, world, human) {
     world.effects.forEach(function (fx) {
+      if (RTS.fog.tile(world, human, Math.floor(fx.x2), Math.floor(fx.y2)) !== RTS.fog.VISIBLE) return;
       var t = fx.age / fx.life;
       var a = RTS.camera.worldToScreen(cam, fx.x1, fx.y1 - 0.25);
       var b = RTS.camera.worldToScreen(cam, fx.x2, fx.y2 - 0.2);
@@ -204,10 +211,10 @@
     var world = app.world, cam = app.cam;
     ctx.fillStyle = '#14202b';
     ctx.fillRect(0, 0, cam.viewW, cam.viewH);
-    drawGround(ctx, world, cam);
+    drawGround(ctx, world, cam, app.human);
 
     var v = RTS.camera.visibleTiles(cam);
-    var visible = RTS.world.list(world, function (e) {
+    var visible = RTS.fog.perceived(world, app.human).filter(function (e) {
       return e.x >= v.x0 - 3 && e.x <= v.x1 + 2 && e.y >= v.y0 - 3 && e.y <= v.y1 + 2;
     });
     var selected = new Set(app.selection);
@@ -219,9 +226,13 @@
       return RTS.camera.worldToScreen(cam, c.x, c.y).y;
     }
     visible.sort(function (a, b) { return depth(a) - depth(b); });
-    visible.forEach(function (e) { drawEntity(ctx, cam, e); });
     visible.forEach(function (e) {
-      if (e.kind !== 'node' && (selected.has(e.id) || e.hp < e.maxHp)) healthBar(ctx, cam, e);
+      if (e.ghost) ctx.globalAlpha = 0.55;      // 記憶中的舊樣貌畫淡一些
+      drawEntity(ctx, cam, e);
+      ctx.globalAlpha = 1;
+    });
+    visible.forEach(function (e) {
+      if (e.kind !== 'node' && !e.ghost && (selected.has(e.id) || e.hp < e.maxHp)) healthBar(ctx, cam, e);
     });
     visible.forEach(function (e) {
       if (e.owner === app.human && e.garrison && e.garrison.length) garrisonBadge(ctx, cam, e);
@@ -230,7 +241,7 @@
       var b = RTS.world.get(world, id);
       if (b && b.owner === app.human && b.rally) rallyFlag(ctx, cam, b, RTS.data.players[b.owner].color);
     });
-    drawEffects(ctx, cam, world);
+    drawEffects(ctx, cam, world, app.human);
     if (app.placement) drawPlacement(ctx, app);
 
     var d = app.drag;

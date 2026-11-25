@@ -71,6 +71,16 @@ gathering. If no free space exists around the building, units stay inside. If th
 destroyed, they escape onto its rubble with their current health. A villager carrying resources
 delivers them first, and one right-clicking a damaged Town Center repairs it instead.
 
+### Fog of war
+
+Unexplored ground is black. Explored ground you cannot currently see is dimmed and shows the terrain,
+resources and buildings as you last saw them, never enemy units. Everything inside the sight range of
+your units, buildings and sheep is shown. You cannot select or target what you cannot see (resources
+you have seen can still be assigned), and you cannot build on unexplored ground.
+
+The computer follows the same rules: it only uses what it sees and remembers, and sends a scout to
+find you.
+
 ### Minimap
 
 The bottom-right minimap shows terrain, resources, buildings, units and the current view. Left-click
@@ -160,7 +170,7 @@ English). Your choice is saved in `localStorage`. Where that is unavailable (som
 
 None of the following is implemented yet. These are plans and may change.
 
-- **Batch 2**: minimap, fog of war, isometric view
+- **Batch 2** (minimap and fog of war are done): isometric view
 - **Batch 3**: lumber camp and mining camp, mill, farms, economic technologies, market
 - **Batch 4**: age upgrades and unit tiers; archery range, stable, spearmen, cavalry; arrow towers,
   walls and gates; healer units; siege weapons
@@ -201,6 +211,7 @@ js/sim/                 Simulation (no DOM, no display text)
   research.js           Upgrades
   animals.js            Animal behaviour and hunting
   wander.js             Idle strolling
+  fog.js                Fog of war and memory
   production.js         Training and research queues
   combat.js             Damage, chasing, retaliation, attack move
   orders.js             Unit order state machine
@@ -211,6 +222,7 @@ js/ai/                  Computer opponent (acts only through commands)
   tech.js               Blacksmith and research
   care.js               Repairing and sheltering
   hunt.js               Herding and hunting
+  scout.js              Scouting
   ai.js                 Difficulty settings, defence and attack waves
 js/view/                Rendering and input
   camera.js             The only place that converts world and screen coordinates
@@ -247,7 +259,7 @@ Code comments and test names are written in Traditional Chinese.
 ## Known limits
 
 - The AI does not gather stone.
-- The AI sees the whole map, including your Town Center, and does not scout. The three
+- Pathfinding uses the real map, so units route around obstacles they have not seen.
   difficulties differ only in settings, not tactics.
 - The AI does not rebuild a destroyed Town Center (losing the only one ends the game).
 - Moving units do not collide, so they can overlap on the march; they spread out once still.

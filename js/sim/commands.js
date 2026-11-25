@@ -19,6 +19,12 @@
     });
   }
 
+  // 玩家指得到的目標：看得見的（資源看過即可），否則當作不存在
+  function visibleTarget(world, pid, id) {
+    var t = id ? RTS.world.get(world, id) : null;
+    return t && RTS.fog.targetable(world, pid, t) ? t : null;
+  }
+
   function villagersIn(units) {
     return units.filter(function (u) { return RTS.data.units[u.type].canBuild; });
   }
@@ -59,7 +65,7 @@
       return done('stop');
     },
     gather: function (world, pid, c, units) {
-      var node = RTS.world.get(world, c.targetId);
+      var node = visibleTarget(world, pid, c.targetId);
       if (!node || node.kind !== 'node' || !RTS.data.nodes[node.type].resource) return fail('notGatherable');
       var workers = villagersIn(units);
       if (!workers.length) return fail('villagersOnlyGather');
@@ -67,7 +73,7 @@
       return done('gather');
     },
     hunt: function (world, pid, c, units) {
-      var t = RTS.world.get(world, c.targetId), workers = villagersIn(units);
+      var t = visibleTarget(world, pid, c.targetId), workers = villagersIn(units);
       if (!t || t.kind !== 'animal') return fail('noHuntTarget');
       if (!workers.length) return fail('villagersOnlyHunt');
       workers.forEach(function (u) {
@@ -81,7 +87,7 @@
       return carriers.length ? done('deposit') : fail('nothingCarried');
     },
     attack: function (world, pid, c, units) {
-      var t = RTS.world.get(world, c.targetId);
+      var t = visibleTarget(world, pid, c.targetId);
       var wild = t && t.kind === 'animal' && t.owner !== pid;
       if (!t || (!wild && (t.owner === null || t.owner === pid))) return fail('cannotAttack');
       if (!units.length) return fail('noUnits');
@@ -152,7 +158,7 @@
     // 右鍵智慧指令：依目標決定移動、採集、攻擊、施工或交付
     smart: function (world, pid, c, units, herd) {
       if (!units.length) return handlers.move(world, pid, c, units, herd);
-      var t = c.targetId ? RTS.world.get(world, c.targetId) : null;
+      var t = visibleTarget(world, pid, c.targetId);
       var animal = t && t.kind === 'animal';
       if (t && !animal && t.owner !== null && t.owner !== pid) return handlers.attack(world, pid, c, units);
       var left = units.slice(), result = null;

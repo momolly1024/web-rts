@@ -9,7 +9,8 @@
   function enemyNear(ctx, b, radius) {
     var found = false;
     ctx.world.entities.forEach(function (e) {
-      if (e.kind === 'unit' && e.owner !== ctx.pid && RTS.world.distTo(e.x, e.y, b) <= radius) found = true;
+      if (e.kind === 'unit' && e.owner !== ctx.pid && RTS.fog.sees(ctx.world, ctx.pid, e) &&
+          RTS.world.distTo(e.x, e.y, b) <= radius) found = true;
     });
     return found;
   }
@@ -38,6 +39,7 @@
     var raiders = 0, lurking = false;
     ctx.world.entities.forEach(function (e) {
       if (e.kind !== 'unit' || e.owner === ctx.pid || !RTS.data.units[e.type].military) return;
+      if (!RTS.fog.sees(ctx.world, ctx.pid, e)) return;
       var d = RTS.world.distTo(e.x, e.y, tc);
       if (d <= cfg.radius) raiders++;
       if (d <= cfg.radius + 3) lurking = true;

@@ -73,11 +73,23 @@
         }
       }
       var mobiles = [];
-      world.entities.forEach(function (e) {
+      RTS.fog.perceived(world, app.human).forEach(function (e) {
         if (e.w === undefined) { mobiles.push(e); return; }
         ctx.fillStyle = e.kind === 'node' ? COLORS[e.type] : RTS.data.players[e.owner].color;
         ctx.fillRect(e.x, e.y, e.w + 0.05, e.h + 0.05);
       });
+      // 迷霧：未探索全黑，已探索但看不見的蓋一層暗色
+      // 同一列相鄰同狀態的格子併成一塊畫，避免縮小後出現格線縫隙
+      for (var ty = 0; ty < map.height; ty++) {
+        for (var tx = 0, end = 0; tx < map.width; tx = end) {
+          var seen = RTS.fog.tile(world, app.human, tx, ty);
+          for (end = tx + 1; end < map.width && RTS.fog.tile(world, app.human, end, ty) === seen; end++);
+          if (seen === RTS.fog.VISIBLE) continue;
+          var unknown = seen === RTS.fog.UNEXPLORED;
+          ctx.fillStyle = unknown ? '#000' : 'rgba(0,0,0,0.45)';
+          ctx.fillRect(tx, ty, end - tx + 0.05, unknown ? 1.35 : 1);
+        }
+      }
       mobiles.forEach(function (e) {
         ctx.fillStyle = e.owner === null ? COLORS.animal : RTS.data.players[e.owner].color;
         var r = e.kind === 'unit' ? 1.8 : 1.1;
