@@ -83,11 +83,17 @@
     var hasUnits = RTS.actions.selected(app).some(function (e) {
       return e.kind === 'unit' && e.owner === app.human;
     });
-    if (!hasUnits) return;
+    // 沒選單位、只選一座生產建築時，右鍵設定集結點
+    var sel = RTS.actions.selected(app);
+    var producer = sel.length === 1 && sel[0].owner === app.human && RTS.rally.canRally(sel[0]) ? sel[0] : null;
+    if (!hasUnits && !producer) return;
     var w = RTS.camera.screenToWorld(app.cam, x, y), target = pick(app, x, y);
-    var r = RTS.actions.issue(app, {
-      type: 'smart', unitIds: app.selection, targetId: target ? target.id : null, x: w.x, y: w.y
-    });
+    var command = hasUnits ? { type: 'smart', unitIds: app.selection }
+      : { type: 'setRally', buildingId: producer.id };
+    command.targetId = target ? target.id : null;
+    command.x = w.x;
+    command.y = w.y;
+    var r = RTS.actions.issue(app, command);
     if (r.ok) {
       app.world.effects.push({ type: 'hit', x1: w.x, y1: w.y + 0.2, x2: w.x, y2: w.y + 0.2, age: 0, life: 0.35 });
     }

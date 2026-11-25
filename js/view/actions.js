@@ -162,6 +162,9 @@
     var lines = [];
     if (!e.complete) lines.push(t('info.progress', { percent: Math.floor(e.progress * 100) }));
     if (def.pop) lines.push(t('info.providesPop', { amount: def.pop }));
+    if (e.complete && e.owner === human && RTS.rally.canRally(e)) {
+      lines.push(t(e.rally ? 'info.rallySet' : 'info.rallyHint'));
+    }
     if (def.garrison && e.owner === human) {
       lines.push(t('info.garrison', { count: RTS.garrison.count(e), max: def.garrison.capacity }));
     }

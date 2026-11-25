@@ -95,6 +95,12 @@
       if (!b || !RTS.garrison.count(b)) return fail('nothingGarrisoned');
       return RTS.garrison.release(world, b) ? done('ungarrison') : fail('noDestination');
     },
+    setRally: function (world, pid, c) {
+      var b = ownBuilding(world, pid, c.buildingId);
+      if (!RTS.rally.canRally(b)) return fail('cannotRally');
+      RTS.rally.set(world, b, c.x, c.y, c.targetId);
+      return done('setRally');
+    },
     build: function (world, pid, c, units) {
       var def = RTS.data.buildings[c.building], workers = villagersIn(units);
       if (!def) return fail('unknownBuilding');

@@ -103,6 +103,28 @@
     ctx.fillText(String(RTS.garrison.count(b)), p.x, p.y + 1);
   }
 
+  // 選取生產建築時顯示集結旗
+  function rallyFlag(ctx, cam, b, color) {
+    var from = RTS.camera.worldToScreen(cam, b.x + b.w / 2, b.y + b.h / 2);
+    var to = RTS.camera.worldToScreen(cam, b.rally.x, b.rally.y);
+    ctx.setLineDash([6, 5]);
+    ctx.strokeStyle = '#fff3b0';
+    ctx.lineWidth = 1.5;
+    ctx.beginPath();
+    ctx.moveTo(from.x, from.y);
+    ctx.lineTo(to.x, to.y);
+    ctx.stroke();
+    ctx.setLineDash([]);
+    ctx.beginPath();
+    ctx.moveTo(to.x, to.y);
+    ctx.lineTo(to.x, to.y - 24);
+    ctx.stroke();
+    path(ctx, [{ x: to.x, y: to.y - 24 }, { x: to.x + 16, y: to.y - 19 }, { x: to.x, y: to.y - 13 }]);
+    ctx.fillStyle = color;
+    ctx.fill();
+    ctx.stroke();
+  }
+
   function drawEffects(ctx, cam, world) {
     world.effects.forEach(function (fx) {
       var t = fx.age / fx.life;
@@ -173,6 +195,10 @@
     });
     visible.forEach(function (e) {
       if (e.owner === app.human && e.garrison && e.garrison.length) garrisonBadge(ctx, cam, e);
+    });
+    app.selection.forEach(function (id) {
+      var b = RTS.world.get(world, id);
+      if (b && b.owner === app.human && b.rally) rallyFlag(ctx, cam, b, RTS.data.players[b.owner].color);
     });
     drawEffects(ctx, cam, world);
     if (app.placement) drawPlacement(ctx, app);

@@ -71,8 +71,9 @@
     if (pop.used + unit.pop > pop.cap) return;      // 房屋被拆時暫停在 100%
     var tile = spawnTile(world, b);
     if (!tile) return;
-    RTS.world.addUnit(world, item.type, b.owner, tile.x + 0.5, tile.y + 0.5);
+    var born = RTS.world.addUnit(world, item.type, b.owner, tile.x + 0.5, tile.y + 0.5);
     b.queue.shift();
+    RTS.rally.apply(world, b, born);
   }
 
   RTS.production = { spawnTile: spawnTile, check: check, enqueue: enqueue, cancel: cancel, update: update };
