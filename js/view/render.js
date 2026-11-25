@@ -1,38 +1,12 @@
-// 畫面繪製：地面、實體、血條、效果、放置預覽、框選框。只讀取世界狀態。
+// 畫面繪製（地面見 ground.js）：實體、血條、效果、放置預覽、框選框。只讀取世界狀態。
 (function () {
   'use strict';
   var RTS = globalThis.RTS || (globalThis.RTS = {});
-
-  var GRASS = ['#7b9a4b', '#759447', '#80a04f'];
-  var WATER = ['#3f74a0', '#4580ac'];
-  // 已探索但不在視野內的暗色
-  var GRASS_DIM = ['#45562a', '#425229', '#48592d'];
-  var WATER_DIM = ['#23415a', '#264761'];
 
   function path(ctx, pts) {
     ctx.beginPath();
     pts.forEach(function (p, i) { if (i) ctx.lineTo(p.x, p.y); else ctx.moveTo(p.x, p.y); });
     ctx.closePath();
-  }
-
-  function drawGround(ctx, world, cam, human) {
-    var map = world.map, v = RTS.camera.visibleTiles(cam);
-    for (var y = v.y0; y <= v.y1; y++) {
-      for (var x = v.x0; x <= v.x1; x++) {
-        var hash = (x * 73 + y * 151 + x * y * 7) % 17;
-        var water = map.terrain[y * map.width + x] === RTS.map.TERRAIN.WATER;
-        var seen = RTS.fog.tile(world, human, x, y);
-        if (seen === RTS.fog.UNEXPLORED) ctx.fillStyle = '#000';
-        else if (seen === RTS.fog.EXPLORED) ctx.fillStyle = water ? WATER_DIM[hash % 2] : GRASS_DIM[hash % 3];
-        else ctx.fillStyle = water ? WATER[hash % 2] : GRASS[hash % 3];
-        path(ctx, RTS.camera.quad(cam, x - 0.02, y - 0.02, 1.04, 1.04));
-        ctx.fill();
-      }
-    }
-    ctx.strokeStyle = '#1c1a17';
-    ctx.lineWidth = 3;
-    path(ctx, RTS.camera.quad(cam, 0, 0, map.width, map.height));
-    ctx.stroke();
   }
 
   // 在世界座標 (wx, wy) 建立以「格」為單位的繪圖座標系
@@ -73,7 +47,10 @@
   function drawEntity(ctx, cam, e) {
     var players = RTS.data.players;
     if (e.kind === 'node') {
-      local(ctx, cam, e.x + 0.5, e.y + 0.5, function () { RTS.sprites.nodes[e.type](ctx, e.id); });
+      local(ctx, cam, e.x + 0.5, e.y + 0.5, function () {
+        ctx.scale(RTS.depth.NODE_SCALE, RTS.depth.NODE_SCALE);
+        RTS.sprites.nodes[e.type](ctx, e.id);
+      });
     } else if (e.kind === 'building') {
       local(ctx, cam, e.x, e.y, function () {
         if (e.complete) RTS.sprites.buildings[e.type](ctx, e.w, players[e.owner]);
@@ -98,9 +75,9 @@
     ctx.strokeStyle = e.owner === human ? '#fff3b0' : e.owner === null ? '#ffffff' : '#ff8a7a';
     ctx.lineWidth = 2;
     if (e.w === undefined) {
-      var p = RTS.camera.worldToScreen(cam, e.x, e.y + 0.14);
+      var p = RTS.camera.worldToScreen(cam, e.x, e.y);
       ctx.beginPath();
-      ctx.ellipse(p.x, p.y, cam.scale * 0.38, cam.scale * 0.2, 0, 0, Math.PI * 2);
+      ctx.ellipse(p.x, p.y + cam.scale * 0.14, cam.scale * 0.38, cam.scale * 0.2, 0, 0, Math.PI * 2);
       ctx.stroke();
     } else {
       path(ctx, RTS.camera.quad(cam, e.x, e.y, e.w, e.h));
@@ -108,12 +85,17 @@
     }
   }
 
+  // 實體正上方的螢幕位置（height 以格的投影單位計）
+  function above(cam, e, height) {
+    var c = e.w === undefined ? e : { x: e.x + e.w / 2, y: e.y + e.h / 2 };
+    var p = RTS.camera.worldToScreen(cam, c.x, c.y);
+    return { x: p.x, y: p.y - height * cam.scale };
+  }
+
   function healthBar(ctx, cam, e) {
     var unit = e.w === undefined;
     var width = cam.scale * (unit ? 0.7 : e.w * 0.8);
-    var top = unit
-      ? RTS.camera.worldToScreen(cam, e.x, e.y - 0.78)
-      : RTS.camera.worldToScreen(cam, e.x + e.w / 2, e.y - 0.45);
+    var top = above(cam, e, unit ? 0.78 : RTS.depth.topOf(e) + 0.15);
     var ratio = Math.max(0, e.hp / e.maxHp);
     ctx.fillStyle = '#1c1a17';
     ctx.fillRect(top.x - width / 2 - 1, top.y - 1, width + 2, 6);
@@ -127,7 +109,7 @@
 
   // 建築內有避難單位時，在屋頂上方標人數
   function garrisonBadge(ctx, cam, b) {
-    var p = RTS.camera.worldToScreen(cam, b.x + b.w / 2, b.y - 0.75);
+    var p = above(cam, b, RTS.depth.topOf(b) + 0.55);
     ctx.fillStyle = '#14202b';
     ctx.beginPath();
     ctx.arc(p.x, p.y, 10, 0, Math.PI * 2);
@@ -165,8 +147,13 @@
     world.effects.forEach(function (fx) {
       if (RTS.fog.tile(world, human, Math.floor(fx.x2), Math.floor(fx.y2)) !== RTS.fog.VISIBLE) return;
       var t = fx.age / fx.life;
-      var a = RTS.camera.worldToScreen(cam, fx.x1, fx.y1 - 0.25);
-      var b = RTS.camera.worldToScreen(cam, fx.x2, fx.y2 - 0.2);
+      var a = RTS.camera.worldToScreen(cam, fx.x1, fx.y1);
+      var b = RTS.camera.worldToScreen(cam, fx.x2, fx.y2);
+      var ground = fx.type === 'order';      // 下令標記貼在地面，戰鬥效果畫在身體高度
+      if (!ground) {
+        a.y -= cam.scale * 0.25;
+        b.y -= cam.scale * 0.2;
+      }
       ctx.lineWidth = 2;
       if (fx.type === 'arrow') {
         var x = a.x + (b.x - a.x) * t, y = a.y + (b.y - a.y) * t;
@@ -181,7 +168,7 @@
         ctx.strokeStyle = fx.type === 'death' ? 'rgba(60,20,10,' + (1 - t) + ')'
           : 'rgba(255,240,200,' + (1 - t) + ')';
         ctx.beginPath();
-        ctx.arc(b.x, b.y, r, 0, Math.PI * 2);
+        ctx.ellipse(b.x, b.y, r, ground ? r / 2 : r, 0, 0, Math.PI * 2);
         ctx.stroke();
       }
     });
@@ -194,14 +181,15 @@
     var size = RTS.data.buildings[type].size;
     var check = RTS.construction.canPlace(app.world, app.human, type, spot.tx, spot.ty);
     var ok = check.ok && RTS.world.canAfford(app.world, app.human, RTS.data.buildings[type].cost);
+    path(ctx, RTS.camera.quad(cam, spot.tx, spot.ty, size, size));
+    ctx.fillStyle = ok ? 'rgba(90,220,90,0.4)' : 'rgba(230,60,40,0.55)';
+    ctx.fill();
     ctx.globalAlpha = 0.6;
     local(ctx, cam, spot.tx, spot.ty, function () {
       RTS.sprites.buildings[type](ctx, size, RTS.data.players[app.human]);
     });
     ctx.globalAlpha = 1;
     path(ctx, RTS.camera.quad(cam, spot.tx, spot.ty, size, size));
-    ctx.fillStyle = ok ? 'rgba(90,220,90,0.28)' : 'rgba(230,60,40,0.4)';
-    ctx.fill();
     ctx.strokeStyle = ok ? '#c9ffb8' : '#ffb0a0';
     ctx.lineWidth = 2;
     ctx.stroke();
@@ -211,21 +199,14 @@
     var world = app.world, cam = app.cam;
     ctx.fillStyle = '#14202b';
     ctx.fillRect(0, 0, cam.viewW, cam.viewH);
-    drawGround(ctx, world, cam, app.human);
+    RTS.ground.draw(ctx, world, cam, app.human);
 
-    var v = RTS.camera.visibleTiles(cam);
-    var visible = RTS.fog.perceived(world, app.human).filter(function (e) {
-      return e.x >= v.x0 - 3 && e.x <= v.x1 + 2 && e.y >= v.y0 - 3 && e.y <= v.y1 + 2;
-    });
+    var visible = RTS.depth.sort(RTS.fog.perceived(world, app.human).filter(function (e) {
+      return RTS.depth.inView(cam, e);
+    }));
     var selected = new Set(app.selection);
     visible.forEach(function (e) { if (selected.has(e.id)) selectionMark(ctx, cam, e, app.human); });
 
-    // 依腳底的螢幕高度排序，靠下的蓋住靠上的
-    function depth(e) {
-      var c = e.w === undefined ? e : { x: e.x + e.w / 2, y: e.y + e.h - 0.3 };
-      return RTS.camera.worldToScreen(cam, c.x, c.y).y;
-    }
-    visible.sort(function (a, b) { return depth(a) - depth(b); });
     visible.forEach(function (e) {
       if (e.ghost) ctx.globalAlpha = 0.55;      // 記憶中的舊樣貌畫淡一些
       drawEntity(ctx, cam, e);

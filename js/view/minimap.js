@@ -66,12 +66,14 @@
       ctx.transform(ex.x - o.x, ex.y - o.y, ey.x - o.x, ey.y - o.y, o.x, o.y);
       ctx.fillStyle = COLORS.grass;
       ctx.fillRect(0, 0, map.width, map.height);
-      ctx.fillStyle = COLORS.water;
+      ctx.beginPath();     // 併成一條路徑填色，斜向格子之間才不會露出縫隙
       for (var i = 0; i < map.terrain.length; i++) {
         if (map.terrain[i] === RTS.map.TERRAIN.WATER) {
-          ctx.fillRect(i % map.width, Math.floor(i / map.width), 1.05, 1.05);
+          ctx.rect(i % map.width, Math.floor(i / map.width), 1.02, 1.02);
         }
       }
+      ctx.fillStyle = COLORS.water;
+      ctx.fill();
       var mobiles = [];
       RTS.fog.perceived(world, app.human).forEach(function (e) {
         if (e.w === undefined) { mobiles.push(e); return; }
@@ -79,17 +81,19 @@
         ctx.fillRect(e.x, e.y, e.w + 0.05, e.h + 0.05);
       });
       // 迷霧：未探索全黑，已探索但看不見的蓋一層暗色
-      // 同一列相鄰同狀態的格子併成一塊畫，避免縮小後出現格線縫隙
-      for (var ty = 0; ty < map.height; ty++) {
-        for (var tx = 0, end = 0; tx < map.width; tx = end) {
-          var seen = RTS.fog.tile(world, app.human, tx, ty);
-          for (end = tx + 1; end < map.width && RTS.fog.tile(world, app.human, end, ty) === seen; end++);
-          if (seen === RTS.fog.VISIBLE) continue;
-          var unknown = seen === RTS.fog.UNEXPLORED;
-          ctx.fillStyle = unknown ? '#000' : 'rgba(0,0,0,0.45)';
-          ctx.fillRect(tx, ty, end - tx + 0.05, unknown ? 1.35 : 1);
+      // 同狀態的格子併成一條路徑一次填滿：不露縫，半透明也不會重疊加深
+      [[RTS.fog.EXPLORED, 'rgba(0,0,0,0.45)'], [RTS.fog.UNEXPLORED, '#000']].forEach(function (layer) {
+        ctx.beginPath();
+        for (var ty = 0; ty < map.height; ty++) {
+          for (var tx = 0, end = 0; tx < map.width; tx = end) {
+            var seen = RTS.fog.tile(world, app.human, tx, ty);
+            for (end = tx + 1; end < map.width && RTS.fog.tile(world, app.human, end, ty) === seen; end++);
+            if (seen === layer[0]) ctx.rect(tx, ty, end - tx + 0.02, 1.02);
+          }
         }
-      }
+        ctx.fillStyle = layer[1];
+        ctx.fill();
+      });
       mobiles.forEach(function (e) {
         ctx.fillStyle = e.owner === null ? COLORS.animal : RTS.data.players[e.owner].color;
         var r = e.kind === 'unit' ? 1.8 : 1.1;

@@ -10,6 +10,15 @@
     KeyW: [0, -1], KeyS: [0, 1], KeyA: [-1, 0], KeyD: [1, 0]
   };
 
+  // 游標指到的地面世界座標；地圖外（菱形四周的空白）夾回地圖內
+  function ground(app, sx, sy) {
+    var w = RTS.camera.screenToWorld(app.cam, sx, sy);
+    return {
+      x: RTS.util.clamp(w.x, 0, app.cam.mapW - 0.01),
+      y: RTS.util.clamp(w.y, 0, app.cam.mapH - 0.01)
+    };
+  }
+
   function placementTile(app) {
     if (!app.placement || !app.mouse.overCanvas) return null;
     var size = RTS.data.buildings[app.placement].size;
@@ -17,28 +26,14 @@
     return { tx: Math.round(w.x - size / 2), ty: Math.round(w.y - size / 2) };
   }
 
-  // 螢幕點到的實體：單位優先，其次是該格的建築或天然物件
   function pick(app, sx, sy) {
-    var best = null, bestD = app.cam.scale * 0.5;
-    app.world.entities.forEach(function (e) {
-      if (e.w !== undefined || !RTS.fog.sees(app.world, app.human, e)) return;
-      var p = RTS.camera.worldToScreen(app.cam, e.x, e.y - 0.15);
-      var d = Math.hypot(p.x - sx, p.y - sy);
-      if (d < bestD) { bestD = d; best = e; }
-    });
-    if (best) return best;
-    var w = RTS.camera.screenToWorld(app.cam, sx, sy);
-    var hit = RTS.world.get(app.world, RTS.map.occupantAt(app.world.map, Math.floor(w.x), Math.floor(w.y)));
-    return hit && RTS.fog.targetable(app.world, app.human, hit) ? hit : null;
+    return RTS.depth.pick(app.cam, app.world, app.human, sx, sy);
   }
 
   // 框內的己方單位與牲畜
   function ownUnitsInRect(app, x0, y0, x1, y1, type) {
-    var found = RTS.world.list(app.world, function (e) {
-      if (e.w !== undefined || e.owner !== app.human || (type && e.type !== type)) return false;
-      var p = RTS.camera.worldToScreen(app.cam, e.x, e.y - 0.15);
-      return p.x >= x0 && p.x <= x1 && p.y >= y0 && p.y <= y1;
-    });
+    var rect = { x0: x0, y0: y0, x1: x1, y1: y1 };
+    var found = RTS.depth.ownInRect(app.cam, app.world, app.human, rect, type);
     return RTS.groups.boxSelection(found).map(function (e) { return e.id; });
   }
 
@@ -72,7 +67,7 @@
       });
       if (r.ok && !shift) app.placement = null;
     } else {
-      var w = RTS.camera.screenToWorld(app.cam, x, y), target = pick(app, x, y);
+      var w = ground(app, x, y), target = pick(app, x, y);
       var enemy = target && target.owner !== null && target.owner !== app.human;
       RTS.actions.issue(app, enemy
         ? { type: 'attack', unitIds: units, targetId: target.id }
@@ -96,7 +91,7 @@
       if (stray) app.hud.say(sel[0].owner === null ? 'hint.claimSheep' : 'hint.enemySheep');
       return;
     }
-    var w = RTS.camera.screenToWorld(app.cam, x, y), target = pick(app, x, y);
+    var w = ground(app, x, y), target = pick(app, x, y);
     var command = hasUnits ? { type: 'smart', unitIds: app.selection }
       : { type: 'setRally', buildingId: producer.id };
     command.targetId = target ? target.id : null;
@@ -104,7 +99,7 @@
     command.y = w.y;
     var r = RTS.actions.issue(app, command);
     if (r.ok) {
-      app.world.effects.push({ type: 'hit', x1: w.x, y1: w.y + 0.2, x2: w.x, y2: w.y + 0.2, age: 0, life: 0.35 });
+      app.world.effects.push({ type: 'order', x1: w.x, y1: w.y, x2: w.x, y2: w.y, age: 0, life: 0.35 });
     }
   }
 

@@ -71,6 +71,13 @@ gathering. If no free space exists around the building, units stay inside. If th
 destroyed, they escape onto its rubble with their current health. A villager carrying resources
 delivers them first, and one right-clicking a damaged Town Center repairs it instead.
 
+### Isometric view
+
+The battlefield is drawn in an isometric view: the map is a diamond, and things lower on screen are
+in front and cover what is behind them. Click a building's walls or footprint to select it, and a
+tree or deposit by its shape; box selection uses the rectangle on screen. Arrow keys and edge
+scrolling move the camera in screen directions.
+
 ### Fog of war
 
 Unexplored ground is black. Explored ground you cannot currently see is dimmed and shows the terrain,
@@ -170,12 +177,12 @@ English). Your choice is saved in `localStorage`. Where that is unavailable (som
 
 None of the following is implemented yet. These are plans and may change.
 
-- **Batch 2** (minimap and fog of war are done): isometric view
 - **Batch 3**: lumber camp and mining camp, mill, farms, economic technologies, market
 - **Batch 4**: age upgrades and unit tiers; archery range, stable, spearmen, cavalry; arrow towers,
   walls and gates; healer units; siege weapons
-- **Batch 5**: AI scouting, expanding and rebuilding, adapting its army
-- **Under consideration**: sound, saving, formations, multiple civilizations, other victory conditions
+- **Batch 5**: AI expanding, rebuilding its Town Center, adapting its army to yours
+- **Under consideration**: sound, saving, formations, multiple civilizations, other victory conditions,
+  individual building upgrades
 
 ## Tests
 
@@ -225,12 +232,15 @@ js/ai/                  Computer opponent (acts only through commands)
   scout.js              Scouting
   ai.js                 Difficulty settings, defence and attack waves
 js/view/                Rendering and input
-  camera.js             The only place that converts world and screen coordinates
-  sprites.js            Original vector art
+  camera.js             The only place that converts world and screen coordinates (isometric)
+  depth.js              Draw order, click and box-selection hit tests
+  sprites.js            Original vector art: resources and units
+  sprites-buildings.js  Building and construction-site art
   sprites-animals.js    Animal art
   minimap.js            Minimap
   groups.js             Control groups
-  render.js             Drawing
+  ground.js             Ground and fog drawing
+  render.js             Entities and on-field markers
   actions.js            Command buttons and selection details
   hud.js                Top bar, panel, dialogs
   input.js              Mouse, keyboard, scrolling
@@ -244,13 +254,11 @@ Code comments and test names are written in Traditional Chinese.
 
 - **New text**: add the same key to `zh-TW.js` and `en.js`. Simulation errors are returned as
   codes and shown through `error.<code>`.
-- **Isometric view**: change the conversion and limits in `camera.js` and redraw `sprites.js`.
-  Ground and footprints are already drawn as four-point polygons and sprites are sorted by screen
-  height. The simulation needs no change.
-- **Minimap**: add `js/view/minimap.js` reading `world.map` and `world.entities`.
-- **Fog of war**: units and buildings already have `vision`. Add visibility data to the
-  simulation, then filter in `render.js`, in picking (`input.js`) and in AI queries
-  (`ai.js`, `economy.js`).
+- **New building art**: describe it in `sprites-buildings.js` with footprint coordinates plus a
+  height, and register its wall height (click area) and top (health bar) in `depth.js`. Draw order
+  sorts by footprint center, which is only guaranteed for square footprints.
+- **Changing the view**: the projection lives in `project` / `unproject` in `camera.js`; check the
+  building art and draw order along with it.
 - **Ages and technologies**: add them to `data.js` and extend `research.js`.
 - **More units**: add them and their `damageBonus` to `data.js`, art to `sprites.js`, names to the
   language files, and include them in the AI's training choice (`economy.js`).

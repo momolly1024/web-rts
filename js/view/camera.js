@@ -1,5 +1,7 @@
 // 鏡頭與座標轉換。全專案只有這裡知道「世界座標怎麼對應到螢幕」：
 // 世界（格） -> project -> 投影平面 -> 減鏡頭位置、乘縮放 -> 螢幕像素。換視角只改 project/unproject。
+// 目前是 2:1 等角視角：一格畫成寬 2、高 1（投影單位）的菱形，面積與正方格相同。
+// +x 朝右下、+y 朝左下；x + y 越大越靠近觀看者。
 (function () {
   'use strict';
   var RTS = globalThis.RTS || (globalThis.RTS = {});
@@ -9,11 +11,11 @@
   var INSET_BOTTOM = 180; // 被下方面板蓋住的高度
 
   function project(wx, wy) {
-    return { x: wx, y: wy };
+    return { x: wx - wy, y: (wx + wy) / 2 };
   }
 
   function unproject(px, py) {
-    return { x: px, y: py };
+    return { x: py + px / 2, y: py - px / 2 };
   }
 
   function create(mapW, mapH) {
@@ -72,6 +74,11 @@
     clamp(cam);
   }
 
+  // 螢幕座標是否在畫面內（四周放寬 marginX、marginY 像素）
+  function onScreen(cam, p, marginX, marginY) {
+    return p.x >= -marginX && p.x <= cam.viewW + marginX && p.y >= -marginY && p.y <= cam.viewH + marginY;
+  }
+
   // 畫面內可能看得到的格子範圍（世界座標的外接矩形）
   function visibleTiles(cam) {
     var pts = [[0, 0], [cam.viewW, 0], [0, cam.viewH], [cam.viewW, cam.viewH]].map(function (p) {
@@ -89,6 +96,6 @@
   RTS.camera = {
     project: project, unproject: unproject, create: create,
     worldToScreen: worldToScreen, screenToWorld: screenToWorld, quad: quad, focusPoint: focusPoint,
-    pan: pan, centerOn: centerOn, resize: resize, visibleTiles: visibleTiles
+    pan: pan, centerOn: centerOn, resize: resize, visibleTiles: visibleTiles, onScreen: onScreen
   };
 })();

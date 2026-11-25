@@ -1,4 +1,4 @@
-// 原創的 Canvas 向量圖形：天然物件、建築、單位。座標以「一格」為單位縮放。
+// 原創的 Canvas 向量圖形：天然物件、單位（建築見 sprites-buildings.js）。座標以「一格」為單位縮放。
 (function () {
   'use strict';
   var RTS = globalThis.RTS || (globalThis.RTS = {});
@@ -68,61 +68,6 @@
     }
   };
 
-  // 建築：原點在占地左上角，size 為邊長（格）
-  function flag(ctx, x, y, color) {
-    line(ctx, [x, y, x, y - 0.7], OUTLINE, 0.06);
-    poly(ctx, [x, y - 0.7, x + 0.5, y - 0.57, x, y - 0.42], color);
-  }
-
-  var buildings = {
-    townCenter: function (ctx, s, c) {
-      poly(ctx, [0.2, 1.1, s - 0.2, 1.1, s - 0.2, s - 0.15, 0.2, s - 0.15], '#a8a39a');
-      [0.08, s - 0.78].forEach(function (x) {
-        poly(ctx, [x, 0.55, x + 0.7, 0.55, x + 0.7, s - 0.1, x, s - 0.1], '#bdb7ac');
-        poly(ctx, [x - 0.06, 0.55, x + 0.35, -0.05, x + 0.76, 0.55], c.color);
-      });
-      poly(ctx, [0.7, 1.15, s / 2, 0.25, s - 0.7, 1.15], c.dark);
-      poly(ctx, [s / 2 - 0.35, s - 0.15, s / 2 - 0.35, s - 0.8, s / 2, s - 1.05,
-                 s / 2 + 0.35, s - 0.8, s / 2 + 0.35, s - 0.15], '#4a3220');
-      flag(ctx, s / 2, 0.28, c.color);
-    },
-    house: function (ctx, s, c) {
-      poly(ctx, [0.2, 0.95, s - 0.2, 0.95, s - 0.2, s - 0.14, 0.2, s - 0.14], '#d6c29c');
-      poly(ctx, [0.06, 1.0, 0.45, 0.2, s - 0.45, 0.2, s - 0.06, 1.0], c.color);
-      line(ctx, [0.28, 0.6, s - 0.28, 0.6], c.dark, 0.07);
-      poly(ctx, [0.8, s - 0.14, 0.8, 1.25, 1.2, 1.25, 1.2, s - 0.14], '#5a3d26');
-      poly(ctx, [0.35, 1.2, 0.62, 1.2, 0.62, 1.45, 0.35, 1.45], '#3a4a5c');
-    },
-    blacksmith: function (ctx, s, c) {
-      poly(ctx, [1.35, 0.15, 1.75, 0.15, 1.75, 0.9, 1.35, 0.9], '#5b524a');
-      disc(ctx, 1.55, 0.02, 0.2, 0.13, 'rgba(220,220,220,0.6)', false);
-      poly(ctx, [0.14, 0.85, s - 0.14, 0.85, s - 0.14, s - 0.14, 0.14, s - 0.14], '#8f8a82');
-      poly(ctx, [0.04, 0.95, 0.4, 0.42, s - 0.2, 0.42, s - 0.04, 0.95], c.color);
-      poly(ctx, [0.3, s - 0.14, 0.3, 1.15, 1.0, 1.15, 1.0, s - 0.14], '#2b211b');
-      poly(ctx, [0.45, 1.72, 0.65, 1.55, 0.85, 1.72], '#ff8c2e', false);
-      poly(ctx, [1.15, 1.38, 1.8, 1.38, 1.62, 1.55, 1.57, 1.75, 1.68, 1.84, 1.28, 1.84, 1.4, 1.75, 1.36, 1.55], '#3d4248');
-    },
-    barracks: function (ctx, s, c) {
-      poly(ctx, [0.15, 1.0, s - 0.15, 1.0, s - 0.15, s - 0.15, 0.15, s - 0.15], '#8a5f3c');
-      for (var x = 0.5; x < s - 0.3; x += 0.4) line(ctx, [x, 1.02, x, s - 0.17], '#6a4529', 0.05);
-      poly(ctx, [0.04, 1.08, 0.35, 0.3, s - 0.35, 0.3, s - 0.04, 1.08], '#4d4a46');
-      poly(ctx, [s / 2 - 0.42, 0.95, s / 2 + 0.42, 0.95, s / 2 + 0.42, 1.55, s / 2, 1.85,
-                 s / 2 - 0.42, 1.55], c.color);
-      line(ctx, [s / 2 - 0.25, 1.1, s / 2 + 0.25, 1.6], '#e8e2d0', 0.08);
-      line(ctx, [s / 2 + 0.25, 1.1, s / 2 - 0.25, 1.6], '#e8e2d0', 0.08);
-      poly(ctx, [0.35, s - 0.15, 0.35, s - 0.85, 0.85, s - 0.85, 0.85, s - 0.15], '#33251a');
-      flag(ctx, s - 0.55, 0.32, c.color);
-    }
-  };
-
-  function construction(ctx, s, progress) {
-    poly(ctx, [0.15, 0.15, s - 0.15, 0.15, s - 0.15, s - 0.15, 0.15, s - 0.15], '#9b7f58');
-    var h = (s - 0.5) * progress;
-    poly(ctx, [0.35, s - 0.25 - h, s - 0.35, s - 0.25 - h, s - 0.35, s - 0.25, 0.35, s - 0.25], '#c3ad84');
-    [0.25, s / 2, s - 0.25].forEach(function (x) { line(ctx, [x, 0.2, x, s - 0.2], '#5c4326', 0.09); });
-    line(ctx, [0.25, 0.4, s - 0.25, s - 0.4], '#5c4326', 0.06);
-  }
-
   // 單位：原點在腳下。swing > 0 時揮動手上的工具
   function body(ctx, c, tunic) {
     disc(ctx, 0, 0.16, 0.24, 0.09, 'rgba(0,0,0,0.3)', false);
@@ -166,5 +111,5 @@
     }
   };
 
-  RTS.sprites = { nodes: nodes, buildings: buildings, construction: construction, units: units };
+  RTS.sprites = { nodes: nodes, units: units, draw: { poly: poly, disc: disc, line: line } };
 })();
