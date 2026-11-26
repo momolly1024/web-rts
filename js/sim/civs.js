@@ -23,6 +23,12 @@
     return ((byClass && byClass[stat]) || 0) + ((byType && byType[stat]) || 0);
   }
 
+  // 專屬兵種只有所屬文明能訓練
+  function allows(world, pid, unitType) {
+    var civ = RTS.data.units[unitType].civ;
+    return !civ || world.players[pid].civ === civ;
+  }
+
   function pick(random) {
     var order = RTS.data.civOrder;
     return order[Math.min(order.length - 1, Math.floor(random() * order.length))];
@@ -35,5 +41,5 @@
     });
   }
 
-  RTS.civs = { effect: effect, unitBonus: unitBonus, assign: assign };
+  RTS.civs = { effect: effect, unitBonus: unitBonus, allows: allows, assign: assign };
 })();

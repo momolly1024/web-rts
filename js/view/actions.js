@@ -124,7 +124,9 @@
       }];
     }
     return researchActions(app, b).concat(branchActions(app, b), reseedActions(app, b), marketActions(app, b),
-      demolishActions(app, b), data.buildings[b.type].trains.map(function (type) {
+      demolishActions(app, b), data.buildings[b.type].trains.filter(function (type) {
+      return RTS.civs.allows(app.world, app.human, type);
+    }).map(function (type) {
       var def = data.units[type];
       var check = RTS.production.check(app.world, b, type);
       return {

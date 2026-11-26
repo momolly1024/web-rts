@@ -25,10 +25,20 @@
     // 文明：開局決定的被動加成。effects 沿用研究效果代號（見下方 upgrades 說明），
     // classBonus 依兵種類別（upgradeClass）、unitBonus 依單一兵種，可加 hp、attack、armor、range
     civOrder: ['greenwood', 'ironrock', 'goldplain'],
+    // 負值是弱點。unique 為只有該文明能訓練的兵種（單位以 civ 標註）
     civs: {
-      greenwood: { effects: { 'gather.wood': 0.15 }, classBonus: { ranged: { range: 0.5 } } },
-      ironrock: { effects: { 'gather.gold': 0.15, 'gather.stone': 0.15, 'tower.range': 1 }, classBonus: { melee: { armor: 1 } } },
-      goldplain: { effects: { farmFood: 60, speed: 0.1 }, unitBonus: { cavalry: { hp: 20 } } }
+      greenwood: {
+        unique: 'ranger', effects: { 'gather.wood': 0.3 },
+        classBonus: { ranged: { range: 1 } }, unitBonus: { cavalry: { hp: -20 } }
+      },
+      ironrock: {
+        unique: 'stoneguard', effects: { 'gather.gold': 0.3, 'gather.stone': 0.3, 'tower.range': 2, speed: -0.1 },
+        classBonus: { melee: { armor: 2 } }
+      },
+      goldplain: {
+        unique: 'lancer', effects: { farmFood: 120, speed: 0.2 },
+        classBonus: { ranged: { range: -0.5 } }, unitBonus: { cavalry: { hp: 40 }, lancer: { hp: 40 } }
+      }
     },
 
     // 地圖上的天然物件
@@ -107,6 +117,27 @@
         hp: 45, speed: 2.4, vision: 7, armorType: 'ranged', armor: { melee: 0, pierce: 0 },
         attack: { type: 'pierce', damage: 6, range: 4.5, cooldown: 1.6 },
         military: true, upgradeClass: 'ranged'
+      },
+      // 蒼林專屬。游獵手：跑得快、看得遠、射得勤，但單發輕、血薄
+      ranger: {
+        civ: 'greenwood', cost: { wood: 45, gold: 30 }, trainTime: 15, pop: 1, hotkey: 'F', age: 1,
+        hp: 40, speed: 3.0, vision: 9, armorType: 'ranged', armor: { melee: 0, pierce: 0 },
+        attack: { type: 'pierce', damage: 5, range: 4.5, cooldown: 1.4 },
+        military: true, upgradeClass: 'ranged'
+      },
+      // 鐵岩專屬。岩衛：血厚甲重的步兵，很慢
+      stoneguard: {
+        civ: 'ironrock', cost: { food: 70, gold: 35 }, trainTime: 20, pop: 1, hotkey: 'C', age: 1,
+        hp: 120, speed: 1.9, vision: 5, armorType: 'infantry', armor: { melee: 2, pierce: 3 },
+        attack: { type: 'melee', damage: 9, range: 0.8, cooldown: 1.5 },
+        military: true, upgradeClass: 'melee'
+      },
+      // 金原專屬。槍騎兵：最快，專衝弓兵與村民，比騎兵脆
+      lancer: {
+        civ: 'goldplain', cost: { food: 70, gold: 45 }, trainTime: 18, pop: 1, hotkey: 'R', age: 1,
+        hp: 85, speed: 3.8, vision: 6, armorType: 'cavalry', armor: { melee: 1, pierce: 1 },
+        attack: { type: 'melee', damage: 8, range: 0.9, cooldown: 1.3, bonus: { ranged: 2, civilian: 1.6 } },
+        military: true, upgradeClass: 'melee'
       }
     },
 
@@ -156,7 +187,7 @@
       },
       barracks: {
         cost: { wood: 150 }, size: 3, hp: 600, buildTime: 30,
-        pop: 0, vision: 4, trains: ['swordsman', 'archer', 'spearman'], dropoff: false, hotkey: 'B', researches: ['swordLine'],
+        pop: 0, vision: 4, trains: ['swordsman', 'archer', 'spearman', 'stoneguard'], dropoff: false, hotkey: 'B', researches: ['swordLine'],
         armorType: 'building', armor: { melee: 1, pierce: 1 }
       },
       blacksmith: {
@@ -167,12 +198,12 @@
       },
       archeryRange: {
         cost: { wood: 150 }, size: 3, hp: 600, buildTime: 30, age: 1,
-        pop: 0, vision: 4, trains: ['skirmisher', 'longbowman'], dropoff: false, hotkey: 'R', researches: ['archerLine'],
+        pop: 0, vision: 4, trains: ['skirmisher', 'longbowman', 'ranger'], dropoff: false, hotkey: 'R', researches: ['archerLine'],
         armorType: 'building', armor: { melee: 1, pierce: 1 }
       },
       stable: {
         cost: { wood: 150 }, size: 3, hp: 600, buildTime: 30, age: 1,
-        pop: 0, vision: 4, trains: ['cavalry'], dropoff: false, hotkey: 'V', researches: ['cavalryLine'],
+        pop: 0, vision: 4, trains: ['cavalry', 'lancer'], dropoff: false, hotkey: 'V', researches: ['cavalryLine'],
         armorType: 'building', armor: { melee: 1, pierce: 1 }
       },
       // 箭塔：自動射擊範圍內的敵方單位

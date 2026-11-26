@@ -167,15 +167,28 @@ h2 { font-size: 22px; color: var(--brass); }
 #difficulty-picker label:has(input:checked) { border-color: var(--brass); background: var(--oak); }
 #difficulty-picker input { accent-color: var(--brass); }
 #difficulty-picker span { font-size: 13px; opacity: 0.85; }
-#civ-picker { border: 0; margin-bottom: 8px; display: flex; flex-wrap: wrap; gap: 4px 8px; }
+#civ-picker { border: 0; margin-bottom: 8px; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 8px; }
 #civ-picker legend { color: var(--brass); font-weight: 700; margin-bottom: 4px; }
 #civ-picker label {
-  display: flex; gap: 6px; align-items: center; padding: 3px 10px;
-  border: 1px solid #50626f; border-radius: 3px; cursor: pointer;
+  position: relative; display: flex; flex-direction: column; align-items: center; gap: 3px; padding: 8px 8px 10px;
+  border: 2px solid #50626f; border-top: 6px solid var(--civ, #50626f); border-radius: 4px; cursor: pointer; text-align: center;
 }
-#civ-picker label:has(input:checked) { border-color: var(--brass); background: var(--oak); }
-#civ-picker input { accent-color: var(--brass); }
-#civ-picker p { flex-basis: 100%; margin: 0; font-size: 13px; opacity: 0.85; }
+#civ-picker label:has(input:checked) { border-color: var(--civ, var(--brass)); background: var(--civ-deep, var(--oak)); }
+#civ-picker label:has(input:focus-visible) { outline: 2px solid var(--vellum); outline-offset: 2px; }
+#civ-picker input { position: absolute; opacity: 0; pointer-events: none; }
+#civ-picker svg { width: 34px; height: 34px; color: var(--civ, var(--vellum)); }
+#civ-picker b { font-size: 16px; }
+#civ-picker ul { list-style: none; margin: 0; padding: 0; font-size: 12px; line-height: 1.45; }
+#civ-picker li.weak { color: #ff9d8a; }
+#civ-picker li.unique { color: var(--brass); font-weight: 700; }
+
+/* 文明主題色：開局卡片、左上角標示與上方列 */
+.civ-greenwood { --civ: #7fbf5a; --civ-deep: #24421f; }
+.civ-ironrock { --civ: #a9b8c8; --civ-deep: #333d49; }
+.civ-goldplain { --civ: #e8c24a; --civ-deep: #55421a; }
+#topbar[class] { background: var(--civ-deep, var(--oak)); border-bottom-color: var(--civ, var(--brass)); }
+#civ-badge { display: flex; align-items: center; gap: 6px; border-left: 4px solid var(--civ, var(--brass)); }
+#civ-badge svg { width: 18px; height: 18px; color: var(--civ); }
 .buttons { display: flex; gap: 10px; }
 #overlay-primary { background: var(--brass); color: var(--ink); font-weight: 700; padding: 7px 24px; }
 #overlay-primary:hover { background: var(--vellum) !important; }
@@ -227,6 +240,7 @@ h2 { font-size: 22px; color: var(--brass); }
   #topbar dd { min-width: 0; font-size: 13px; white-space: nowrap; }
   #topbar nav button { padding: 2px 5px; font-size: 12px; }
   #btn-restart { display: none; }
+  #civ-picker { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 5px; }
   #difficulty {
     position: fixed; top: 56px; right: 8px; padding: 2px 8px;
     background: rgba(20, 32, 43, 0.88); border-radius: 3px;

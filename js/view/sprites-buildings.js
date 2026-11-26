@@ -33,13 +33,41 @@
 
   // r = [u0, v0, u1, v1]；colors = [左前面, 右前面, 頂面]
   function box(ctx, r, z0, z1, colors) {
+    colors = colors.map(function (color) { return RTS.civStyle.tint(style, color); });
     onLeft(ctx, r[3], r[0], r[2], z0, z1, colors[0]);
     onRight(ctx, r[2], r[1], r[3], z0, z1, colors[1]);
     face(ctx, [[r[0], r[1], z1], [r[2], r[1], z1], [r[2], r[3], z1], [r[0], r[3], z1]], colors[2]);
   }
 
-  // 屋脊沿 u 方向的雙坡屋頂
+  // 繪製中的文明風格（null 為原本樣式）
+  var style = null;
+
+  function tools(ctx) {
+    return {
+      face: face.bind(null, ctx), edge: edge.bind(null, ctx),
+      // 屋頂零件用自己的顏色，不套牆面色調
+      box: function (r, z0, z1, colors) {
+        var saved = style;
+        style = null;
+        box(ctx, r, z0, z1, colors);
+        style = saved;
+      }
+    };
+  }
+
   function gable(ctx, r, z, rise, roof, shade, wall) {
+    wall = RTS.civStyle.tint(style, wall);
+    if (style) style.gable(tools(ctx), r, z, rise, roof, shade, wall, plainGable.bind(null, ctx));
+    else plainGable(ctx, r, z, rise, roof, shade, wall);
+  }
+
+  function spire(ctx, r, z, rise, roof, shade) {
+    if (style) style.spire(tools(ctx), r, z, rise, { color: roof, dark: shade }, plainSpire.bind(null, ctx));
+    else plainSpire(ctx, r, z, rise, roof, shade);
+  }
+
+  // 屋脊沿 u 方向的雙坡屋頂
+  function plainGable(ctx, r, z, rise, roof, shade, wall) {
     var u0 = r[0], v0 = r[1], u1 = r[2], v1 = r[3], mid = (v0 + v1) / 2, top = z + rise;
     face(ctx, [[u0, v0, z], [u1, v0, z], [u1, mid, top], [u0, mid, top]], shade);
     face(ctx, [[u1, v0, z], [u1, v1, z], [u1, mid, top]], wall);
@@ -48,7 +76,7 @@
   }
 
   // 四角尖頂：先畫背面兩片，再畫看得到的兩片
-  function spire(ctx, r, z, rise, roof, shade) {
+  function plainSpire(ctx, r, z, rise, roof, shade) {
     var apex = [(r[0] + r[2]) / 2, (r[1] + r[3]) / 2, z + rise];
     face(ctx, [[r[0], r[1], z], [r[2], r[1], z], apex], shade);
     face(ctx, [[r[0], r[1], z], [r[0], r[3], z], apex], roof);
@@ -334,6 +362,14 @@
     edge(ctx, [far, far, 0.2], [far, m, 1.2], '#5c4326', 0.06);
   }
 
+  // 依擁有者的文明畫完工建築
+  function draw(ctx, type, s, c, e, civ) {
+    style = RTS.civStyle.of(civ);
+    buildings[type](ctx, s, c, e);
+    style = null;
+  }
+
   RTS.sprites.buildings = buildings;
+  RTS.sprites.building = draw;
   RTS.sprites.construction = construction;
 })();

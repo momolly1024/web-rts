@@ -195,6 +195,7 @@
       if (e.kind === 'unit' && e.owner !== ctx.pid) seen[e.type] = (seen[e.type] || 0) + 1;
     });
     function wanted(type) {
+      if (!RTS.civs.allows(ctx.world, ctx.pid, type)) return false;
       if (type === 'spearman') return count(type) < (seen.cavalry || 0);
       if (type === 'skirmisher') return count(type) < (seen.archer || 0) + (seen.longbowman || 0);
       if (type === 'ram') return count(type) < cfg.military.rams;

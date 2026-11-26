@@ -42,7 +42,7 @@
     var toastMessage = null, claimed = null, claimHinted = false;
     var tooltip = RTS.tooltip.create(actionsBox, $('tooltip'));
     app.alerts = RTS.alert.create();
-    var civs = RTS.civPicker.create(app, $('civ-picker'), $('civ-badge'));
+    var civs = RTS.civPicker.create(app, $('civ-picker'), $('civ-badge'), $('topbar'));
 
     function watchAttacks() {
       if (app.alerts.update(app.world, app.human)) {

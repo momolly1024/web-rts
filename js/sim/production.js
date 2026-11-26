@@ -7,6 +7,7 @@
   function check(world, b, unitType) {
     var def = RTS.data.buildings[b.type], unit = RTS.data.units[unitType];
     if (!unit || def.trains.indexOf(unitType) < 0) return { ok: false, reason: 'cannotTrain' };
+    if (!RTS.civs.allows(world, b.owner, unitType)) return { ok: false, reason: 'wrongCiv' };
     if (!b.complete) return { ok: false, reason: 'notComplete' };
     var tooEarly = RTS.research.ageFail(world, b.owner, unit.age);
     if (tooEarly) return tooEarly;

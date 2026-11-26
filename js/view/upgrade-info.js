@@ -33,8 +33,12 @@
     return gain ? f(now) + ' → ' + f(now + gain) : f(now);
   }
 
+  function signed(value) {
+    return (value < 0 ? '' : '+') + value;
+  }
+
   function percent(value) {
-    return '+' + Math.round(value * 100) + '%';
+    return signed(Math.round(value * 100)) + '%';
   }
 
   // 某單位各項數值的目前值（含已研究的加成）
@@ -67,7 +71,7 @@
   // 鐵匠鋪：列出每個受影響兵種的數值
   function classLines(world, pid, up, next) {
     return Object.keys(RTS.data.units).filter(function (type) {
-      return RTS.data.units[type].upgradeClass === up.unitClass;
+      return RTS.data.units[type].upgradeClass === up.unitClass && RTS.civs.allows(world, pid, type);
     }).map(function (type) {
       return t('tip.unitStat', {
         name: unitName(world, pid, type),
@@ -105,7 +109,9 @@
     if (!next) return [t('info.ageMax')];
     var data = RTS.data, age = level + 1, lines = [];
     function unlocked(table, prefix) {
-      return Object.keys(table).filter(function (type) { return table[type].age === age; })
+      return Object.keys(table).filter(function (type) {
+        return table[type].age === age && (!table[type].civ || table[type].civ === world.players[pid].civ);
+      })
         .map(function (type) { return t(prefix + type); });
     }
     var buildings = unlocked(data.buildings, 'building.');
@@ -158,7 +164,7 @@
     var civ = RTS.data.civs[key];
     var lines = Object.keys(civ.effects || {}).map(function (effect) {
       var gain = civ.effects[effect];
-      var value = PERCENT.test(effect) ? percent(gain) : '+' + gain;
+      var value = PERCENT.test(effect) ? percent(gain) : signed(gain);
       var resource = effect.indexOf('gather.') === 0 ? effect.slice(7) : null;
       return resource ? t('civBonus.gather', { resource: t('resource.' + resource), value: value })
         : t('civBonus.' + effect, { value: value });
@@ -166,12 +172,13 @@
     function units(table, prefix) {
       Object.keys(table || {}).forEach(function (name) {
         Object.keys(table[name]).forEach(function (stat) {
-          lines.push(t('civBonus.unit', { name: t(prefix + name), stat: t('civStat.' + stat), value: '+' + table[name][stat] }));
+          lines.push(t('civBonus.unit', { name: t(prefix + name), stat: t('civStat.' + stat), value: signed(table[name][stat]) }));
         });
       });
     }
     units(civ.classBonus, 'civClass.');
     units(civ.unitBonus, 'unit.');
+    lines.push(t('civBonus.unique', { name: t('unit.' + civ.unique) }));
     return lines;
   }
 

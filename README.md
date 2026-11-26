@@ -259,14 +259,14 @@ English). Your choice is saved in `localStorage`. Where that is unavailable (som
 ## Civilizations
 
 Choose one on the start screen or in the Restart dialog (Random by default). The computer always
-picks at random, and both are shown at the top left of the battlefield. Units, buildings and art
-are the same; only these passive bonuses differ.
+picks at random, and both are shown at the top left of the battlefield. Each civilization has its
+own building style, emblem and top bar color; team colors (blue and red) stay on every roof.
 
-| Civilization | Economy | Military |
-|------|------|------|
-| Greenwood | Wood gathering +15% | Ranged units: range +0.5 |
-| Ironrock | Gold and stone gathering +15% | Melee units: armor +1; Arrow Tower range +1 |
-| Goldplain | Farm food +60; villager speed +10% | Cavalry health +20 |
+| Civilization | Bonuses | Weakness | Unique unit (Feudal Age) |
+|------|------|------|------|
+| Greenwood (timber, steep roofs) | Wood gathering +30%; ranged units range +1 | Cavalry health -20 | Ranger (Archery Range, F): fast, far-sighted archer |
+| Ironrock (stone, battlements) | Gold and stone gathering +30%; melee armor +2; Arrow Tower range +2 | Villager speed -10% | Stoneguard (Barracks, C): slow, heavily armored infantry |
+| Goldplain (thatched domes) | Farm food +120; villager speed +20%; Cavalry and Lancer health +40 | Ranged units range -0.5 | Lancer (Stable, R): fastest rider, strong against archers and villagers |
 
 ## Sound
 
@@ -371,6 +371,7 @@ js/view/                Rendering and input
   camera.js             The only place that converts world and screen coordinates (isometric)
   depth.js              Draw order, click and box-selection hit tests
   sprites.js            Original vector art: resources and units
+  sprites-civ.js        Building styles of each civilization
   sprites-buildings.js  Building and construction-site art
   sprites-animals.js    Animal art
   minimap.js            Minimap
@@ -382,7 +383,7 @@ js/view/                Rendering and input
   upgrade-info.js       Research names and effect descriptions
   actions.js            Command buttons and selection details
   tooltip.js            Hover box for command buttons
-  civ-picker.js         Civilization choice and on-field label
+  civ-picker.js         Civilization cards, emblems, on-field label and top bar color
   sound-events.js       Which sounds the current frame should make
   sound.js              Synthesized sound effects and the on/off setting
   hud.js                Top bar, panel, dialogs

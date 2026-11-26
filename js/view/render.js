@@ -45,7 +45,7 @@
   }
 
   // 兵種升級：頭頂加羽飾，第一級白、第二級金
-  var HEAD = { swordsman: -0.52, spearman: -0.5, archer: -0.58, longbowman: -0.58, cavalry: -0.74 };
+  var HEAD = { ranger: -0.6, stoneguard: -0.6, lancer: -0.74, swordsman: -0.52, spearman: -0.5, archer: -0.58, longbowman: -0.58, cavalry: -0.74 };
   function plume(ctx, type, tier) {
     if (!tier || HEAD[type] === undefined) return;
     var y = HEAD[type];
@@ -69,7 +69,8 @@
       });
     } else if (e.kind === 'building') {
       local(ctx, cam, e.x, e.y, function () {
-        if (e.complete) RTS.sprites.buildings[e.type](ctx, e.w, players[e.owner], e);
+        var civ = world ? world.players[e.owner].civ : null;
+        if (e.complete) RTS.sprites.building(ctx, e.type, e.w, players[e.owner], e, civ);
         else RTS.sprites.construction(ctx, e.w, e.progress);
       });
     } else if (e.kind === 'animal') {
