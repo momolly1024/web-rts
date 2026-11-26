@@ -101,7 +101,7 @@ test('正式對局啟用迷霧，開局看不到敵方', () => {
   assert.strictEqual(RTS.game.create(7, { fog: false }).fog, null);
 });
 
-test('AI 不看全圖：開局不知道敵堡，偵查後才知道，且不在發現前進攻', () => {
+slowTest('AI 不看全圖：開局不知道敵堡，偵查後才知道，且不在發現前進攻', () => {
   for (const key of RTS.data.difficultyOrder) {
     for (const seed of [7, 2024, 31337]) {
       const w = RTS.game.create(seed), ai = RTS.ai.create(1, key);

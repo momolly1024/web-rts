@@ -157,6 +157,35 @@
     if (action.enabled) action.run(); else app.notify(action.reason);
   }
 
+  // F11 或網頁全螢幕
+  function isFullscreen() {
+    return window.matchMedia('(display-mode: fullscreen)').matches ||
+      (window.innerWidth >= window.screen.width && window.innerHeight >= window.screen.height);
+  }
+
+  // 滑出視窗時，把游標位置貼到離離開點最近的那一側邊緣
+  function edgeAfterLeave(x, y, w, h) {
+    var px = RTS.util.clamp(x, 0, w - 1), py = RTS.util.clamp(y, 0, h - 1);
+    var gaps = [px, w - 1 - px, py, h - 1 - py];
+    var side = gaps.indexOf(Math.min.apply(null, gaps));
+    if (side === 0) px = 0;
+    else if (side === 1) px = w - 1;
+    else if (side === 2) py = 0;
+    else py = h - 1;
+    return { x: px, y: py };
+  }
+
+  // 一般視窗：滑出去就停止邊緣捲動。全螢幕（多螢幕時滑到隔壁螢幕）：繼續朝那一側捲，
+  // 滑回來或點其他視窗（blur）才停
+  function leaveWindow(app, ev) {
+    var m = app.mouse;
+    if (!isFullscreen()) { m.inside = false; return; }
+    var p = edgeAfterLeave(ev.clientX, ev.clientY, app.cam.viewW, app.cam.viewH);
+    m.x = p.x;
+    m.y = p.y;
+    m.inside = true;
+  }
+
   function bind(app, canvas) {
     var m = app.mouse;
     window.addEventListener('mousemove', function (ev) {
@@ -170,7 +199,7 @@
         if (Math.abs(m.x - app.drag.x0) + Math.abs(m.y - app.drag.y0) > 6) app.drag.active = true;
       }
     });
-    document.documentElement.addEventListener('mouseleave', function () { m.inside = false; });
+    document.documentElement.addEventListener('mouseleave', function (ev) { leaveWindow(app, ev); });
     canvas.addEventListener('mousedown', function (ev) {
       m.x = ev.clientX;
       m.y = ev.clientY;
@@ -221,5 +250,6 @@
     }
   }
 
-  RTS.input = { bind: bind, scroll: scroll, placementTile: placementTile, pick: pick };
+  RTS.input = { bind: bind, scroll: scroll, placementTile: placementTile, pick: pick,
+    edgeAfterLeave: edgeAfterLeave, leaveWindow: leaveWindow };
 })();

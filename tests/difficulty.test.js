@@ -56,7 +56,7 @@ function simulate(seed, difficulty) {
 }
 
 for (const seed of SEEDS) {
-  test(`三種難度皆會進攻，強度順序 簡單 < 普通 < 困難（seed ${seed}）`, () => {
+  slowTest(`三種難度皆會進攻，強度順序 簡單 < 普通 < 困難（seed ${seed}）`, () => {
     const [easy, normal, hard] = RTS.data.difficultyOrder.map(key => {
       const log = simulate(seed, key);
       const info = key + ' ' + JSON.stringify(log);
@@ -77,7 +77,7 @@ for (const seed of SEEDS) {
   });
 }
 
-test('三種難度對不動的玩家都能分出勝負', () => {
+slowTest('三種難度對不動的玩家都能分出勝負', () => {
   for (const key of RTS.data.difficultyOrder) {
     const world = RTS.game.create(2024);
     const ai = RTS.ai.create(AI_ID, key);
@@ -86,7 +86,7 @@ test('三種難度對不動的玩家都能分出勝負', () => {
   }
 });
 
-test('和平世界：隱藏難度，只關掉進攻；電腦照常發展但永遠不出兵', () => {
+slowTest('和平世界：隱藏難度，只關掉進攻；電腦照常發展但永遠不出兵', () => {
   assert.ok(RTS.data.difficultyOrder.indexOf('peaceful') < 0, '不在一般選單');
   const entry = RTS.data.difficulties.peaceful;
   assert.deepStrictEqual(entry, { ai: { attack: false } });

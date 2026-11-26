@@ -262,7 +262,7 @@ English). Your choice is saved in `localStorage`. Where that is unavailable (som
 |------|------|
 | Left-click / drag | Select (Shift adds, double-click selects the same type on screen) |
 | Right-click | Move, gather, hunt, attack, build, repair, deliver or shelter, depending on the target; with a training building selected, set its rally point |
-| Arrow keys, WASD, mouse at the window edge | Scroll |
+| Arrow keys, WASD, mouse at the window edge (in fullscreen, keeps scrolling after the mouse moves onto another monitor) | Scroll |
 | H, T, L, N, M, C, O, Y | With villagers (Economy page): House, Town Center, Lumber Camp, Mining Camp, Mill, Farm, Pen, Market (Shift + click to keep placing) |
 | B, R, V, K, I, Z, U, J, E | With villagers (Military page): Barracks, Archery Range, Stable, Blacksmith, Arrow Tower, Stone Wall, Gate, Temple, Siege Workshop |
 | Tab | With villagers: switch the build menu between Economy and Military (hotkeys work on both) |
@@ -293,7 +293,8 @@ None of the following is implemented yet. These are plans and may change.
 ## Tests
 
 ```
-node tests/run-tests.js
+node tests/run-tests.js          # full, a few minutes
+node tests/run-tests.js --quick  # skips whole-match simulations
 ```
 
 Only Node.js is needed. The tests load the simulation and language files in the `<script>` order

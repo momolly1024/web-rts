@@ -60,7 +60,7 @@ test('升級對現有與之後訓練的同類單位都生效', () => {
   assert.strictEqual(hp - b.hp, d('swordsman', 'swordsman', 0, 1));
 });
 
-test('AI 依難度蓋鐵匠鋪並研究', () => {
+slowTest('AI 依難度蓋鐵匠鋪並研究', () => {
   const reached = {};
   for (const key of RTS.data.difficultyOrder) {
     const w = RTS.game.create(7);

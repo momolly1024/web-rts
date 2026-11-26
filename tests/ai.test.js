@@ -29,7 +29,7 @@ function simulate(seed, maxSteps) {
 }
 
 for (const seed of [7, 2024, 31337, 5, 88]) {
-  test(`AI 對不動的玩家：發展、在緩衝期後進攻並獲勝（seed ${seed}）`, () => {
+  slowTest(`AI 對不動的玩家：發展、在緩衝期後進攻並獲勝（seed ${seed}）`, () => {
     const log = simulate(seed, 20000);
     const info = JSON.stringify({
       time: log.world.time, firstAttack: log.firstAttack, firstDamage: log.firstDamage,
@@ -86,7 +86,7 @@ function longGame(seed) {
   return { ever, farmed, upgrades: world.players.map(p => p.upgrades) };
 }
 
-test('AI 經濟建設：長局中蓋磨坊與伐木場', () => {
+slowTest('AI 經濟建設：長局中蓋磨坊與伐木場', () => {
   // 伐木場只在樹林離收取建築遠時才蓋，所以用樹林較遠的地圖
   const g = longGame(303);
   assert.ok(g.ever.has('mill') && g.ever.has('lumberCamp'), [...g.ever].join(','));
@@ -109,7 +109,7 @@ test('AI 經濟建設：沒有野外食物時蓋磨坊與農田並派人耕作',
   assert.ok(ok, '應有村民在種田');
 });
 
-test('AI 經濟建設：資源有餘時研究經濟科技', () => {
+slowTest('AI 經濟建設：資源有餘時研究經濟科技', () => {
   const g = longGame(7);
   const tracks = ['woodcutting', 'farmYield', 'goldMining', 'handcart', 'stoneMining'];
   assert.ok(g.upgrades.some(u => tracks.some(t => u[t])), JSON.stringify(g.upgrades));

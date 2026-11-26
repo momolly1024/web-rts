@@ -16,7 +16,7 @@ function base() {
   return { w, animal, steps };
 }
 
-test('閒置的野生動物會走走停停，速度遠低於逃跑且不超出出生點半徑', () => {
+slowTest('閒置的野生動物會走走停停，速度遠低於逃跑且不超出出生點半徑', () => {
   for (const seed of [1, 7, 42, 999]) {
     const w = RTS.game.create(seed);
     RTS.world.unitsOf(w, 0).concat(RTS.world.unitsOf(w, 1)).forEach(u => RTS.world.remove(w, u));

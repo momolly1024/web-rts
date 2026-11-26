@@ -119,7 +119,7 @@ test('可在動物身上放建築，動物會被移開', () => {
   assert.ok(RTS.map.isWalkable(w.map, Math.floor(sheep.x), Math.floor(sheep.y)));
 });
 
-test('AI 依難度狩獵並取得食物', () => {
+slowTest('AI 依難度狩獵並取得食物', () => {
   const result = {};
   for (const key of RTS.data.difficultyOrder) {
     const hunted = { sheep: 0, deer: 0, boar: 0 };
@@ -140,7 +140,7 @@ test('AI 依難度狩獵並取得食物', () => {
   assert.ok(result.hard.sheep + result.hard.deer + result.hard.boar > 0);
 });
 
-test('AI 對 AI（各難度組合）能分出勝負且無例外', () => {
+slowTest('AI 對 AI（各難度組合）能分出勝負且無例外', () => {
   for (const [a, b, seed] of [['normal', 'normal', 7], ['normal', 'normal', 101], ['normal', 'normal', 303],
     ['easy', 'hard', 202], ['hard', 'easy', 5], ['hard', 'hard', 88]]) {
     const w = RTS.game.create(seed);
@@ -151,7 +151,7 @@ test('AI 對 AI（各難度組合）能分出勝負且無例外', () => {
   }
 });
 
-test('只有困難 AI 會組隊圍獵野豬', () => {
+slowTest('只有困難 AI 會組隊圍獵野豬', () => {
   for (const key of RTS.data.difficultyOrder) {
     const w = RTS.game.create(7);
     RTS.world.list(w, e => e.kind === 'animal' && e.type !== 'boar').forEach(a => RTS.world.remove(w, a));

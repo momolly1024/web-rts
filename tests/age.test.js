@@ -85,7 +85,7 @@ test('兵種相剋：長槍兵剋騎兵、騎兵剋弓箭手、弓箭手剋長�
   assert.strictEqual(duel('skirmisher', 'longbowman'), 'skirmisher');
 });
 
-test('AI 會升到封建時代並訓練新兵種', () => {
+slowTest('AI 會升到封建時代並訓練新兵種', () => {
   const world = RTS.game.create(7);
   const ai = RTS.ai.create(1);
   const target = RTS.world.buildingsOf(world, 0, 'townCenter')[0];

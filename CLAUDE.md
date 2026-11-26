@@ -20,6 +20,9 @@
 node tests/run-tests.js
 ```
 
+開發中用 `node tests/run-tests.js --quick`；改到 `js/ai/`、`js/sim/`、`js/data.js` 以及 commit 前跑完整版。
+超過約 1.5 秒的測試用 `slowTest` 登記。
+
 每項功能附測試，改到介面要在瀏覽器兩種語言實際操作並確認 console 無錯誤。
 
 ## Git
