@@ -9,6 +9,24 @@
     return e && e.kind === 'building' && e.type === 'wall' && e.owner === owner && e.complete ? e : null;
   }
 
+  // 這格是城牆或城門（城門可走，記在 floor 而不是 occupant）
+  function isWallOrGate(world, x, y) {
+    var wall = RTS.world.get(world, RTS.map.occupantAt(world.map, x, y));
+    if (wall && wall.kind === 'building' && wall.type === 'wall') return true;
+    var gate = RTS.world.get(world, RTS.map.floorAt(world.map, x, y));
+    return !!gate && gate.type === 'gate';
+  }
+
+  // 城門順著哪個方向的牆：上下相接的牆比左右多時為 'y'，否則為 'x'（單獨或斜線牆也是 'x'）
+  function gateAxis(world, tx, ty) {
+    var alongX = 0, alongY = 0;
+    if (isWallOrGate(world, tx - 1, ty)) alongX++;
+    if (isWallOrGate(world, tx + 1, ty)) alongX++;
+    if (isWallOrGate(world, tx, ty - 1)) alongY++;
+    if (isWallOrGate(world, tx, ty + 1)) alongY++;
+    return alongY > alongX ? 'y' : 'x';
+  }
+
   // 城牆一條線上的格子（八方向的直線，斜線也連得起來）
   function lineTiles(x0, y0, x1, y1) {
     var out = [], dx = Math.abs(x1 - x0), dy = Math.abs(y1 - y0), sx = x0 < x1 ? 1 : -1, sy = y0 < y1 ? 1 : -1;
@@ -119,7 +137,7 @@
   }
 
   RTS.construction = {
-    canPlace: canPlace, missingRequirement: missingRequirement, ownWallAt: ownWallAt, lineTiles: lineTiles, place: place, cancel: cancel, beginTick: beginTick, update: update,
+    canPlace: canPlace, missingRequirement: missingRequirement, ownWallAt: ownWallAt, gateAxis: gateAxis, lineTiles: lineTiles, place: place, cancel: cancel, beginTick: beginTick, update: update,
     nextJob: nextJob
   };
 })();
