@@ -175,15 +175,6 @@
       text($('hint'), hint);
     }
 
-    // 說明文字直接由資料表產生，調參數後不必另外改介面
-    function difficultySummary(key) {
-      var cfg = RTS.ai.config(key);
-      if (!cfg.attack) return t('difficulty.peacefulSummary');
-      return t('difficulty.summary', {
-        minutes: cfg.graceTime / 60, first: cfg.attackSize, max: cfg.armyMax
-      });
-    }
-
     // 連點「困難」達 secretClicks 次才顯示隱藏難度
     var hardClicks = 0;
     function revealSecret() {
@@ -208,7 +199,6 @@
         }
         label.appendChild(input);
         label.appendChild(el('b'));
-        label.appendChild(el('span'));
         $('difficulty-picker').appendChild(label);
       });
     }
@@ -217,7 +207,6 @@
     function labelDifficulties() {
       $('difficulty-picker').querySelectorAll('input').forEach(function (input) {
         text(input.parentNode.children[1], t('difficulty.' + input.value));
-        text(input.parentNode.children[2], difficultySummary(input.value));
       });
     }
 
