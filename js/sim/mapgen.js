@@ -95,6 +95,34 @@
     scatter(10, 1, 4, node('rock'));
   }
 
+  // 雙方家旁各一個小水池（3x2，四周留岸）。找不到空地回傳 false
+  function placeHomePond(world, rand) {
+    var map = world.map, base = rand() * Math.PI * 2;
+    function clear(x, y) {
+      var d = homeDist(x, y);
+      return d >= 5.5 && d < HOME_RADIUS && RTS.map.isWalkable(map, x, y) &&
+        RTS.map.isWalkable(map, map.width - 1 - x, map.height - 1 - y);
+    }
+    for (var i = 0; i < 60; i++) {
+      var a = base + i * 0.7, r = 8 + (i % 4);
+      var x0 = Math.round(START.x + 1.5 + Math.cos(a) * r) - 1;
+      var y0 = Math.round(START.y + 1.5 + Math.sin(a) * r) - 1;
+      var ok = true;
+      for (var y = y0 - 1; y <= y0 + 2 && ok; y++) {
+        for (var x = x0 - 1; x <= x0 + 3 && ok; x++) ok = clear(x, y);
+      }
+      if (!ok) continue;
+      for (var py = y0; py < y0 + 2; py++) {
+        for (var px = x0; px < x0 + 3; px++) {
+          map.terrain[py * map.width + px] = RTS.map.TERRAIN.WATER;
+          map.terrain[(map.height - 1 - py) * map.width + map.width - 1 - px] = RTS.map.TERRAIN.WATER;
+        }
+      }
+      return true;
+    }
+    return false;
+  }
+
   // 在出生點周圍的環帶放動物，另一方取對稱位置
   function placeWildlife(world, rand) {
     var map = world.map, taken = {};
@@ -167,7 +195,7 @@
       });
       var rand = RTS.util.rng(seed + attempt * 7919);
       populate(world, rand);
-      if (!isPlayable(world)) continue;
+      if (!placeHomePond(world, RTS.util.rng(seed * 13 + attempt)) || !isPlayable(world)) continue;
       placeWildlife(world, rand);
       starts.forEach(function (p, pid) {
         var sx = pid === 0 ? p.x + size : p.x - 1;

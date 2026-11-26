@@ -83,9 +83,10 @@
       local(ctx, cam, e.x, e.y, function () {
         ctx.scale(e.facing, 1);
         var carry = e.carry.amount > 0 ? e.carry.resource : null;
-        RTS.sprites.units[e.type](ctx, players[e.owner], e.swing, carry);
+        RTS.sprites.units[e.type](ctx, players[e.owner], e.swing, carry, RTS.fishingView.isCasting(e));
         if (world) plume(ctx, e.type, RTS.research.tier(world, e.owner, e.type));
       });
+      if (world) RTS.fishingView.rod(ctx, cam, e, world.time);
     }
   }
 
@@ -169,6 +170,7 @@
   function drawEffects(ctx, cam, world, human) {
     world.effects.forEach(function (fx) {
       if (RTS.fog.tile(world, human, Math.floor(fx.x2), Math.floor(fx.y2)) !== RTS.fog.VISIBLE) return;
+      if (fx.type === 'catch') { RTS.fishingView.catchEffect(ctx, cam, fx); return; }
       var t = fx.age / fx.life;
       var a = RTS.camera.worldToScreen(cam, fx.x1, fx.y1);
       var b = RTS.camera.worldToScreen(cam, fx.x2, fx.y2);

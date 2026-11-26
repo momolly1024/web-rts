@@ -76,12 +76,14 @@
   }
 
   var units = {
-    villager: function (ctx, c, swing, carry) {
+    villager: function (ctx, c, swing, carry, fishing) {
       body(ctx, c, c.color);
       poly(ctx, [-0.2, -0.37, 0, -0.54, 0.2, -0.37], '#c9a24a');
       var a = swing > 0 ? Math.sin(swing * 21) * 0.18 : 0;
-      line(ctx, [0.13, -0.02, 0.32, -0.28 + a], '#6b4a2b', 0.06);
-      poly(ctx, [0.24, -0.34 + a, 0.42, -0.3 + a, 0.34, -0.2 + a], '#9aa0a6');
+      if (!fishing) {      // 釣魚時手上換成釣竿（見 fishing.js）
+        line(ctx, [0.13, -0.02, 0.32, -0.28 + a], '#6b4a2b', 0.06);
+        poly(ctx, [0.24, -0.34 + a, 0.42, -0.3 + a, 0.34, -0.2 + a], '#9aa0a6');
+      }
       if (carry) {
         var col = { food: '#b8285a', wood: '#8a5f3c', gold: '#ffd84a', stone: '#9aa0a6' }[carry];
         disc(ctx, -0.22, -0.1, 0.1, 0.1, col);

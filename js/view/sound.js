@@ -16,6 +16,7 @@
     melee:  { gap: 0.12, parts: [{ wave: 'noise', freq: 3200, time: 0.08, gain: 0.6 }, { wave: 'triangle', freq: 900, to: 500, time: 0.1, gain: 0.3 }] },
     arrow:  { gap: 0.12, parts: [{ wave: 'noise', freq: 4200, to: 1500, time: 0.14, gain: 0.35 }] },
     fall:   { gap: 0.25, parts: [{ wave: 'sawtooth', freq: 220, to: 60, time: 0.28, gain: 0.35 }] },
+    splash: { gap: 0.3, parts: [{ wave: 'noise', freq: 900, to: 2600, time: 0.22, gain: 0.5 }, { wave: 'sine', freq: 500, to: 950, at: 0.14, time: 0.14, gain: 0.3 }] },
     alert:  { gap: 1, parts: [{ wave: 'square', freq: 660, time: 0.16, gain: 0.35 }, { wave: 'square', freq: 880, at: 0.19, time: 0.16, gain: 0.35 }, { wave: 'square', freq: 660, at: 0.38, time: 0.22, gain: 0.35 }] }
   };
 

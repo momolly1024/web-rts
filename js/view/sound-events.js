@@ -3,7 +3,7 @@
   'use strict';
   var RTS = globalThis.RTS || (globalThis.RTS = {});
 
-  var COMBAT = { hit: 'melee', arrow: 'arrow', death: 'fall' };
+  var COMBAT = { hit: 'melee', arrow: 'arrow', death: 'fall', catch: 'splash' };
   var GATHER = { wood: 'chop', gold: 'mine', stone: 'mine', food: 'forage' };
 
   function audible(app, x, y) {

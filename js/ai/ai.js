@@ -18,6 +18,7 @@
     if (steps <= 0) return cfg;
     var add = steps * late.step;
     return Object.assign({}, cfg, {
+      growing: true,
       armyMax: Math.min(late.armyMax, cfg.armyMax + add),
       attackSizeMax: Math.min(late.attackSizeMax, cfg.attackSizeMax + add)
     });
@@ -124,7 +125,7 @@
 
   AI.create = function (pid, difficulty) {
     var cfg = config(difficulty);
-    var state = { timer: 0, waves: 0, lastWave: 0, wave: {}, assigned: {}, badNodes: {}, sites: {},
+    var state = { timer: 0, waves: 0, lastWave: 0, lastDrip: 0, wave: {}, assigned: {}, badNodes: {}, sites: {},
       campTry: {}, needFarm: false, mostTowns: 1, enemies: {},
       badPrey: {}, huntStart: 0, sightings: {}, lookTime: -60, scoutId: 0, route: null, heading: null, leg: 0, laps: 0 };
     return {

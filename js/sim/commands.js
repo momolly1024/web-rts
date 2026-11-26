@@ -80,6 +80,20 @@
       workers.forEach(function (u) { RTS.orders.set(u, RTS.gather.makeOrder(node)); });
       return done('gather');
     },
+    fish: function (world, pid, c, units) {
+      if (!RTS.fish.fishable(world, pid, c.x, c.y)) return fail('cannotFish');
+      var workers = villagersIn(units);
+      if (!workers.length) return fail('villagersOnlyGather');
+      var from = { x: Math.floor(c.x), y: Math.floor(c.y) }, count = 0;
+      // 一個一個排岸邊位置，後面的人會避開前面佔住的格子
+      workers.forEach(function (u) {
+        var spot = RTS.fish.findSpot(world, u, from);
+        if (!spot) return;
+        RTS.orders.set(u, RTS.fish.makeOrder(spot));
+        count++;
+      });
+      return count ? done('fish') : fail('cannotFish');
+    },
     hunt: function (world, pid, c, units) {
       var t = visibleTarget(world, pid, c.targetId), workers = villagersIn(units);
       if (!t || t.kind !== 'animal') return fail('noHuntTarget');
@@ -245,6 +259,9 @@
       if (t && t.kind === 'unit' && t.owner === pid && t.hp < t.maxHp && !RTS.data.units[t.type].noHeal) {
         dispatch('heal', left.filter(function (u) { return RTS.data.units[u.type].heal && u !== t; }));
       }
+      // 右鍵水面：村民去釣魚
+      var water = !t && RTS.fish.fishable(world, pid, c.x, c.y);
+      if (water) dispatch('fish', villagersIn(left));
       var young = animal && RTS.data.animals[t.type].young;
       if (animal && !young) {
         dispatch('hunt', villagersIn(left));
@@ -268,7 +285,7 @@
       }
       if (young && t.owner !== pid && t.owner !== null) dispatch('attack', left.slice());
       // 牲畜只跟著走向空地；村民去採集或施工時牠們留在原地
-      var busy = animal || (t && (t.kind === 'building' || (t.kind === 'node' && RTS.data.nodes[t.type].resource)));
+      var busy = water || animal || (t && (t.kind === 'building' || (t.kind === 'node' && RTS.data.nodes[t.type].resource)));
       var followers = left.concat((herd || []).filter(function (a) { return !busy && a !== t; }));
       if (followers.length) {
         var moved = moveUnits(world, followers, c.x, c.y);
@@ -281,7 +298,7 @@
   // 施工、修理或進駐；記下原本的採集工作，做完後接續。進駐屬緊急指令，不繞去交貨
   function assignJob(u, type, building) {
     var prev = u.order;
-    var resume = prev.type === 'gather' ? prev : prev.resume || null;
+    var resume = prev.type === 'gather' || prev.type === 'fish' ? prev : prev.resume || null;
     var deliver = type !== 'garrison' && u.carry.amount > 0;
     RTS.orders.set(u, { type: type, targetId: building.id, resume: resume, fails: 0, deliver: deliver });
   }

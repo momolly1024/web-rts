@@ -30,6 +30,7 @@
       case 'move': updateMove(world, u, dt); break;
       case 'gather': RTS.gather.update(world, u, dt); break;
       case 'deposit': RTS.gather.updateDeposit(world, u, dt); break;
+      case 'fish': RTS.fish.update(world, u, dt); break;
       case 'build': RTS.construction.update(world, u, dt); break;
       case 'repair': RTS.repair.update(world, u, dt); break;
       case 'garrison': RTS.garrison.update(world, u, dt); break;

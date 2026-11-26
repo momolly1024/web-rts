@@ -224,6 +224,23 @@ where you last sent them.
 
 Right-click an animal with villagers to hunt it. The carcass is a food source that they carry home.
 
+## Fishing
+
+With villagers selected, right-click water (the cursor turns into a rod) and they fish from the shore.
+Each side has a small pond near home; the ponds in the wild work too. A bite takes 10–40 seconds, and
+just before it the float jumps and a "!" appears. Ponds never run dry, but fishing is slower than
+berries or farms.
+
+| Catch | Chance | Food |
+|------|------|------|
+| Old boot | 15% | 0 |
+| Small fish | 55% | 8 |
+| Big fish | 25% | 20 |
+| Golden fish | 5% | 60 |
+
+With a full load (a big catch may exceed it) the villager delivers it to a food drop-off and comes
+back. A rally point can be set on water. The computer does not fish.
+
 ## Difficulty
 
 Pick a difficulty on the start screen or in the Restart dialog. The default is Normal; Restart
@@ -255,7 +272,7 @@ no extra resources or combat stats, and it can act only through the same command
 
 On Normal (and Peaceful World, which shares its base settings) the computer grows in long matches:
 after 10 minutes its army limit and largest wave each gain 2 per minute, up to 24 and 16 (`ai.late` in
-`js/data.js`). Easy and Hard do not change over time. The computer trains no soldiers while saving for the Castle Age, so in practice the growth often shows only after it gets there.
+`js/data.js`). Easy and Hard do not change over time. While saving for the Castle Age late in a match it still adds one soldier every 30 seconds (`ai.late.drip`).
 
 When you destroy an enemy Town Center and they still have another, a message says how many are left.
 
@@ -327,7 +344,7 @@ sound off, and the choice is remembered.
 | Input | Action |
 |------|------|
 | Left-click / drag | Select (Shift adds, double-click selects the same type on screen) |
-| Right-click | Move, gather, hunt, attack, build, repair, deliver or shelter, depending on the target; with a training building selected, set its rally point |
+| Right-click | Move, gather, fish, hunt, attack, build, repair, deliver or shelter, depending on the target; with a training building selected, set its rally point |
 | Enter | Jump to the fight when under attack |
 | Arrow keys, WASD, mouse at the window edge (in fullscreen, keeps scrolling after the mouse moves onto another monitor) | Scroll |
 | H, T, L, N, M, C, O, Y | With villagers (Economy page): House, Town Center, Lumber Camp, Mining Camp, Mill, Farm, Pen, Market (Shift + click to keep placing) |
@@ -353,8 +370,6 @@ sound off, and the choice is remembered.
 
 None of the following is implemented yet. These are plans and may change.
 
-- **Fishing**: ponds on the map where villagers with fishing rods catch food, at random and
-  sometimes only after a long wait
 - **Under consideration**: more mounted units (scout cavalry, cavalry archers, camels), trade carts, saving, selectable formations, other victory conditions,
   individual building upgrades
 
@@ -387,6 +402,7 @@ js/sim/                 Simulation (no DOM, no display text)
   mapgen.js             Symmetric random maps
   movement.js           Path following, re-planning, spreading out
   gather.js             Gathering and delivery
+  fish.js               Fishing
   construction.js       Placement checks and building
   repair.js             Repairing
   garrison.js           Sheltering and release
@@ -429,6 +445,7 @@ js/view/                Rendering and input
   groups.js             Control groups
   scenery.js            Decorative scenery beyond the map edge
   ground.js             Ground and fog drawing
+  fishing.js            Fishing rod, float and catch animation
   render.js             Entities and on-field markers
   alert.js              When to warn about attacks
   upgrade-info.js       Research names and effect descriptions

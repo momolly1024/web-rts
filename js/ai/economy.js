@@ -205,7 +205,9 @@
           ctx.army.length >= cfg.attackSize) startBuilding(ctx, 'siegeWorkshop');
     }
     tendSites(ctx);
-    if (saving) return;
+    // 存錢升時代時暫停訓練；後期成長中仍每隔一段時間補一名士兵，軍隊才長得起來
+    var drip = saving && !!cfg.growing && ctx.world.time - ctx.state.lastDrip >= cfg.late.drip;
+    if (saving && !drip) return;
 
     var trainers = ctx.buildings.filter(function (b) {
       return b.complete && RTS.data.buildings[b.type].trains.some(function (u) { return RTS.data.units[u].military; });
@@ -226,7 +228,7 @@
       return Math.max.apply(null, [0].concat(RTS.data.buildings[b.type].trains.filter(wanted).map(enemy.weight)));
     }
     trainers.slice().sort(function (a, b) { return best(b) - best(a); }).forEach(function (b) {
-      if (b.queue.length >= 2) return;
+      if (b.queue.length >= 2 || (saving && !drip)) return;
       var sheltered = inside.length - countType(inside, 'villager');
       if (ctx.army.length + sheltered + training >= cfg.armyMax) return;
       // 相對於比重人數最少的兵種優先；沒看到敵軍時各兵種大致平均
@@ -239,6 +241,7 @@
         if (ctx.issue({ type: 'train', buildingId: b.id, unit: picks[i] }).ok) {
           training++;
           queued.push({ type: picks[i] });
+          if (saving) { drip = false; ctx.state.lastDrip = ctx.world.time; }
           break;
         }
       }

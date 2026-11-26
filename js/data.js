@@ -154,6 +154,17 @@
       }
     },
 
+    // 釣魚：每次等待 wait 秒（隨機）後依 weight 抽一種收穫；最後 bite 秒是上鉤提示。水池不會枯竭
+    fishing: {
+      wait: [10, 40], bite: 1.5,
+      catches: [
+        { id: 'boot', weight: 15, food: 0 },
+        { id: 'small', weight: 55, food: 8 },
+        { id: 'big', weight: 25, food: 20 },
+        { id: 'golden', weight: 5, food: 60 }
+      ]
+    },
+
     // 動物：herd 可認領帶走、flee 受驚逃跑、fight 受攻擊反擊。food 為打倒後的獸肉量
     // wander：閒逛速度、離定點最遠距離（ownedRadius 為歸玩家後）、單次步長、停留秒數範圍
     animals: {
@@ -461,8 +472,8 @@
       waveInterval: 100,     // 兩波之間至少間隔（秒）
       armyMax: 14,           // 軍隊人數上限（含訓練中）
       // 後期成長（null 表示不成長）：開局 after 秒後，每 every 秒軍隊上限與單波上限各加 step 人，
-      // 分別最多到這裡的 armyMax、attackSizeMax
-      late: { after: 600, every: 60, step: 2, armyMax: 24, attackSizeMax: 16 },
+      // 分別最多到這裡的 armyMax、attackSizeMax。成長期間存錢升時代時，仍每 drip 秒補一名士兵
+      late: { after: 600, every: 60, step: 2, armyMax: 24, attackSizeMax: 16, drip: 30 },
       defendRadius: 11,
       maxBarracks: 2,
       blacksmith: { atArmy: 6, maxLevel: 2 },  // 軍隊達幾人後投資科技、最多研究到幾級

@@ -29,7 +29,10 @@
       '<path d="M16 8 V25" stroke="#fff3b0" stroke-width="3"/>', 16, 16],
     heal: ['<path d="M12 4 H20 V12 H28 V20 H20 V28 H12 V20 H4 V12 H12 Z" fill="#6fd35a"/>', 16, 16],
     pen: ['<path d="M4 12 H28 M4 22 H28" stroke="#8a5f3c" stroke-width="3"/>' +
-      '<path d="M7 8 V28 M16 8 V28 M25 8 V28" stroke="#6b4a2b" stroke-width="4"/>', 16, 16]
+      '<path d="M7 8 V28 M16 8 V28 M25 8 V28" stroke="#6b4a2b" stroke-width="4"/>', 16, 16],
+    fish: ['<path d="M4 28 L24 4" stroke="#8a5f3c" stroke-width="3" stroke-linecap="round"/>' +
+      '<path d="M24 4 V20" stroke="#f4f1e6" stroke-width="1.5"/>' +
+      '<circle cx="24" cy="23" r="4" fill="#e8503c"/>', 4, 28]
   };
 
   function css(name) {
@@ -42,7 +45,8 @@
   var GATHER_ICON = { wood: 'wood', gold: 'mine', stone: 'mine', food: 'food' };
 
   // 右鍵會執行的動作代號；沒有特別動作（移動或沒選東西）回傳 null。與 commands.smart 的判斷一致
-  function actionFor(app, target) {
+  // spot：游標下的地面座標（沒指到實體時用來判斷水面）
+  function actionFor(app, target, spot) {
     if (app.placement) return null;
     if (app.mode === 'attackMove') return 'attack';
     var world = app.world, pid = app.human, data = RTS.data;
@@ -51,7 +55,10 @@
     });
     var units = own.filter(function (e) { return e.kind === 'unit'; });
     var herd = own.filter(function (e) { return e.kind === 'animal'; });
-    if (!target) return null;
+    if (!target) {
+      var fisher = units.some(function (u) { return data.units[u.type].canBuild; });
+      return spot && fisher && RTS.fish.fishable(world, pid, spot.x, spot.y) ? 'fish' : null;
+    }
     if (herd.length && RTS.pen.isPen(target) && target.owner === pid && target.complete) return 'pen';
     if (!units.length) return null;
     var villagers = units.some(function (u) { return data.units[u.type].canBuild; });
@@ -87,7 +94,8 @@
   function update(app, canvas) {
     var m = app.mouse, name = null;
     if (m.inside && m.overCanvas && !app.drag) {
-      name = actionFor(app, RTS.depth.pick(app.cam, app.world, app.human, m.x, m.y));
+      name = actionFor(app, RTS.depth.pick(app.cam, app.world, app.human, m.x, m.y),
+        RTS.camera.screenToWorld(app.cam, m.x, m.y));
     }
     if (name === app.cursorName) return;
     app.cursorName = name;

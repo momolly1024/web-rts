@@ -255,3 +255,48 @@ test('提示：換新對局或失去自己的主堡不提示', () => {
   assert.strictEqual(watch(a.world, 0), 0);
   assert.strictEqual(watch(make().world, 0), 0);
 });
+
+test('AI 後期成長：存錢升時代期間，後期每隔一段時間補一名士兵', () => {
+  const drip = RTS.data.ai.late.drip;
+  for (const [time, expected] of [[0, [0, 0, 0]], [2000, [1, 1, 2]]]) {
+    // 食物不夠升城堡（700），但夠訓練
+    const s = setup({ army: RTS.data.ai.armyMax, resources: { food: 500, wood: 1000, gold: 1000, stone: 0 } });
+    const b = RTS.world.addBuilding(s.world, 'barracks', AI_ID, 14, 8, true);
+    for (const [type, x] of [['lumberCamp', 20], ['blacksmith', 24], ['stable', 28]]) {
+      RTS.world.addBuilding(s.world, type, AI_ID, x, 14, true);
+    }
+    RTS.world.addBuilding(s.world, 'townCenter', AI_ID, 26, 12, true);
+    const ai = RTS.ai.create(AI_ID);
+    const soldiers = () => RTS.world.buildingsOf(s.world, AI_ID)
+      .reduce((n, e) => n + e.queue.filter(q => q.type && q.type !== 'villager').length, 0);
+    const counts = [0, 1, drip].map(later => {
+      s.world.time = time + later;
+      think(s.world, ai);
+      assert.ok(ai.state.saving, '應正在存錢升時代');
+      return soldiers();
+    });
+    assert.ok(b, '兵營');
+    assert.deepStrictEqual(counts, expected, 'time ' + time);
+  }
+});
+
+// 整局：電腦對上不動的玩家，15 分鐘時軍隊應超過原上限
+slowTest('AI 後期成長：整局中 15 分鐘時軍隊超過原上限', () => {
+  for (const seed of [7, 2024]) {
+    const world = RTS.game.create(seed);
+    RTS.world.list(world, e => e.kind === 'building' && e.owner === 0)[0].hp = 1e9;
+    const target = RTS.world.buildingsOf(world, 0, 'townCenter')[0];
+    target.maxHp = 1e9;
+    const ai = RTS.ai.create(AI_ID);
+    let peak = 0, castle = 0;
+    for (let i = 0; i < 18000 && !world.over; i++) {
+      ai.update(world, RTS.data.TICK);
+      RTS.game.step(world);
+      if (i % 100) continue;
+      peak = Math.max(peak, RTS.world.unitsOf(world, AI_ID).filter(u => RTS.data.units[u.type].military).length);
+      if (!castle && RTS.research.age(world, AI_ID) >= 2) castle = Math.round(world.time);
+    }
+    console.log(`      seed ${seed} 15 分鐘內軍隊最多 ${peak} 人，升城堡於 ${castle || '未升'} 秒`);
+    assert.ok(peak > RTS.data.ai.armyMax, `seed ${seed} peak ${peak}`);
+  }
+});

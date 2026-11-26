@@ -30,7 +30,8 @@
     var r = b.rally;
     var target = r.targetId ? RTS.world.get(world, r.targetId) : null;
     if (target) return target.kind + '.' + target.type;
-    return r.resource ? 'resource.' + r.resource : 'rally.ground';
+    if (r.resource) return 'resource.' + r.resource;
+    return RTS.fish.isWater(world.map, Math.floor(r.x), Math.floor(r.y)) ? 'rally.water' : 'rally.ground';
   }
 
   // 新單位沿用右鍵智慧指令：村民到資源點會直接採集
