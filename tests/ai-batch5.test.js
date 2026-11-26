@@ -129,8 +129,6 @@ function firstPick(difficulty, enemies, building) {
   const s = setup({ army: 0, villagers: 8 });
   const b = RTS.world.addBuilding(s.world, building, AI_ID, 14, 8, true);
   enemies.forEach((type, i) => unit(s.world, type, 0, 30 + i, 30));
-  // 己方先有一個長槍兵，讓比重的差異顯現
-  if (building === 'barracks') for (let i = 0; i < 1; i++) unit(s.world, 'spearman', AI_ID, 2 + i, 20);
   think(s.world, RTS.ai.create(AI_ID, difficulty));
   return b.queue[0] && b.queue[0].type;
 }

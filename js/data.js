@@ -449,15 +449,15 @@
     ai: {
       attack: true,          // false 時永遠不發動進攻（和平世界）
       thinkInterval: 1.0,
-      graceTime: 300,        // 開局緩衝（秒），此前 AI 不進攻
+      graceTime: 360,        // 開局緩衝（秒），此前 AI 不進攻
       villagerTarget: 14,
       gatherRatio: { food: 0.42, wood: 0.32, gold: 0.18, stone: 0.08 },   // 封建以後也採石材（箭塔）
       gatherRatioDark: { food: 0.45, wood: 0.35, gold: 0.2 },  // 黑暗時代用不到石材
       attackSize: 6,         // 第一波人數
-      waveGrowth: 2,
-      attackSizeMax: 14,
-      waveInterval: 75,      // 兩波之間至少間隔（秒）
-      armyMax: 18,           // 軍隊人數上限（含訓練中）
+      waveGrowth: 1,
+      attackSizeMax: 10,
+      waveInterval: 100,     // 兩波之間至少間隔（秒）
+      armyMax: 14,           // 軍隊人數上限（含訓練中）
       defendRadius: 11,
       maxBarracks: 2,
       blacksmith: { atArmy: 6, maxLevel: 2 },  // 軍隊達幾人後投資科技、最多研究到幾級
@@ -471,13 +471,13 @@
       // 預付重種保持幾次、村民達幾人開始研究經濟科技、經濟科技最多研究到幾級
       economy: { campAt: 3, millAt: 9, maxFarms: 12, reseedBuffer: 2, techAt: 12, techLevel: 2 },
       // 升時代：村民達 at[目前時代] 人、軍隊達 army[目前時代] 人才開始準備（存錢期間不訓練；封建取第一波人數，城堡取軍隊上限，滿編才存錢），最多升到 maxAge（at 不可超過 villagerTarget）
-      age: { at: [12, 14], army: [6, 18], maxAge: 2 },
+      age: { at: [12, 14], army: [6, 14], maxAge: 2 },
       // 封建後蓋幾座箭塔、城堡時代最多幾台攻城槌、是否研究兵種升級
       military: { towers: 1, rams: 2, tiers: true },
       // 擴張：最多幾座主堡、蓋第二座需要的時代／村民／軍隊人數、有兩座後村民目標增加幾人
       expand: { towns: 2, minAge: 1, minVillagers: 14, minArmy: 6, extraVillagers: 4 },
       // 兵種應對：bias 越大越偏向剋制兵種（0 表示不調整比例）、memory 為記得敵軍幾秒
-      counter: { bias: 2, memory: 100 }
+      counter: { bias: 1, memory: 100 }
     }
   };
 })();

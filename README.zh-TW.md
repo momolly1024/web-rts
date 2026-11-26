@@ -192,14 +192,14 @@ Ctrl + 數字或 Alt + 數字儲存目前選取，按數字選取，連按兩下
 
 | 參數（`js/data.js`） | 簡單 | 普通 | 困難 |
 |------|------|------|------|
-| 開局緩衝 `graceTime`（秒） | 480 | 300 | 240 |
+| 開局緩衝 `graceTime`（秒） | 480 | 360 | 240 |
 | 思考間隔 `thinkInterval`（秒） | 2.5 | 1.0 | 0.5 |
 | 村民目標 `villagerTarget` | 10 | 14 | 18 |
 | 第一波人數 `attackSize` | 4 | 6 | 8 |
-| 每波增加 `waveGrowth` | 1 | 2 | 3 |
-| 單波上限 `attackSizeMax` | 8 | 14 | 20 |
-| 波次最短間隔 `waveInterval`（秒） | 150 | 75 | 55 |
-| 軍隊上限 `armyMax` | 10 | 18 | 26 |
+| 每波增加 `waveGrowth` | 1 | 1 | 3 |
+| 單波上限 `attackSizeMax` | 8 | 10 | 20 |
+| 波次最短間隔 `waveInterval`（秒） | 150 | 100 | 55 |
+| 軍隊上限 `armyMax` | 10 | 14 | 26 |
 | 兵營上限 `maxBarracks` | 1 | 2 | 3 |
 | 研究門檻兵力／最高級 `blacksmith` | 7／1 | 6／2 | 5／2 |
 | 修理門檻／人數 `repair` | 40%／1 | 70%／2 | 90%／3 |
@@ -209,7 +209,7 @@ Ctrl + 數字或 Alt + 數字儲存目前選取，按數字選取，連按兩下
 | 主堡上限 `expand.towns` | 1 | 2 | 2 |
 | 擴張門檻：村民／軍隊 `expand` | 不擴張 | 14／6 | 15／8 |
 | 兩座主堡時村民目標增加 `expand.extraVillagers` | 0 | 4 | 6 |
-| 兵種應對強度 `counter.bias` | 0（比例不調整） | 2 | 3 |
+| 兵種應對強度 `counter.bias` | 0（比例不調整） | 1 | 3 |
 | 記得看過的敵軍 `counter.memory`（秒） | 60 | 100 | 150 |
 
 ### 電腦的擴張與應對

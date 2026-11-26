@@ -233,14 +233,14 @@ no extra resources or combat stats, and it can act only through the same command
 
 | Parameter (`js/data.js`) | Easy | Normal | Hard |
 |------|------|------|------|
-| Grace period `graceTime` (s) | 480 | 300 | 240 |
+| Grace period `graceTime` (s) | 480 | 360 | 240 |
 | Think interval `thinkInterval` (s) | 2.5 | 1.0 | 0.5 |
 | Villager target `villagerTarget` | 10 | 14 | 18 |
 | First wave `attackSize` | 4 | 6 | 8 |
-| Growth per wave `waveGrowth` | 1 | 2 | 3 |
-| Largest wave `attackSizeMax` | 8 | 14 | 20 |
-| Minimum gap between waves `waveInterval` (s) | 150 | 75 | 55 |
-| Army limit `armyMax` | 10 | 18 | 26 |
+| Growth per wave `waveGrowth` | 1 | 1 | 3 |
+| Largest wave `attackSizeMax` | 8 | 10 | 20 |
+| Minimum gap between waves `waveInterval` (s) | 150 | 100 | 55 |
+| Army limit `armyMax` | 10 | 14 | 26 |
 | Barracks limit `maxBarracks` | 1 | 2 | 3 |
 | Army size before research / top level `blacksmith` | 7 / 1 | 6 / 2 | 5 / 2 |
 | Repair below / workers `repair` | 40% / 1 | 70% / 2 | 90% / 3 |
@@ -250,7 +250,7 @@ no extra resources or combat stats, and it can act only through the same command
 | Town Center limit `expand.towns` | 1 | 2 | 2 |
 | Villagers / army before expanding `expand` | never expands | 14 / 6 | 15 / 8 |
 | Extra villagers with two Town Centers `expand.extraVillagers` | 0 | 4 | 6 |
-| Counter-picking strength `counter.bias` | 0 (even mix) | 2 | 3 |
+| Counter-picking strength `counter.bias` | 0 (even mix) | 1 | 3 |
 | Remembers enemies it saw `counter.memory` (s) | 60 | 100 | 150 |
 
 ### How the computer expands and adapts
