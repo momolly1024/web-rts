@@ -45,6 +45,7 @@
       res.gold += gold;
       p[resource] = Math.max(c.min, p[resource] - c.step);
     }
+    RTS.achievements.bump(world, pid, 'trades');
     return { ok: true, gold: gold };
   }
 

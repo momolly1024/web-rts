@@ -73,6 +73,8 @@
     if (target.hp <= 0) {
       world.effects.push({ type: 'death', x1: to.x, y1: to.y, x2: to.x, y2: to.y, age: 0, life: 0.8 });
       RTS.world.remove(world, target);
+      if (target.kind === 'unit') RTS.achievements.unitDied(world, target, attacker.owner);
+      else if (target.kind === 'building') RTS.achievements.bump(world, attacker.owner, 'razed');
     } else if (target.kind === 'unit' && target.order.type === 'idle' && RTS.data.units[target.type].military &&
         fights(target) && !RTS.data.units[target.type].attack.buildingsOnly) {
       RTS.orders.set(target, { type: 'attack', targetId: attacker.id, auto: true, home: { x: target.x, y: target.y } });

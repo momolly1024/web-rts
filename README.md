@@ -265,6 +265,31 @@ no extra resources or combat stats, and it can act only through the same command
   that beat them (the table is `counters` in `js/data.js`). On every difficulty, Spearmen and
   Skirmishers are only trained after it sees what they counter.
 
+## Achievements
+
+Listed when a match ends. The sheep line always shows; the others only when earned. Thresholds are in
+`achievements.need` in `js/data.js`.
+
+| Achievement | Condition |
+|------|------|
+| Sheep property | Always shows how many sheep became yours (the percentage is an estimate) |
+| Blitz | Win within 10 minutes |
+| Flawless | Win without losing a unit |
+| Good Lord | Win without losing a villager (unless Flawless) |
+| Battle Hardened | Defeat 30 enemy units |
+| Demolition Crew | Raze 10 enemy buildings |
+| Moving Up | Reach the Castle Age |
+| Second Home | End with 2 finished Town Centers |
+| Full House | Train up to the population limit of 50 |
+| Labor Violation | Take down 10 enemy villagers |
+| Boar Snack | Lose a villager to a wild boar |
+| Shepherd's Betrayal | Slaughter 5 of your own sheep |
+| Second Thoughts | Demolish your own buildings 3 times |
+| Shrewd Trader | Make 10 market trades |
+| Miser | End holding 2000 resources in total |
+| Pitchforks Only | Win without training a soldier |
+| All Talk | Last 5 minutes without training a soldier, and do not win |
+
 ## Language
 
 The interface is available in English and Traditional Chinese. Switch at any time with the

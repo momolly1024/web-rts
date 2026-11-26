@@ -115,6 +115,8 @@
     if (u.hp <= 0) {
       world.effects.push({ type: 'death', x1: u.x, y1: u.y, x2: u.x, y2: u.y, age: 0, life: 0.8 });
       RTS.world.remove(world, u);
+      RTS.achievements.unitDied(world, u, null);
+      if (a.type === 'boar') RTS.achievements.bump(world, u.owner, 'boarDeaths');
     } else if (u.order.type === 'idle' && RTS.data.units[u.type].military) {
       RTS.orders.set(u, { type: 'attack', targetId: a.id, auto: true, home: { x: u.x, y: u.y } });
     }
@@ -139,7 +141,11 @@
 
   function hurt(world, a, attacker, damage) {
     a.hp -= damage;
-    if (a.hp <= 0) { die(world, a); return; }
+    if (a.hp <= 0) {
+      if (def(a).behavior === 'herd' && a.owner === attacker.owner) RTS.achievements.bump(world, a.owner, 'slaughtered');
+      die(world, a);
+      return;
+    }
     if (def(a).behavior === 'fight') { a.targetId = attacker.id; stand(a); }
     else if (def(a).behavior === 'flee') a.threat = attacker.id;
   }

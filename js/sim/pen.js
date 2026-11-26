@@ -103,6 +103,7 @@
     while (b.queue.length) RTS.production.cancel(world, b, b.queue.length - 1);
     RTS.world.refund(world, b.owner, refundOf(b));
     RTS.world.remove(world, b);
+    RTS.achievements.bump(world, b.owner, 'demolished');
     world.entities.forEach(function (e) { if (e.w === undefined) RTS.move.rescue(world, e); });
     return { ok: true };
   }

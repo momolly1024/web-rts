@@ -85,6 +85,7 @@
     if (!tile) return;
     var born = RTS.world.addUnit(world, item.type, b.owner, tile.x + 0.5, tile.y + 0.5);
     b.queue.shift();
+    RTS.achievements.trained(world, b.owner, item.type);
     RTS.rally.apply(world, b, born);
   }
 
