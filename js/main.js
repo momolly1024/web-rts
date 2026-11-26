@@ -12,11 +12,16 @@
     selection: [], placement: null, mode: null, drag: null,
     mouse: { x: 0, y: 0, inside: false, overCanvas: false },
     keys: {}, paused: true,
-    chosenDifficulty: RTS.data.defaultDifficulty    // 下一局要用的難度
+    chosenDifficulty: RTS.data.defaultDifficulty,   // 下一局要用的難度
+    chosenCiv: 'random'                             // 下一局自己的文明；電腦一律隨機
   };
   RTS.i18n.init({
     language: window.navigator.language,
     storage: function () { return window.localStorage; }
+  });
+  app.sound = RTS.sound.create({
+    storage: function () { return window.localStorage; },
+    AudioContext: window.AudioContext || window.webkitAudioContext
   });
   app.hud = RTS.hud.create(app);
   app.notify = app.hud.notify;
@@ -33,8 +38,13 @@
     return RTS.ai.create(1 - app.human, app.chosenDifficulty);
   }
 
+  function applyCivs() {
+    RTS.civs.assign(app.world, app.human, app.chosenCiv, Math.random);
+  }
+
   function newGame(seed) {
     app.world = RTS.game.create(seed);
+    applyCivs();
     app.ai = createOpponent();
     app.cam = RTS.camera.create(app.world.map.width, app.world.map.height);
     app.selection = [];
@@ -61,7 +71,10 @@
 
   app.closeOverlay = function () {
     if (app.world.over) return;
-    if (app.world.tick === 0) app.ai = createOpponent();    // 開局前套用選好的難度
+    if (app.world.tick === 0) {     // 開局前套用選好的難度與文明
+      app.ai = createOpponent();
+      applyCivs();
+    }
     app.paused = false;
     app.hud.showOverlay(null);
   };
@@ -127,6 +140,10 @@
   };
   click('btn-alert', app.gotoAlert);
   click('btn-help', app.toggleHelp);
+  click('btn-sound', app.sound.toggle);
+  ['pointerdown', 'keydown'].forEach(function (type) {
+    window.addEventListener(type, app.sound.unlock, true);
+  });
   click('btn-restart', app.askRestart);
   click('overlay-primary', function () {
     if (app.hud.overlay() === 'result') app.hud.showOverlay('over');
@@ -175,6 +192,7 @@
     RTS.render.draw(ctx, app);
     RTS.cursor.update(app, canvas);
     app.hud.update(dt);
+    app.sound.frame(app);
     app.minimap.update(dt);
     window.requestAnimationFrame(frame);
   }

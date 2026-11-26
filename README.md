@@ -256,6 +256,24 @@ The default follows the browser language (Traditional Chinese for any `zh` local
 English). Your choice is saved in `localStorage`. Where that is unavailable (some browsers under
 `file://`, or private mode) switching still works but is not remembered.
 
+## Civilizations
+
+Choose one on the start screen or in the Restart dialog (Random by default). The computer always
+picks at random, and both are shown at the top left of the battlefield. Units, buildings and art
+are the same; only these passive bonuses differ.
+
+| Civilization | Economy | Military |
+|------|------|------|
+| Greenwood | Wood gathering +15% | Ranged units: range +0.5 |
+| Ironrock | Gold and stone gathering +15% | Melee units: armor +1; Arrow Tower range +1 |
+| Goldplain | Farm food +60; villager speed +10% | Cavalry health +20 |
+
+## Sound
+
+Gathering, building, combat and attack warnings have sounds, synthesized in the browser (no audio
+files, no music). Only events on screen are heard, except the warning. The top bar button turns
+sound off, and the choice is remembered.
+
 ## Controls
 
 | Input | Action |
@@ -288,7 +306,7 @@ English). Your choice is saved in `localStorage`. Where that is unavailable (som
 None of the following is implemented yet. These are plans and may change.
 
 - **Batch 5**: AI expanding, rebuilding its Town Center, adapting its army to yours
-- **Under consideration**: more mounted units (scout cavalry, cavalry archers, camels), trade carts, sound, saving, formations, multiple civilizations, other victory conditions,
+- **Under consideration**: more mounted units (scout cavalry, cavalry archers, camels), trade carts, saving, selectable formations, other victory conditions,
   individual building upgrades
 
 ## Tests
@@ -316,6 +334,7 @@ js/sim/                 Simulation (no DOM, no display text)
   map.js                Tile grid, walkability, free-tile search
   pathfind.js           A* pathfinding
   world.js              Entities, resources, population and queries
+  civs.js               Civilization bonuses
   mapgen.js             Symmetric random maps
   movement.js           Path following, re-planning, spreading out
   gather.js             Gathering and delivery
@@ -363,6 +382,9 @@ js/view/                Rendering and input
   upgrade-info.js       Research names and effect descriptions
   actions.js            Command buttons and selection details
   tooltip.js            Hover box for command buttons
+  civ-picker.js         Civilization choice and on-field label
+  sound-events.js       Which sounds the current frame should make
+  sound.js              Synthesized sound effects and the on/off setting
   hud.js                Top bar, panel, dialogs
   input.js              Mouse, keyboard, scrolling
   cursor.js             Cursor icons for the right-click action

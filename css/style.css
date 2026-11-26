@@ -49,11 +49,15 @@ button:disabled, button[aria-disabled="true"] { opacity: 0.45; cursor: not-allow
   outline: 2px solid #ffd2c4; text-align: center;
 }
 #clock { margin-left: auto; font-variant-numeric: tabular-nums; }
-#difficulty { white-space: nowrap; }
+#difficulty, #age { white-space: nowrap; }
 #difficulty b { color: var(--brass); }
 #topbar nav { display: flex; gap: 8px; }
 #topbar nav button { white-space: nowrap; }
 #topbar dd, #clock { white-space: nowrap; }
+#civ-badge {
+  position: fixed; top: 56px; left: 8px; padding: 2px 8px; font-size: 13px;
+  background: rgba(20, 32, 43, 0.88); border-radius: 3px;
+}
 
 #panel {
   position: fixed; left: 0; right: 0; bottom: 0; height: 180px; display: grid;
@@ -163,6 +167,15 @@ h2 { font-size: 22px; color: var(--brass); }
 #difficulty-picker label:has(input:checked) { border-color: var(--brass); background: var(--oak); }
 #difficulty-picker input { accent-color: var(--brass); }
 #difficulty-picker span { font-size: 13px; opacity: 0.85; }
+#civ-picker { border: 0; margin-bottom: 8px; display: flex; flex-wrap: wrap; gap: 4px 8px; }
+#civ-picker legend { color: var(--brass); font-weight: 700; margin-bottom: 4px; }
+#civ-picker label {
+  display: flex; gap: 6px; align-items: center; padding: 3px 10px;
+  border: 1px solid #50626f; border-radius: 3px; cursor: pointer;
+}
+#civ-picker label:has(input:checked) { border-color: var(--brass); background: var(--oak); }
+#civ-picker input { accent-color: var(--brass); }
+#civ-picker p { flex-basis: 100%; margin: 0; font-size: 13px; opacity: 0.85; }
 .buttons { display: flex; gap: 10px; }
 #overlay-primary { background: var(--brass); color: var(--ink); font-weight: 700; padding: 7px 24px; }
 #overlay-primary:hover { background: var(--vellum) !important; }
@@ -181,6 +194,7 @@ h2 { font-size: 22px; color: var(--brass); }
   #topbar dd { min-width: 2.4em; font-size: 16px; }
   #topbar nav { gap: 6px; }
   #topbar nav button { padding: 3px 8px; font-size: 13px; }
+  #age .prefix { display: none; }
 }
 
 @media (max-width: 1040px) {
@@ -188,6 +202,7 @@ h2 { font-size: 22px; color: var(--brass); }
   #toast { bottom: 300px; max-width: calc(100% - 32px); }
   #topbar dt { font-size: 0; }
   #difficulty .prefix { display: none; }
+  #topbar { gap: 10px; }
   #panel { grid-template-columns: minmax(230px, 1.3fr) minmax(80px, 0.35fr) minmax(0, 2fr); gap: 10px; }
   #selection h2 { font-size: 19px; line-height: 1.35; }
   #sel-body { font-size: 12px; }
@@ -217,6 +232,7 @@ h2 { font-size: 22px; color: var(--brass); }
     background: rgba(20, 32, 43, 0.88); border-radius: 3px;
   }
   #difficulty .prefix { display: inline; }
+  #btn-sound { position: fixed; top: 84px; right: 8px; padding: 2px 8px; font-size: 12px; background: var(--oak); }
   #hint { top: 86px; }
   #toast { bottom: 270px; }      /* 讓開左下角的閒置村民按鈕與右下角小地圖 */
   #minimap { width: 124px; height: 76px; right: 8px; }

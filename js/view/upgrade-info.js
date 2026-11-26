@@ -153,5 +153,27 @@
     ];
   }
 
-  RTS.upgradeInfo = { branchLines: branchLines, lines: lines, unitName: unitName, upgradeName: upgradeName };
+  // 文明加成說明，一項一句
+  function civLines(key) {
+    var civ = RTS.data.civs[key];
+    var lines = Object.keys(civ.effects || {}).map(function (effect) {
+      var gain = civ.effects[effect];
+      var value = PERCENT.test(effect) ? percent(gain) : '+' + gain;
+      var resource = effect.indexOf('gather.') === 0 ? effect.slice(7) : null;
+      return resource ? t('civBonus.gather', { resource: t('resource.' + resource), value: value })
+        : t('civBonus.' + effect, { value: value });
+    });
+    function units(table, prefix) {
+      Object.keys(table || {}).forEach(function (name) {
+        Object.keys(table[name]).forEach(function (stat) {
+          lines.push(t('civBonus.unit', { name: t(prefix + name), stat: t('civStat.' + stat), value: '+' + table[name][stat] }));
+        });
+      });
+    }
+    units(civ.classBonus, 'civClass.');
+    units(civ.unitBonus, 'unit.');
+    return lines;
+  }
+
+  RTS.upgradeInfo = { civLines: civLines, branchLines: branchLines, lines: lines, unitName: unitName, upgradeName: upgradeName };
 })();

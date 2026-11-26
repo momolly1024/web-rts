@@ -22,6 +22,15 @@
       { color: '#d0473f', dark: '#7e211c' }     // 紅旗
     ],
 
+    // 文明：開局決定的被動加成。effects 沿用研究效果代號（見下方 upgrades 說明），
+    // classBonus 依兵種類別（upgradeClass）、unitBonus 依單一兵種，可加 hp、attack、armor、range
+    civOrder: ['greenwood', 'ironrock', 'goldplain'],
+    civs: {
+      greenwood: { effects: { 'gather.wood': 0.15 }, classBonus: { ranged: { range: 0.5 } } },
+      ironrock: { effects: { 'gather.gold': 0.15, 'gather.stone': 0.15, 'tower.range': 1 }, classBonus: { melee: { armor: 1 } } },
+      goldplain: { effects: { farmFood: 60, speed: 0.1 }, unitBonus: { cavalry: { hp: 20 } } }
+    },
+
     // 地圖上的天然物件
     nodes: {
       tree:  { resource: 'wood', amount: 100 },

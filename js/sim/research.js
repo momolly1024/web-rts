@@ -49,9 +49,10 @@
     return track ? level(world, pid, track) : 0;
   }
 
+  // 含文明的兵種加成
   function tierBonus(world, pid, unitType, stat) {
-    var track = tierTrack(unitType), total = 0;
-    if (!track) return 0;
+    var track = tierTrack(unitType), total = RTS.civs.unitBonus(world, pid, unitType, stat);
+    if (!track) return total;
     for (var i = 0; i < level(world, pid, track); i++) total += RTS.data.upgrades[track].levels[i].tier[stat] || 0;
     return total;
   }
@@ -69,9 +70,9 @@
     return total;
   }
 
-  // 研究效果（effects）的加成總和，key 例如 'gather.wood'、'carry'、'speed'、'farmFood'、'tower.damage'
+  // 研究與文明效果（effects）的加成總和，key 例如 'gather.wood'、'carry'、'speed'、'farmFood'、'tower.damage'
   function economy(world, pid, key) {
-    var total = 0;
+    var total = RTS.civs.effect(world, pid, key);
     Object.keys(RTS.data.upgrades).forEach(function (track) {
       var up = RTS.data.upgrades[track];
       if (!up.levels[0].effects) return;

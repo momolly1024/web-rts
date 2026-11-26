@@ -23,6 +23,7 @@
     <span id="difficulty"><span class="prefix" data-i18n="hud.difficulty"></span> <b id="difficulty-name"></b></span>
     <nav>
       <button type="button" id="btn-pause"></button>
+      <button type="button" id="btn-sound"></button>
       <button type="button" id="btn-help" data-i18n="hud.help"></button>
       <button type="button" id="btn-restart" data-i18n="hud.restart"></button>
       <button type="button" id="btn-lang" class="lang" data-i18n="lang.switch" data-i18n-aria="lang.label"></button>
@@ -36,6 +37,7 @@
   <button type="button" id="btn-alert" data-i18n-title="hud.alertTitle" hidden>
     <span data-i18n="hud.alert"></span> <kbd>⏎</kbd>
   </button>
+  <div id="civ-badge" hidden></div>
   <div id="hint" aria-live="polite"></div>
   <div id="toast" role="status"></div>
   <div id="tooltip" role="tooltip" hidden></div>
@@ -82,6 +84,10 @@
         </table>
         <p data-i18n="help.tip"></p>
       </div>
+      <fieldset id="civ-picker">
+        <legend data-i18n="civ.legend"></legend>
+        <p></p>
+      </fieldset>
       <fieldset id="difficulty-picker">
         <legend data-i18n="difficulty.legend"></legend>
       </fieldset>
@@ -101,6 +107,7 @@
   <script src="js/sim/map.js"></script>
   <script src="js/sim/pathfind.js"></script>
   <script src="js/sim/world.js"></script>
+  <script src="js/sim/civs.js"></script>
   <script src="js/sim/mapgen.js"></script>
   <script src="js/sim/movement.js"></script>
   <script src="js/sim/gather.js"></script>
@@ -147,6 +154,9 @@
   <script src="js/view/upgrade-info.js"></script>
   <script src="js/view/actions.js"></script>
   <script src="js/view/tooltip.js"></script>
+  <script src="js/view/civ-picker.js"></script>
+  <script src="js/view/sound-events.js"></script>
+  <script src="js/view/sound.js"></script>
   <script src="js/view/hud.js"></script>
   <script src="js/view/input.js"></script>
   <script src="js/view/cursor.js"></script>

@@ -42,9 +42,13 @@
     var toastMessage = null, claimed = null, claimHinted = false;
     var tooltip = RTS.tooltip.create(actionsBox, $('tooltip'));
     app.alerts = RTS.alert.create();
+    var civs = RTS.civPicker.create(app, $('civ-picker'), $('civ-badge'));
 
     function watchAttacks() {
-      if (app.alerts.update(app.world, app.human)) say('alert.toast');
+      if (app.alerts.update(app.world, app.human)) {
+        say('alert.toast');
+        app.sound.play('alert');
+      }
       $('btn-alert').hidden = !app.alerts.active();
     }
 
@@ -87,6 +91,8 @@
       text($('clock'), Math.floor(s / 60) + ':' + String(s % 60).padStart(2, '0'));
       text($('btn-pause'), t(app.paused ? 'hud.resume' : 'hud.pause'));
       text($('difficulty-name'), t('difficulty.' + app.ai.difficulty));
+      text($('btn-sound'), t(app.sound.enabled() ? 'hud.soundOn' : 'hud.soundOff'));
+      civs.update();
       text($('age-name'), t('age.' + RTS.research.age(world, app.human)));
     }
 
@@ -219,6 +225,7 @@
     function relocalize() {
       applyStatic();
       labelDifficulties();
+      civs.relabel();
       if (toastMessage) text($('toast'), t(toastMessage.key, toastMessage.params));
       if (overlayKind) showOverlay(overlayKind);
     }
@@ -235,6 +242,7 @@
       // 只有「開局前」與「要開新局」時能選難度
       var picking = kind === 'restart' || kind === 'over' || (kind === 'help' && app.world.tick === 0);
       $('difficulty-picker').hidden = !picking;
+      civs.show(picking);
       if (picking) {
         if (RTS.data.hiddenDifficulties.indexOf(app.chosenDifficulty) >= 0) revealSecret();    // 上一局選過就繼續顯示
         $('difficulty-picker').querySelector('input[value="' + app.chosenDifficulty + '"]').checked = true;

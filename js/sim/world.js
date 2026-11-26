@@ -11,7 +11,7 @@
       var start = opts.resources || data.START_RESOURCES;
       data.resources.forEach(function (r) { res[r] = start[r] || 0; });
       // reseeds：磨坊預付的農田重種次數；prices：市場價格（見 market.js）
-      return { id: id, res: res, upgrades: {}, reseeds: 0, prices: null };
+      return { id: id, civ: (opts.civs && opts.civs[id]) || null, res: res, upgrades: {}, reseeds: 0, prices: null };
     });
     return {
       map: RTS.map.create(opts.width || data.MAP_SIZE, opts.height || data.MAP_SIZE),
