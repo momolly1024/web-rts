@@ -40,6 +40,7 @@
     var actionsBox = $('actions'), queueBox = $('queue');
     var actionSig = null, queueSig = null, current = [], toastTimer = 0, overlayKind = null;
     var toastMessage = null, claimed = null, claimHinted = false;
+    var tooltip = RTS.tooltip.create(actionsBox, $('tooltip'));
 
     // code 是模擬層回傳的錯誤代碼
     function notify(code) {
@@ -109,11 +110,14 @@
         var button = actionsBox.children[i];
         text(button.children[1], a.label);
         text(button.children[2], a.cost);
-        button.disabled = !a.enabled;
-        button.title = a.reason ? t('error.' + a.reason) : '';
+        // 用 aria-disabled：disabled 按鈕收不到滑鼠事件，就看不到浮動說明
+        button.setAttribute('aria-disabled', String(!a.enabled));
+        // 有浮動說明的按鈕不再另外顯示原生提示
+        button.title = a.reason && !a.detail ? t('error.' + a.reason) : '';
         button.classList.toggle('active', !!a.active);
         button.hidden = !!a.hidden;      // 另一頁的建造按鈕：不顯示，但快捷鍵照常有效
       });
+      tooltip.update(current);
     }
 
     function updateQueue() {
@@ -296,6 +300,7 @@
         claimed = null;
         claimHinted = false;
         $('toast').classList.remove('show');
+        tooltip.clear();
       },
       update: function (dt) {
         watchClaims();

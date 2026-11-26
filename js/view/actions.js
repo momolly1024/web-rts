@@ -160,25 +160,25 @@
     return out;
   }
 
-  // 時代研究顯示時代名稱，其他顯示「名稱 等級」
-  function upgradeName(track, level) {
-    if (track === 'age') return t('age.' + level);
-    var unitType = RTS.data.upgrades[track].unitType;
-    if (unitType) return t('unitTier.' + unitType + '.' + level);     // 兵種升級顯示升級後的名稱
-    return t('upgrade.' + track) + ' ' + level;
-  }
-
   function researchActions(app, b) {
     return (RTS.data.buildings[b.type].researches || []).map(function (track) {
       var up = RTS.data.upgrades[track];
       var level = RTS.research.level(app.world, app.human, track);
       var next = up.levels[level];
       var check = RTS.research.check(app.world, b, track);
+      var label = next ? t('action.research', { name: RTS.upgradeInfo.upgradeName(track, level + 1) })
+        : t('action.maxed', { name: t('upgrade.' + track) });
+      var cost = next ? costText(next.cost) : '';
       return {
-        id: 'research:' + track, hotkey: up.hotkey,
-        label: next ? t('action.research', { name: upgradeName(track, level + 1) })
-          : t('action.maxed', { name: t('upgrade.' + track) }),
-        cost: next ? costText(next.cost) : '', enabled: check.ok, reason: check.reason || '',
+        id: 'research:' + track, hotkey: up.hotkey, label: label,
+        cost: cost, enabled: check.ok, reason: check.reason || '',
+        // 浮動說明：標題、效果、花費、不能研究的原因
+        detail: function () {
+          var lines = [label].concat(RTS.upgradeInfo.lines(app.world, app.human, track));
+          if (cost) lines.push(t('tip.cost', { list: cost }));
+          if (next && check.reason) lines.push(t('error.' + check.reason));
+          return lines;
+        },
         hidden: ageLocked(check.reason),
         run: function () { issue(app, { type: 'research', buildingId: b.id, track: track }); }
       };
@@ -200,10 +200,8 @@
     return out;
   }
 
-  // 單位名稱含兵種升級（例如劍士升級後叫重裝劍士）
   function unitName(world, owner, type) {
-    var tier = RTS.data.units[type] ? RTS.research.tier(world, owner, type) : 0;
-    return tier ? t('unitTier.' + type + '.' + tier) : t((RTS.data.units[type] ? 'unit.' : 'animal.') + type);
+    return RTS.upgradeInfo.unitName(world, owner, type);
   }
 
   function nameOf(e, world) {
@@ -338,7 +336,7 @@
 
   // 生產佇列項目的顯示名稱
   function queueName(item) {
-    return item.research ? upgradeName(item.research, item.level + 1) : t('unit.' + item.type);
+    return item.research ? RTS.upgradeInfo.upgradeName(item.research, item.level + 1) : t('unit.' + item.type);
   }
 
   RTS.actions = { rallyNote: rallyNote, list: list, describe: describe, selected: selected, issue: issue, queueName: queueName };

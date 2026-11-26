@@ -310,7 +310,9 @@ js/view/                繪圖與輸入
   scenery.js            地圖外的裝飾景觀
   ground.js             地面與迷霧繪製
   render.js             實體與介面標記繪製
+  upgrade-info.js       研究項目的名稱與效果說明
   actions.js            指令按鈕與選取資訊
+  tooltip.js            指令按鈕的浮動說明框
   hud.js                資源列、面板、覆蓋視窗
   input.js              滑鼠、鍵盤、鏡頭捲動
   cursor.js             依右鍵動作切換游標圖示

@@ -355,7 +355,9 @@ js/view/                Rendering and input
   scenery.js            Decorative scenery beyond the map edge
   ground.js             Ground and fog drawing
   render.js             Entities and on-field markers
+  upgrade-info.js       Research names and effect descriptions
   actions.js            Command buttons and selection details
+  tooltip.js            Hover box for command buttons
   hud.js                Top bar, panel, dialogs
   input.js              Mouse, keyboard, scrolling
   cursor.js             Cursor icons for the right-click action

@@ -24,9 +24,9 @@ button {
   font: inherit; color: var(--vellum); background: var(--slate); cursor: pointer;
   border: 1px solid var(--brass); border-radius: 3px; padding: 4px 12px;
 }
-button:hover:not(:disabled) { background: var(--oak); }
+button:hover:not(:disabled):not([aria-disabled="true"]) { background: var(--oak); }
 button:focus-visible { outline: 2px solid var(--vellum); outline-offset: 2px; }
-button:disabled { opacity: 0.45; cursor: not-allowed; border-color: #6d7a84; }
+button:disabled, button[aria-disabled="true"] { opacity: 0.45; cursor: not-allowed; border-color: #6d7a84; }
 
 #topbar {
   position: fixed; top: 0; left: 0; right: 0; height: 48px; display: flex; align-items: center;
@@ -103,6 +103,15 @@ h2 { font-size: 22px; color: var(--brass); }
 #toast { bottom: 192px; color: var(--alert); font-weight: 700; visibility: hidden; }
 #toast.show { visibility: visible; }
 #toast.info { color: var(--vellum); }
+
+/* 研究按鈕的浮動說明：第一行為標題 */
+#tooltip {
+  position: fixed; z-index: 5; pointer-events: none; white-space: pre-line;
+  width: max-content; max-width: min(360px, calc(100% - 16px)); padding: 8px 12px;
+  font-size: 13px; line-height: 1.5; background: var(--ink);
+  border: 2px solid var(--brass); border-radius: 3px;
+}
+#tooltip::first-line { font-weight: 700; color: var(--brass); }
 
 /* 小地圖浮在右下角、面板上方 */
 #minimap {
