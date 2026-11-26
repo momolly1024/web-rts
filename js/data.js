@@ -50,6 +50,19 @@
       carcass: { resource: 'food', amount: 0 }      // 獸肉，份量由動物決定
     },
 
+    // 電腦用的相剋表：兵種 → 它適合對付的敵方兵種
+    counters: {
+      swordsman: ['archer', 'spearman', 'skirmisher'],
+      stoneguard: ['archer', 'spearman', 'skirmisher'],
+      spearman: ['cavalry', 'lancer'],
+      skirmisher: ['archer', 'longbowman', 'ranger'],
+      archer: ['spearman'],
+      longbowman: ['spearman'],
+      ranger: ['spearman'],
+      cavalry: ['archer', 'longbowman', 'ranger', 'skirmisher'],
+      lancer: ['archer', 'longbowman', 'ranger', 'skirmisher']
+    },
+
     // 傷害 = max(1, 攻擊力 * 相剋倍率 - 該攻擊類型的護甲)
     // 單位的 attack.bonus 可針對特定護甲類型覆寫倍率（例如長槍兵對騎兵）
     damageBonus: {
@@ -401,7 +414,9 @@
           scoutStart: 180,
           economy: { campAt: 4, millAt: 11, maxFarms: 8, reseedBuffer: 1, techAt: 12, techLevel: 1 },
           age: { at: [10, 99], army: [4, 10], maxAge: 1 },
-          military: { towers: 0, rams: 0, tiers: false }
+          military: { towers: 0, rams: 0, tiers: false },
+          expand: { towns: 1, minAge: 1, minVillagers: 10, minArmy: 6, extraVillagers: 0 },
+          counter: { bias: 0, memory: 60 }
         }
       },
       normal: { ai: {} },
@@ -418,7 +433,9 @@
           scoutStart: 45,
           economy: { campAt: 3, millAt: 8, maxFarms: 16, reseedBuffer: 3, techAt: 10, techLevel: 3 },
           age: { at: [14, 17], army: [8, 26], maxAge: 2 },
-          military: { towers: 2, rams: 3, tiers: true }
+          military: { towers: 2, rams: 3, tiers: true },
+          expand: { towns: 2, minAge: 1, minVillagers: 15, minArmy: 8, extraVillagers: 6 },
+          counter: { bias: 3, memory: 150 }
         }
       }
     },
@@ -451,7 +468,11 @@
       // 升時代：村民達 at[目前時代] 人、軍隊達 army[目前時代] 人才開始準備（存錢期間不訓練；封建取第一波人數，城堡取軍隊上限，滿編才存錢），最多升到 maxAge（at 不可超過 villagerTarget）
       age: { at: [12, 14], army: [6, 18], maxAge: 2 },
       // 封建後蓋幾座箭塔、城堡時代最多幾台攻城槌、是否研究兵種升級
-      military: { towers: 1, rams: 2, tiers: true }
+      military: { towers: 1, rams: 2, tiers: true },
+      // 擴張：最多幾座主堡、蓋第二座需要的時代／村民／軍隊人數、有兩座後村民目標增加幾人
+      expand: { towns: 2, minAge: 1, minVillagers: 14, minArmy: 6, extraVillagers: 4 },
+      // 兵種應對：bias 越大越偏向剋制兵種（0 表示不調整比例）、memory 為記得敵軍幾秒
+      counter: { bias: 2, memory: 100 }
     }
   };
 })();

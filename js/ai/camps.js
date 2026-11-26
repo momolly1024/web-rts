@@ -42,7 +42,7 @@
 
   // 有一群人採同一種資源、而且離收取建築很遠：在資源旁蓋收集建築
   function camps(ctx, cfg) {
-    ['wood', 'gold'].forEach(function (resource) {
+    ['wood', 'gold', 'stone'].forEach(function (resource) {
       var type = CAMP_FOR[resource];
       if (pending(ctx, type)) return;
       var workers = ctx.villagers.filter(function (u) {

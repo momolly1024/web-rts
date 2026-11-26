@@ -83,12 +83,13 @@
 
   function think(world, pid, state, cfg) {
     var buildings = RTS.world.buildingsOf(world, pid);
-    var tc = buildings.filter(function (b) { return b.type === 'townCenter' && b.complete; })[0];
+    var towns = buildings.filter(function (b) { return b.type === 'townCenter' && b.complete; });
+    var tc = towns[0];
     if (!tc) return;
     // 偵查中的單位由偵查模組管，其他模組不指派它
     var units = RTS.world.unitsOf(world, pid).filter(function (u) { return u.id !== state.scoutId; });
     var ctx = {
-      world: world, pid: pid, state: state, cfg: cfg, tc: tc, buildings: buildings,
+      world: world, pid: pid, state: state, cfg: cfg, tc: tc, towns: towns, buildings: buildings,
       away: RTS.world.unitsOf(world, pid).filter(function (u) { return u.id === state.scoutId; }),
       villagers: units.filter(function (u) { return !RTS.data.units[u.type].military; }),
       army: units.filter(function (u) { return RTS.data.units[u.type].military; }),
@@ -96,6 +97,8 @@
     };
     AI.age.develop(ctx);       // 升時代優先：條件齊了就暫停訓練存資源
     AI.tech.develop(ctx);      // 排在訓練之前，軍隊成形後科技優先拿資源
+    AI.counter.observe(ctx);
+    AI.expand.develop(ctx);    // 排在訓練之前，替主堡保留的資源才有效
     AI.economy.develop(ctx);
     AI.camps.develop(ctx);
     AI.hunt.develop(ctx);
@@ -110,7 +113,7 @@
   AI.create = function (pid, difficulty) {
     var cfg = config(difficulty);
     var state = { timer: 0, waves: 0, lastWave: 0, wave: {}, assigned: {}, badNodes: {}, sites: {},
-      campTry: {}, needFarm: false,
+      campTry: {}, needFarm: false, mostTowns: 1, enemies: {},
       badPrey: {}, huntStart: 0, sightings: {}, lookTime: -60, scoutId: 0, route: null, heading: null, leg: 0, laps: 0 };
     return {
       difficulty: cfg.difficulty,

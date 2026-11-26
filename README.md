@@ -247,6 +247,23 @@ no extra resources or combat stats, and it can act only through the same command
 | Villagers shelter at raiders `shelter` | 3 within 6 | 2 within 8 | 2 within 10 |
 | Wounded soldiers heal below `shelter.woundedBelow` | never | 30% | 50% |
 | Hunting `hunt` | sheep only | sheep, deer | sheep, deer, boar (4 villagers) |
+| Town Center limit `expand.towns` | 1 | 2 | 2 |
+| Villagers / army before expanding `expand` | never expands | 14 / 6 | 15 / 8 |
+| Extra villagers with two Town Centers `expand.extraVillagers` | 0 | 4 | 6 |
+| Counter-picking strength `counter.bias` | 0 (even mix) | 2 | 3 |
+| Remembers enemies it saw `counter.memory` (s) | 60 | 100 | 150 |
+
+### How the computer expands and adapts
+
+- **Expanding**: on Normal and Hard, once in the Feudal Age with enough villagers and soldiers, the
+  computer builds a second Town Center by a distant gold deposit or grove it has seen (or toward the
+  middle of the map if it knows none). Both train villagers, and it places drop-off buildings by far
+  resources.
+- **Rebuilding**: if one of its two Town Centers is destroyed, it rebuilds once it can afford to.
+  The victory rule is unchanged: losing every Town Center loses the game at once.
+- **Counter-picking**: it remembers the enemy soldiers it saw recently and trains more of the units
+  that beat them (the table is `counters` in `js/data.js`). On every difficulty, Spearmen and
+  Skirmishers are only trained after it sees what they counter.
 
 ## Language
 
@@ -305,7 +322,8 @@ sound off, and the choice is remembered.
 
 None of the following is implemented yet. These are plans and may change.
 
-- **Batch 5**: AI expanding, rebuilding its Town Center, adapting its army to yours
+- **Fishing**: ponds on the map where villagers with fishing rods catch food, at random and
+  sometimes only after a long wait
 - **Under consideration**: more mounted units (scout cavalry, cavalry archers, camels), trade carts, saving, selectable formations, other victory conditions,
   individual building upgrades
 
@@ -366,6 +384,8 @@ js/ai/                  Computer opponent (acts only through commands)
   care.js               Repairing and sheltering
   hunt.js               Herding and hunting
   scout.js              Scouting
+  expand.js             Second Town Center and rebuilding
+  counter.js            Army mix based on the enemies it saw
   ai.js                 Difficulty settings, defence and attack waves
 js/view/                Rendering and input
   camera.js             The only place that converts world and screen coordinates (isometric)
@@ -406,7 +426,7 @@ Code comments and test names are written in Traditional Chinese.
   building art and draw order along with it.
 - **Ages and technologies**: add them to `data.js` and extend `research.js`.
 - **More units**: add them and their `damageBonus` to `data.js`, art to `sprites.js`, names to the
-  language files, and include them in the AI's training choice (`economy.js`).
+  language files, and include them in the AI's training choice (`economy.js`) and its `counters` table (`data.js`).
 - **Smarter AI**: keep using `RTS.commands.issue`; do not modify world state directly.
 
 ## Known limits
@@ -418,7 +438,7 @@ Code comments and test names are written in Traditional Chinese.
   the panel scrolled (their hotkeys always work).
 - Pathfinding uses the real map, so units route around obstacles they have not seen.
   difficulties differ only in settings, not tactics.
-- The AI does not rebuild a destroyed Town Center (losing the only one ends the game).
+- While saving for the Castle Age the AI still spends food on upgrades, so it may take very long.
 - Moving units do not collide, so they can overlap on the march; they spread out once still.
 - Buildings cannot defend themselves, including a Town Center full of units.
 - Repairing stops silently when resources run out.

@@ -33,9 +33,13 @@
     });
   }
 
-  // 遇襲時村民躲進主堡；平時讓重傷士兵回堡療傷
+  // 遇襲時村民躲進主堡；平時讓重傷士兵回堡療傷。每座主堡只管離它最近的單位
   function shelter(ctx) {
-    var cfg = ctx.cfg.shelter, tc = ctx.tc;
+    ctx.towns.forEach(function (tc) { shelterAt(ctx, tc); });
+  }
+
+  function shelterAt(ctx, tc) {
+    var cfg = ctx.cfg.shelter;
     var raiders = 0, lurking = false;
     ctx.world.entities.forEach(function (e) {
       if (e.kind !== 'unit' || e.owner === ctx.pid || !RTS.data.units[e.type].military) return;
@@ -50,7 +54,10 @@
       if (!units.length) return;
       ctx.issue({ type: 'garrison', targetId: tc.id, unitIds: units.map(function (u) { return u.id; }) });
     }
-    function near(u, radius) { return RTS.world.distTo(u.x, u.y, tc) <= radius; }
+    function near(u, radius) {
+      var d = RTS.world.distTo(u.x, u.y, tc);
+      return d <= radius && ctx.towns.every(function (o) { return RTS.world.distTo(u.x, u.y, o) >= d; });
+    }
 
     if (raiders >= cfg.minEnemies) {
       send(ctx.villagers.filter(function (u) { return near(u, cfg.radius + 4); }));

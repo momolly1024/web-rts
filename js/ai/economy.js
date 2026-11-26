@@ -11,9 +11,21 @@
     return null;
   }
 
+  // 從離村民最近的主堡找起，那座附近沒有才換下一座
+  function nearestNode(ctx, resource, villager) {
+    var towns = ctx.towns.slice().sort(function (a, b) {
+      return RTS.world.distTo(villager.x, villager.y, a) - RTS.world.distTo(villager.x, villager.y, b);
+    });
+    for (var i = 0; i < towns.length; i++) {
+      var node = nodeNear(ctx, resource, towns[i]);
+      if (node) return node;
+    }
+    return null;
+  }
+
   // 最近的資源；食物也包含己方空著的農田
-  function nearestNode(ctx, resource) {
-    var from = RTS.world.center(ctx.tc);
+  function nodeNear(ctx, resource, town) {
+    var from = RTS.world.center(town);
     return RTS.world.nearest(ctx.world, from.x, from.y, function (e) {
       if (RTS.farm.isFarm(e)) {
         return resource === 'food' && e.owner === ctx.pid && e.complete && e.amount > 0 &&
@@ -26,7 +38,7 @@
   }
 
   function sendToGather(ctx, villager, resource) {
-    var node = nearestNode(ctx, resource);
+    var node = nearestNode(ctx, resource, villager);
     if (!node) {
       if (resource === 'food') ctx.state.needFarm = true;      // 野外食物與空農田都沒了
       return false;
@@ -144,6 +156,12 @@
     });
   }
 
+  // 正在替新主堡存錢時，不花掉保留的資源
+  function eatsReserve(ctx, cost) {
+    var res = ctx.world.players[ctx.pid].res, keep = ctx.reserve;
+    return !!keep && Object.keys(cost).some(function (k) { return keep[k] && res[k] - cost[k] < keep[k]; });
+  }
+
   function countType(list, type) {
     return list.filter(function (e) { return e.type === type; }).length;
   }
@@ -152,12 +170,18 @@
     var cfg = ctx.cfg;
     var pop = RTS.world.population(ctx.world, ctx.pid);
     // 避難中與外出偵查的單位也要算進目標人數
-    var inside = (ctx.tc.garrison || []).concat(ctx.away);
-    var queuedVillagers = countType(ctx.tc.queue, 'villager') + countType(inside, 'villager');
+    var inside = ctx.away, queuedVillagers = 0;
+    ctx.towns.forEach(function (tc) {
+      inside = inside.concat(tc.garrison || []);
+      queuedVillagers += countType(tc.queue, 'villager');
+    });
+    queuedVillagers += countType(inside, 'villager');
     var saving = ctx.state.saving;
-    if (!saving && ctx.villagers.length + queuedVillagers < cfg.villagerTarget && countType(ctx.tc.queue, 'villager') < 1) {
-      ctx.issue({ type: 'train', buildingId: ctx.tc.id, unit: 'villager' });
-    }
+    var target = cfg.villagerTarget + (ctx.towns.length > 1 ? cfg.expand.extraVillagers : 0);
+    ctx.towns.forEach(function (tc) {
+      if (saving || ctx.villagers.length + queuedVillagers >= target || countType(tc.queue, 'villager') >= 1) return;
+      if (ctx.issue({ type: 'train', buildingId: tc.id, unit: 'villager' }).ok) queuedVillagers++;
+    });
 
     var housePending = ctx.buildings.some(function (b) { return b.type === 'house' && !b.complete; });
     var needHouse = pop.cap - pop.used - pop.queued <= 2 && pop.cap < RTS.data.POP_MAX && !housePending;
@@ -189,27 +213,29 @@
     var training = 0, queued = [];
     trainers.forEach(function (b) { training += b.queue.length; queued = queued.concat(b.queue); });
     function count(type) { return countType(ctx.army, type) + countType(queued, type); }
-    // 長槍兵、標槍兵是專門剋制用的：看到敵方騎兵／弓箭手才訓練，人數不超過對方
-    var seen = {};
-    RTS.fog.perceived(ctx.world, ctx.pid).forEach(function (e) {
-      if (e.kind === 'unit' && e.owner !== ctx.pid) seen[e.type] = (seen[e.type] || 0) + 1;
-    });
+    var enemy = AI.counter.tally(ctx);
     function wanted(type) {
       if (!RTS.civs.allows(ctx.world, ctx.pid, type)) return false;
-      if (type === 'spearman') return count(type) < (seen.cavalry || 0);
-      if (type === 'skirmisher') return count(type) < (seen.archer || 0) + (seen.longbowman || 0);
+      // 長槍兵、標槍兵是專門剋制用的：看到對應的敵軍才訓練，人數不超過對方
+      if (type === 'spearman' || type === 'skirmisher') return count(type) < enemy.against(type);
       if (type === 'ram') return count(type) < cfg.military.rams;
       return !RTS.data.units[type].heal;          // AI 不訓練治療者
     }
-    trainers.forEach(function (b) {
+    // 能訓練剋制兵種的建築先拿到軍隊名額
+    function best(b) {
+      return Math.max.apply(null, [0].concat(RTS.data.buildings[b.type].trains.filter(wanted).map(enemy.weight)));
+    }
+    trainers.slice().sort(function (a, b) { return best(b) - best(a); }).forEach(function (b) {
       if (b.queue.length >= 2) return;
       var sheltered = inside.length - countType(inside, 'villager');
       if (ctx.army.length + sheltered + training >= cfg.armyMax) return;
-      // 目前人數最少的兵種優先，各兵種大致平均
-      var picks = RTS.data.buildings[b.type].trains.filter(wanted).sort(function (x, y) { return count(x) - count(y); });
+      // 相對於比重人數最少的兵種優先；沒看到敵軍時各兵種大致平均
+      function need(type) { return (count(type) + 1) / enemy.weight(type); }
+      var picks = RTS.data.buildings[b.type].trains.filter(wanted).sort(function (x, y) { return need(x) - need(y); });
       for (var i = 0; i < picks.length; i++) {
         // 缺房屋時不把木材花在要木材的兵種上
         if (needHouse && RTS.data.units[picks[i]].cost.wood) continue;
+        if (eatsReserve(ctx, RTS.data.units[picks[i]].cost)) continue;
         if (ctx.issue({ type: 'train', buildingId: b.id, unit: picks[i] }).ok) {
           training++;
           queued.push({ type: picks[i] });
