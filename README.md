@@ -255,7 +255,7 @@ no extra resources or combat stats, and it can act only through the same command
 
 On Normal (and Peaceful World, which shares its base settings) the computer grows in long matches:
 after 10 minutes its army limit and largest wave each gain 2 per minute, up to 24 and 16 (`ai.late` in
-`js/data.js`). Easy and Hard do not change over time.
+`js/data.js`). Easy and Hard do not change over time. The computer trains no soldiers while saving for the Castle Age, so in practice the growth often shows only after it gets there.
 
 When you destroy an enemy Town Center and they still have another, a message says how many are left.
 
