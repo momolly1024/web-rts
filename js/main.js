@@ -120,6 +120,12 @@
     ev.currentTarget.blur();
     app.selectIdle(ev.shiftKey ? 'next' : 'all');
   });
+  app.gotoAlert = function () {
+    var spot = app.alerts.active();
+    if (spot) RTS.camera.centerOn(app.cam, spot.x, spot.y);
+    return !!spot;
+  };
+  click('btn-alert', app.gotoAlert);
   click('btn-help', app.toggleHelp);
   click('btn-restart', app.askRestart);
   click('overlay-primary', function () {

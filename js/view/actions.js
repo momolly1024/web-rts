@@ -92,6 +92,28 @@
     return out;
   }
 
+  // 單座建築改建：兩種擇一，做完就不再顯示
+  function branchActions(app, b) {
+    var def = RTS.data.buildings[b.type];
+    if (!def.branches || b.branch) return [];
+    return Object.keys(def.branches).map(function (key) {
+      var next = def.branches[key];
+      var check = RTS.research.checkBranch(app.world, b, key);
+      var label = t('action.branch', { name: t('branch.' + key) });
+      var cost = costText(next.cost);
+      return {
+        id: 'branch:' + key, hotkey: next.hotkey, label: label,
+        cost: cost, enabled: check.ok, reason: check.reason || '', hidden: ageLocked(check.reason),
+        detail: function () {
+          var lines = [label].concat(RTS.upgradeInfo.branchLines(app.world, b, key), t('tip.cost', { list: cost }));
+          if (check.reason) lines.push(t('error.' + check.reason));
+          return lines;
+        },
+        run: function () { issue(app, { type: 'branch', buildingId: b.id, branch: key }); }
+      };
+    });
+  }
+
   function buildingActions(app, b) {
     var data = RTS.data;
     if (!b.complete) {
@@ -101,7 +123,7 @@
         run: function () { issue(app, { type: 'cancelBuild', buildingId: b.id }); }
       }];
     }
-    return researchActions(app, b).concat(reseedActions(app, b), marketActions(app, b),
+    return researchActions(app, b).concat(branchActions(app, b), reseedActions(app, b), marketActions(app, b),
       demolishActions(app, b), data.buildings[b.type].trains.map(function (type) {
       var def = data.units[type];
       var check = RTS.production.check(app.world, b, type);
@@ -205,6 +227,7 @@
   }
 
   function nameOf(e, world) {
+    if (e.branch) return t('branch.' + e.branch);
     return e.kind === 'unit' && world ? unitName(world, e.owner, e.type) : t(e.kind + '.' + e.type);
   }
 
@@ -260,6 +283,11 @@
       lines.push(t('info.reseeds', { count: app.world.players[human].reseeds }));
     }
     if (def.market && e.owner === human) lines.push(t('info.market'));
+    if (def.attack && e.complete && e.owner === human) {
+      lines.push(t('info.towerStats', {
+        damage: def.attack.damage + RTS.towers.damageBonus(app.world, e), range: RTS.towers.rangeOf(app.world, e)
+      }));
+    }
     if (def.pen && e.complete && e.owner === human) {
       var count = RTS.pen.flock(app.world, e).length, grown = RTS.pen.adults(app.world, e);
       lines.push(grown < def.pen.parents ? t('info.penNeed', { adults: grown, need: def.pen.parents })
@@ -336,6 +364,7 @@
 
   // 生產佇列項目的顯示名稱
   function queueName(item) {
+    if (item.branch) return t('branch.' + item.branch);
     return item.research ? RTS.upgradeInfo.upgradeName(item.research, item.level + 1) : t('unit.' + item.type);
   }
 

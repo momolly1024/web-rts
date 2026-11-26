@@ -141,5 +141,17 @@
     return next ? body.concat(t('tip.time', { seconds: next.time })) : body;
   }
 
-  RTS.upgradeInfo = { lines: lines, unitName: unitName, upgradeName: upgradeName };
+  // 單座箭塔改建後的數值變化
+  function branchLines(world, b, key) {
+    var next = RTS.data.buildings[b.type].branches[key];
+    var damage = RTS.data.buildings[b.type].attack.damage + RTS.towers.damageBonus(world, b);
+    return [
+      t('tip.branchNote'),
+      t('tip.tower.damage', { value: change(damage, next.effects.damage || 0) }),
+      t('tip.tower.range', { value: change(RTS.towers.rangeOf(world, b), next.effects.range || 0) }),
+      t('tip.time', { seconds: next.time })
+    ];
+  }
+
+  RTS.upgradeInfo = { branchLines: branchLines, lines: lines, unitName: unitName, upgradeName: upgradeName };
 })();

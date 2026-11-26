@@ -114,7 +114,30 @@
     });
   }
 
+  // 單座建築的分支改建
+  function checkBranch(world, b, key) {
+    var branches = RTS.data.buildings[b.type].branches, next = branches && branches[key];
+    if (!next) return { ok: false, reason: 'cannotResearch' };
+    if (!b.complete) return { ok: false, reason: 'notComplete' };
+    if (b.branch) return { ok: false, reason: 'alreadyBranched' };
+    var tooEarly = ageFail(world, b.owner, next.age);
+    if (tooEarly) return tooEarly;
+    if (b.queue.some(function (q) { return q.branch; })) return { ok: false, reason: 'alreadyResearching' };
+    if (b.queue.length >= RTS.data.QUEUE_MAX) return { ok: false, reason: 'queueFull' };
+    if (!RTS.world.canAfford(world, b.owner, next.cost)) return { ok: false, reason: 'notEnoughResources' };
+    return { ok: true };
+  }
+
+  function enqueueBranch(world, b, key) {
+    var result = checkBranch(world, b, key);
+    if (!result.ok) return result;
+    RTS.world.pay(world, b.owner, RTS.data.buildings[b.type].branches[key].cost);
+    b.queue.push({ branch: key, building: b.type, progress: 0 });
+    return result;
+  }
+
   RTS.research = {
+    checkBranch: checkBranch, enqueueBranch: enqueueBranch,
     tier: tier, tierTrack: tierTrack, tierBonus: tierBonus, complete: complete,
     level: level, age: age, ageFail: ageFail, needsMet: needsMet, pending: pending, bonus: bonus, economy: economy, check: check, enqueue: enqueue
   };

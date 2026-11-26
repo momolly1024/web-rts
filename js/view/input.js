@@ -148,6 +148,10 @@
       return;
     }
     if (app.hud.overlay() || ev.repeat) return;
+    if (ev.code === 'Enter' || ev.code === 'NumpadEnter') {
+      if (app.gotoAlert()) ev.preventDefault();
+      return;
+    }
     var idle = RTS.groups.idleKey(ev.code, ev.shiftKey);
     if (idle) { ev.preventDefault(); app.selectIdle(idle); return; }
     var key = ev.code === 'Backspace' ? 'Delete' : ev.code.replace(/^Key/, '');    // Mac 鍵盤沒有 Delete 鍵

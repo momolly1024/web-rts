@@ -41,10 +41,14 @@
     var ty = RTS.util.clamp(Math.floor(y), 0, map.height - 1);
     var tiles = RTS.map.spreadTiles(map, tx, ty, units.length);
     if (!tiles.length) return fail('noDestination');
-    units.slice().sort(function (a, b) {
+    var ordered = units.slice().sort(function (a, b) {
       return RTS.util.dist(a.x, a.y, tx, ty) - RTS.util.dist(b.x, b.y, tx, ty);
-    }).forEach(function (u, i) {
-      var t = tiles[Math.min(i, tiles.length - 1)];
+    });
+    // 混合兵種（不含牲畜）改依前後排分配
+    var soldiers = ordered.every(function (u) { return u.kind === 'unit'; });
+    var spots = soldiers && RTS.formation.mixed(ordered) ? RTS.formation.assign(ordered, tiles, tx, ty) : null;
+    ordered.forEach(function (u, i) {
+      var t = spots ? spots[i] : tiles[Math.min(i, tiles.length - 1)];
       if (u.kind === 'animal') {
         var dest = RTS.pen.confine(world, u, t);       // 圈裡的羊出不了圈
         RTS.animals.walk(u, dest.x, dest.y);
@@ -201,6 +205,10 @@
     research: function (world, pid, c) {
       var b = ownBuilding(world, pid, c.buildingId);
       return b ? RTS.research.enqueue(world, b, c.track) : fail('buildingNotFound');
+    },
+    branch: function (world, pid, c) {
+      var b = ownBuilding(world, pid, c.buildingId);
+      return b ? RTS.research.enqueueBranch(world, b, c.branch) : fail('buildingNotFound');
     },
     reseed: function (world, pid, c) {
       var b = ownBuilding(world, pid, c.buildingId);

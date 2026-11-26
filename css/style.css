@@ -122,6 +122,16 @@ h2 { font-size: 22px; color: var(--brass); }
 
 #btn-idle { position: fixed; left: 12px; bottom: 188px; background: rgba(34, 50, 64, 0.94); }
 #btn-idle:disabled { opacity: 0.6; }
+/* 遭攻擊時出現在閒置村民按鈕上方 */
+#btn-alert {
+  position: fixed; left: 12px; bottom: 228px; font-weight: 700;
+  background: #b8321f; border-color: #ffd2c4;
+}
+#btn-alert:hover { background: #8f2415 !important; }
+#btn-alert kbd {
+  margin-left: 6px; padding: 0 6px; font: 700 12px/1.4 var(--body);
+  color: var(--ink); background: var(--brass); border-radius: 2px;
+}
 #btn-idle b { color: var(--brass); margin-left: 4px; }
 #btn-idle kbd {
   margin-left: 6px; padding: 0 6px; font: 700 12px/1.4 var(--body);

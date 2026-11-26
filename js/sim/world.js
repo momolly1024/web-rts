@@ -160,7 +160,7 @@
       else if (e.kind === 'building') {
         if (e.complete) cap += RTS.data.buildings[e.type].pop;
         if (e.garrison) e.garrison.forEach(function (u) { used += RTS.data.units[u.type].pop; });
-        e.queue.forEach(function (q) { if (!q.research) queued += RTS.data.units[q.type].pop; });
+        e.queue.forEach(function (q) { if (q.type) queued += RTS.data.units[q.type].pop; });     // 研究與改建不佔人口
       }
     });
     return { used: used, queued: queued, cap: Math.min(cap, RTS.data.POP_MAX) };

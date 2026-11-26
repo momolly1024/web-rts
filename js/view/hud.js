@@ -41,6 +41,12 @@
     var actionSig = null, queueSig = null, current = [], toastTimer = 0, overlayKind = null;
     var toastMessage = null, claimed = null, claimHinted = false;
     var tooltip = RTS.tooltip.create(actionsBox, $('tooltip'));
+    app.alerts = RTS.alert.create();
+
+    function watchAttacks() {
+      if (app.alerts.update(app.world, app.human)) say('alert.toast');
+      $('btn-alert').hidden = !app.alerts.active();
+    }
 
     // code 是模擬層回傳的錯誤代碼
     function notify(code) {
@@ -49,7 +55,7 @@
 
     function say(key, params) {
       toastMessage = { key: key, params: params };
-      $('toast').classList.toggle('info', key.indexOf('error.') !== 0);
+      $('toast').classList.toggle('info', key.indexOf('error.') !== 0 && key !== 'alert.toast');
       text($('toast'), t(key, params));
       $('toast').classList.add('show');
       toastTimer = 3.5;
@@ -124,7 +130,7 @@
       var sel = RTS.actions.selected(app);
       var b = sel.length === 1 && sel[0].kind === 'building' && sel[0].owner === app.human ? sel[0] : null;
       var queue = b ? b.queue : [];
-      var sig = (b ? b.id : '') + '|' + queue.map(function (q) { return q.type || q.research + q.level; }).join(',');
+      var sig = (b ? b.id : '') + '|' + queue.map(function (q) { return q.type || q.branch || q.research + q.level; }).join(',');
       if (sig !== queueSig) {
         queueSig = sig;
         queueBox.textContent = '';
@@ -304,6 +310,7 @@
       },
       update: function (dt) {
         watchClaims();
+        watchAttacks();
         updateTop();
         updateIdle();
         updateInfo();

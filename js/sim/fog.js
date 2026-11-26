@@ -43,6 +43,7 @@
       s.progress = e.progress;
       s.hp = e.hp;
       s.maxHp = e.maxHp;
+      s.branch = e.branch;
     }
     return s;
   }

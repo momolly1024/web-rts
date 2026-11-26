@@ -70,18 +70,23 @@
   var buildings = {
     townCenter: function (ctx, s, c) {
       plot(ctx, s, '#8f815f');
-      var hall = [0.45, 0.45, s - 0.45, s - 0.45];
-      box(ctx, hall, 0, 1.2, ['#bdb7ac', '#9d978d', '#a8a39a']);
-      onLeft(ctx, hall[3], s / 2 - 0.35, s / 2 + 0.35, 0, 0.8, '#4a3220');
-      onRight(ctx, hall[2], s / 2 - 0.2, s / 2 + 0.2, 0.45, 0.85, '#3a4a5c');
-      gable(ctx, [0.3, 0.3, s - 0.3, s - 0.3], 1.2, 1.0, c.color, c.dark, '#bdb7ac');
-      flag(ctx, s / 2, s / 2, 2.2, c.color);
-      // 左右角樓
-      [[0.1, s - 0.85, 0.85, s - 0.1], [s - 0.85, 0.1, s - 0.1, 0.85]].forEach(function (t) {
-        box(ctx, t, 0, 1.75, ['#c9c3b8', '#a8a297', '#a8a39a']);
-        onLeft(ctx, t[3], t[0] + 0.28, t[0] + 0.47, 1.1, 1.45, '#3a322c');
-        spire(ctx, [t[0] - 0.07, t[1] - 0.07, t[2] + 0.07, t[3] + 0.07], 1.75, 0.85, c.color, c.dark);
-      });
+      // 主樓立在後方角落，大廳在前，正門前不放任何會遮擋的東西
+      var tower = [0.12, 0.12, 1.12, 1.12];
+      box(ctx, tower, 0, 2.2, ['#c9c3b8', '#a8a297', '#a8a39a']);
+      spire(ctx, [0.03, 0.03, 1.21, 1.21], 2.2, 0.75, c.color, c.dark);
+      flag(ctx, 0.62, 0.62, 2.95, c.color);
+      var hall = [0.4, 0.75, s - 0.2, s - 0.5];
+      box(ctx, hall, 0, 1.15, ['#d3cdc1', '#a8a297', '#a8a39a']);
+      gable(ctx, [0.28, 0.63, s - 0.08, s - 0.38], 1.15, 0.85, c.color, c.dark, '#bdb7ac');
+      // 正門：石框、雙扇木門與門前石階
+      var v = hall[3], mid = (hall[0] + hall[2]) / 2;
+      onLeft(ctx, v, mid - 0.5, mid + 0.5, 0, 0.98, '#8d877d');
+      onLeft(ctx, v, mid - 0.38, mid + 0.38, 0, 0.86, '#4a3220');
+      edge(ctx, [mid, v, 0], [mid, v, 0.86], '#2b1d12', 0.05);
+      box(ctx, [mid - 0.55, v, mid + 0.55, v + 0.28], 0, 0.08, ['#8d877d', '#77726a', '#bdb7ac']);
+      // 門兩側與山牆面的窗
+      [mid - 0.88, mid + 0.66].forEach(function (u) { onLeft(ctx, v, u, u + 0.22, 0.4, 0.75, '#3a4a5c'); });
+      onRight(ctx, hall[2], (hall[1] + v) / 2 - 0.2, (hall[1] + v) / 2 + 0.2, 0.4, 0.8, '#3a4a5c');
     },
     house: function (ctx, s, c) {
       plot(ctx, s, '#8f815f');
@@ -153,7 +158,7 @@
       flag(ctx, s - 0.3, s / 2, 1.9, c.color);
     },
     // 箭塔：一格的高石塔，頂端有垛口與旗
-    tower: function (ctx, s, c) {
+    tower: function (ctx, s, c, e) {
       plot(ctx, s, '#7d7262');
       box(ctx, [0.12, 0.12, s - 0.12, s - 0.12], 0, 2.1, ['#a59a87', '#857b6b', '#9a907e']);
       onLeft(ctx, s - 0.12, 0.4, 0.6, 1.3, 1.6, '#2b211b');
@@ -162,6 +167,20 @@
       [[0.1, s - 0.1], [0.5, s - 0.1], [s - 0.1, 0.1], [s - 0.1, 0.5]].forEach(function (p) {
         box(ctx, [p[0] - 0.08, p[1] - 0.08, p[0] + 0.08, p[1] + 0.08], 2.3, 2.45, ['#b3a895', '#93897a', '#a59a87']);
       });
+      if (e && e.branch === 'range') {
+        // 遠射型：加高的尖頂瞭望亭
+        box(ctx, [0.28, 0.28, s - 0.28, s - 0.28], 2.3, 2.65, ['#6f4b2f', '#5f4029', '#7a5334']);
+        spire(ctx, [0.18, 0.18, s - 0.18, s - 0.18], 2.65, 0.55, c.color, c.dark);
+        return;
+      }
+      if (e && e.branch === 'damage') {
+        // 高傷害型：塔身鐵箍與頂上的重弩
+        onLeft(ctx, s - 0.12, 0.12, s - 0.12, 1.85, 2.0, '#2f3338');
+        onRight(ctx, s - 0.12, 0.12, s - 0.12, 1.85, 2.0, '#22262a');
+        edge(ctx, [0.25, s / 2, 2.65], [s - 0.05, s / 2, 2.65], '#2f3338', 0.12);
+        edge(ctx, [s / 2, 0.15, 2.65], [s - 0.15, s / 2, 2.65], '#7a5334', 0.09);
+        edge(ctx, [s / 2, s - 0.15, 2.65], [s - 0.15, s / 2, 2.65], '#7a5334', 0.09);
+      }
       flag(ctx, s / 2, s / 2, 2.45, c.color);
     },
     // 石牆：一格厚牆，上緣有垛口

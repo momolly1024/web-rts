@@ -262,6 +262,7 @@ English). Your choice is saved in `localStorage`. Where that is unavailable (som
 |------|------|
 | Left-click / drag | Select (Shift adds, double-click selects the same type on screen) |
 | Right-click | Move, gather, hunt, attack, build, repair, deliver or shelter, depending on the target; with a training building selected, set its rally point |
+| Enter | Jump to the fight when under attack |
 | Arrow keys, WASD, mouse at the window edge (in fullscreen, keeps scrolling after the mouse moves onto another monitor) | Scroll |
 | H, T, L, N, M, C, O, Y | With villagers (Economy page): House, Town Center, Lumber Camp, Mining Camp, Mill, Farm, Pen, Market (Shift + click to keep placing) |
 | B, R, V, K, I, Z, U, J, E | With villagers (Military page): Barracks, Archery Range, Stable, Blacksmith, Arrow Tower, Stone Wall, Gate, Temple, Siege Workshop |
@@ -330,6 +331,8 @@ js/sim/                 Simulation (no DOM, no display text)
   wander.js             Idle strolling
   fog.js                Fog of war and memory
   production.js         Training and research queues
+  alerts.js             Last place each player was attacked
+  formation.js          Front and back rows for mixed groups
   combat.js             Damage, chasing, retaliation, attack move, breaching walls
   towers.js             Arrow towers shooting
   heal.js               Healers
@@ -356,6 +359,7 @@ js/view/                Rendering and input
   scenery.js            Decorative scenery beyond the map edge
   ground.js             Ground and fog drawing
   render.js             Entities and on-field markers
+  alert.js              When to warn about attacks
   upgrade-info.js       Research names and effect descriptions
   actions.js            Command buttons and selection details
   tooltip.js            Hover box for command buttons

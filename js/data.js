@@ -171,6 +171,11 @@
         cost: { wood: 25, stone: 125 }, size: 1, hp: 700, buildTime: 30, age: 1,
         pop: 0, vision: 8, trains: [], dropoff: false, hotkey: 'I', researches: ['towerUpgrade'],
         attack: { type: 'pierce', damage: 5, range: 7, cooldown: 2 },
+        // 單座改建：兩種擇一、只影響這一座，可與全體強化並存
+        branches: {
+          range: { hotkey: 'E', age: 1, cost: { wood: 50, stone: 50 }, time: 30, effects: { range: 2 } },
+          damage: { hotkey: 'R', age: 1, cost: { stone: 50, gold: 40 }, time: 30, effects: { damage: 4 } }
+        },
         armorType: 'building', armor: { melee: 2, pierce: 4 }
       },
       // 石牆：一格，拖一條線一次放多格

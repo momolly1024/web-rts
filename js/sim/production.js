@@ -31,6 +31,7 @@
   // 佇列項目是訓練單位或研究升級
   function itemSpec(item) {
     if (item.research) return RTS.data.upgrades[item.research].levels[item.level];
+    if (item.branch) return RTS.data.buildings[item.building].branches[item.branch];
     var unit = RTS.data.units[item.type];
     return { cost: unit.cost, time: unit.trainTime };
   }
@@ -68,6 +69,11 @@
     if (item.progress < 1 - 1e-9) return;
     if (item.research) {
       RTS.research.complete(world, b.owner, item.research, item.level);
+      b.queue.shift();
+      return;
+    }
+    if (item.branch) {
+      b.branch = item.branch;
       b.queue.shift();
       return;
     }

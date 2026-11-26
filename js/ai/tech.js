@@ -16,7 +16,20 @@
     return null;
   }
 
+  // 資源寬裕（兩倍花費）時把箭塔改建成高傷害型
+  function branchTowers(ctx) {
+    ctx.buildings.forEach(function (b) {
+      var branches = RTS.data.buildings[b.type].branches;
+      if (!branches || b.branch || b.queue.length || !b.complete) return;
+      var cost = branches.damage.cost, res = ctx.world.players[ctx.pid].res;
+      if (Object.keys(cost).every(function (k) { return res[k] >= cost[k] * 2; })) {
+        ctx.issue({ type: 'branch', buildingId: b.id, branch: 'damage' });
+      }
+    });
+  }
+
   function develop(ctx) {
+    branchTowers(ctx);
     var cfg = ctx.cfg.blacksmith;
     if (!cfg || ctx.army.length < cfg.atArmy) return;
     var smiths = ctx.buildings.filter(function (b) { return b.type === 'blacksmith'; });

@@ -66,6 +66,7 @@
     var def = RTS.world.defOf(target), to = RTS.world.center(target);
     var armor = target.kind === 'unit' ? RTS.research.bonus(world, target.owner, target.type, 'armor') : 0;
     var damage = hitDamage(atk, def, attackBonus, armor);
+    RTS.alerts.record(world, attacker, target);
     if (target.kind === 'animal') { RTS.animals.hurt(world, target, attacker, damage); return; }
     target.hp -= damage;
     if (target.kind === 'building') target.lastHit = world.time;
