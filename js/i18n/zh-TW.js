@@ -242,6 +242,7 @@
     'group.assigned': '已將 {count} 個單位編為第 {group} 隊',
     'hint.claimSheep': '這隻羊還不屬於你：先讓村民走到牠旁邊認領',
     'hint.enemySheep': '這是敵方的羊，無法指揮',
+    'hint.enemyTownDown': '敵方主堡被毀，還剩 {count} 座',
     'hint.sheepClaimed': '認領到綿羊：點選牠，右鍵點地面即可帶走',
     'hint.placement': '選擇建地：左鍵放置（Shift 可連續放置），右鍵或 Esc 取消',
     'hint.wallStart': '石牆：左鍵點起點（右鍵或 Esc 取消）',

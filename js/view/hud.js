@@ -42,6 +42,7 @@
     var toastMessage = null, claimed = null, claimHinted = false;
     var tooltip = RTS.tooltip.create(actionsBox, $('tooltip'));
     app.alerts = RTS.alert.create();
+    var enemyTownLost = RTS.alert.watchTowns();
     var civs = RTS.civPicker.create(app, $('civ-picker'), $('civ-badge'), $('topbar'));
 
     function watchAttacks() {
@@ -49,6 +50,8 @@
         say('alert.toast');
         app.sound.play('alert');
       }
+      var townsLeft = enemyTownLost(app.world, app.human);
+      if (townsLeft) say('hint.enemyTownDown', { count: townsLeft });
       $('btn-alert').hidden = !app.alerts.active();
     }
 

@@ -421,7 +421,8 @@
           age: { at: [10, 99], army: [4, 10], maxAge: 1 },
           military: { towers: 0, rams: 0, tiers: false },
           expand: { towns: 1, minAge: 1, minVillagers: 10, minArmy: 6, extraVillagers: 0 },
-          counter: { bias: 0, memory: 60 }
+          counter: { bias: 0, memory: 60 },
+          late: null
         }
       },
       normal: { ai: {} },
@@ -440,7 +441,8 @@
           age: { at: [14, 17], army: [8, 26], maxAge: 2 },
           military: { towers: 2, rams: 3, tiers: true },
           expand: { towns: 2, minAge: 1, minVillagers: 15, minArmy: 8, extraVillagers: 6 },
-          counter: { bias: 3, memory: 150 }
+          counter: { bias: 3, memory: 150 },
+          late: null
         }
       }
     },
@@ -458,6 +460,9 @@
       attackSizeMax: 10,
       waveInterval: 100,     // 兩波之間至少間隔（秒）
       armyMax: 14,           // 軍隊人數上限（含訓練中）
+      // 後期成長（null 表示不成長）：開局 after 秒後，每 every 秒軍隊上限與單波上限各加 step 人，
+      // 分別最多到這裡的 armyMax、attackSizeMax
+      late: { after: 600, every: 60, step: 2, armyMax: 24, attackSizeMax: 16 },
       defendRadius: 11,
       maxBarracks: 2,
       blacksmith: { atArmy: 6, maxLevel: 2 },  // 軍隊達幾人後投資科技、最多研究到幾級

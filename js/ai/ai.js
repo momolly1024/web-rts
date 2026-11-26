@@ -12,6 +12,17 @@
     return Object.assign({ difficulty: key }, data.ai, data.difficulties[key].ai);
   }
 
+  // 依對局時間套上後期成長後的參數
+  function effective(cfg, time) {
+    var late = cfg.late, steps = late ? Math.floor((time - late.after) / late.every) : 0;
+    if (steps <= 0) return cfg;
+    var add = steps * late.step;
+    return Object.assign({}, cfg, {
+      armyMax: Math.min(late.armyMax, cfg.armyMax + add),
+      attackSizeMax: Math.min(late.attackSizeMax, cfg.attackSizeMax + add)
+    });
+  }
+
   function findThreat(ctx) {
     var radius = ctx.cfg.defendRadius, threat = null;
     ctx.world.entities.forEach(function (e) {
@@ -89,7 +100,7 @@
     // 偵查中的單位由偵查模組管，其他模組不指派它
     var units = RTS.world.unitsOf(world, pid).filter(function (u) { return u.id !== state.scoutId; });
     var ctx = {
-      world: world, pid: pid, state: state, cfg: cfg, tc: tc, towns: towns, buildings: buildings,
+      world: world, pid: pid, state: state, cfg: effective(cfg, world.time), tc: tc, towns: towns, buildings: buildings,
       away: RTS.world.unitsOf(world, pid).filter(function (u) { return u.id === state.scoutId; }),
       villagers: units.filter(function (u) { return !RTS.data.units[u.type].military; }),
       army: units.filter(function (u) { return RTS.data.units[u.type].military; }),
@@ -109,6 +120,7 @@
   }
 
   AI.config = config;
+  AI.effective = effective;
 
   AI.create = function (pid, difficulty) {
     var cfg = config(difficulty);

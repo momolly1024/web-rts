@@ -192,3 +192,66 @@ slowTest('AI 擴張：整局中蓋好第二座主堡', () => {
     assert.ok(built, `seed ${seed}`);
   }
 });
+
+test('AI 後期成長：普通難度 10 分鐘後每分鐘增兵，到上限為止', () => {
+  const cfg = RTS.ai.config('normal'), late = cfg.late;
+  const at = time => {
+    const c = RTS.ai.effective(cfg, time);
+    return [c.armyMax, c.attackSizeMax];
+  };
+  const base = [cfg.armyMax, cfg.attackSizeMax];
+  assert.deepStrictEqual(at(0), base);
+  assert.deepStrictEqual(at(late.after + late.every - 1), base);
+  assert.deepStrictEqual(at(late.after + late.every), [base[0] + late.step, base[1] + late.step]);
+  assert.deepStrictEqual(at(99999), [late.armyMax, late.attackSizeMax]);
+  assert.strictEqual(cfg.armyMax, base[0], '不改動原本的設定');
+});
+
+test('AI 後期成長：簡單與困難不隨時間改變', () => {
+  for (const difficulty of ['easy', 'hard']) {
+    const cfg = RTS.ai.config(difficulty);
+    assert.strictEqual(RTS.ai.effective(cfg, 99999), cfg, difficulty);
+  }
+});
+
+test('AI 後期成長：普通難度後期超過原上限仍繼續出兵', () => {
+  for (const [time, expected] of [[0, 0], [2000, 1]]) {
+    const s = setup({ army: RTS.data.ai.armyMax });
+    const b = RTS.world.addBuilding(s.world, 'barracks', AI_ID, 14, 8, true);
+    RTS.world.addBuilding(s.world, 'townCenter', AI_ID, 26, 12, true);
+    s.world.players[AI_ID].upgrades.age = 2;
+    s.world.time = time;
+    think(s.world, RTS.ai.create(AI_ID));
+    assert.strictEqual(Math.min(b.queue.length, 1), expected, 'time ' + time);
+  }
+});
+
+test('提示：敵方主堡被毀且還有剩時回報剩幾座，只報一次', () => {
+  const world = arena(48);
+  RTS.world.addBuilding(world, 'townCenter', 0, 2, 2, true);
+  const first = RTS.world.addBuilding(world, 'townCenter', AI_ID, 10, 10, true);
+  const second = RTS.world.addBuilding(world, 'townCenter', AI_ID, 20, 20, true);
+  RTS.world.addBuilding(world, 'townCenter', AI_ID, 30, 30, false);
+  const watch = RTS.alert.watchTowns();
+  assert.strictEqual(watch(world, 0), 0);
+  RTS.world.remove(world, first);
+  assert.strictEqual(watch(world, 0), 1, '工地不算');
+  assert.strictEqual(watch(world, 0), 0);
+  RTS.world.remove(world, second);
+  assert.strictEqual(watch(world, 0), 0, '全毀交給勝利畫面');
+});
+
+test('提示：換新對局或失去自己的主堡不提示', () => {
+  const make = () => {
+    const world = arena(48);
+    const own = [2, 12].map(x => RTS.world.addBuilding(world, 'townCenter', 0, x, 2, true));
+    RTS.world.addBuilding(world, 'townCenter', AI_ID, 30, 30, true);
+    return { world, own };
+  };
+  const watch = RTS.alert.watchTowns();
+  const a = make();
+  watch(a.world, 0);
+  RTS.world.remove(a.world, a.own[0]);
+  assert.strictEqual(watch(a.world, 0), 0);
+  assert.strictEqual(watch(make().world, 0), 0);
+});

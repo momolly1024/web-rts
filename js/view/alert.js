@@ -1,4 +1,4 @@
-// 遭攻擊警告：把連續的受擊合併成一場交戰，決定何時提示、提示指向哪裡。不碰 DOM。
+// 戰況提示的時機：遭攻擊警告（連續受擊合併成一場交戰）與敵方主堡被毀。不碰 DOM。
 (function () {
   'use strict';
   var RTS = globalThis.RTS || (globalThis.RTS = {});
@@ -31,5 +31,20 @@
     return { update: update, active: active };
   }
 
-  RTS.alert = { create: create };
+  // 盯著敵方完工主堡：有一座消失且還有剩時回傳剩下幾座，否則回傳 0（全毀由勝利畫面接手）
+  function watchTowns() {
+    var world = null, known = [];
+    return function (current, pid) {
+      var now = current.players.filter(function (p) { return p.id !== pid; }).reduce(function (ids, p) {
+        return ids.concat(RTS.world.buildingsOf(current, p.id, 'townCenter')
+          .filter(function (b) { return b.complete; }).map(function (b) { return b.id; }));
+      }, []);
+      var lost = current === world && known.some(function (id) { return now.indexOf(id) < 0; });
+      world = current;
+      known = now;
+      return lost ? now.length : 0;
+    };
+  }
+
+  RTS.alert = { create: create, watchTowns: watchTowns };
 })();

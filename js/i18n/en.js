@@ -242,6 +242,7 @@
     'group.assigned': 'Group {group} set ({count} selected)',
     'hint.claimSheep': 'This sheep is not yours yet: walk a villager next to it to claim it',
     'hint.enemySheep': 'That sheep belongs to the enemy',
+    'hint.enemyTownDown': 'Enemy Town Center destroyed, {count} left',
     'hint.sheepClaimed': 'Sheep claimed: select it and right-click the ground to move it',
     'hint.placement': 'Pick a site: left-click to place (Shift to keep placing), right-click or Esc to cancel',
     'hint.wallStart': 'Stone wall: left-click the start (right-click or Esc to cancel)',

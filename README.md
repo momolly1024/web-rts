@@ -253,6 +253,12 @@ no extra resources or combat stats, and it can act only through the same command
 | Counter-picking strength `counter.bias` | 0 (even mix) | 1 | 3 |
 | Remembers enemies it saw `counter.memory` (s) | 60 | 100 | 150 |
 
+On Normal (and Peaceful World, which shares its base settings) the computer grows in long matches:
+after 10 minutes its army limit and largest wave each gain 2 per minute, up to 24 and 16 (`ai.late` in
+`js/data.js`). Easy and Hard do not change over time.
+
+When you destroy an enemy Town Center and they still have another, a message says how many are left.
+
 ### How the computer expands and adapts
 
 - **Expanding**: on Normal and Hard, once in the Feudal Age with enough villagers and soldiers, the
