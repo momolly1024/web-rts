@@ -261,7 +261,7 @@ no extra resources or combat stats, and it can act only through the same command
 | Growth per wave `waveGrowth` | 1 | 1 | 3 |
 | Largest wave `attackSizeMax` | 8 | 10 | 20 |
 | Minimum gap between waves `waveInterval` (s) | 180 | 100 | 55 |
-| Gap between trained soldiers `trainGap` (s, 0 = none) | 35 | 8 | 0 |
+| Gap between trained soldiers `trainGap` (s, 0 = none) | 50 | 8 | 0 |
 | Barracks limit `maxBarracks` | 1 | 2 | 3 |
 | Army size before research / top level `blacksmith` | 7 / 1 | 6 / 2 | 5 / 2 |
 | Repair below / workers `repair` | 40% / 1 | 70% / 2 | 90% / 3 |
@@ -274,7 +274,7 @@ no extra resources or combat stats, and it can act only through the same command
 | Counter-picking strength `counter.bias` | 0 (even mix) | 1 | 3 |
 | Remembers enemies it saw `counter.memory` (s) | 60 | 100 | 150 |
 
-The computer has no army limit on any difficulty: like you, it is limited only by its houses. How fast it trains is set by `trainGap`.
+The computer has no army limit on any difficulty: like you, it is limited only by its houses. It waits at least `trainGap` seconds between soldiers (50 on Peaceful; see the table for the rest).
 Once its army reaches `techSaveAt` (10 on Easy, 14 on Normal and Peaceful, 26 on Hard), it sets aside the cost of a pending research before training more.
 
 On Normal (and Peaceful, which shares its base settings) attacks grow in long matches:

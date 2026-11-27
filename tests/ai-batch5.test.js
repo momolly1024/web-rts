@@ -226,7 +226,7 @@ test('AI 軍隊人數不設上限：各難度兵很多時仍繼續出兵', () =>
   }
 });
 
-test('AI 出兵間隔：所有建築合計，間隔內只出一名；下次輪到缺人的建築', () => {
+test('AI 訓練間隔：所有建築合計，間隔內只出一名；下次輪到缺人的建築', () => {
   const s = setup({ army: 6 });
   for (let i = 0; i < 6; i++) RTS.world.addBuilding(s.world, 'house', AI_ID, 1 + i * 3, 18, true);
   const barracks = RTS.world.addBuilding(s.world, 'barracks', AI_ID, 14, 8, true);
@@ -240,18 +240,18 @@ test('AI 出兵間隔：所有建築合計，間隔內只出一名；下次輪�
   assert.strictEqual(trained(), 1);
   s.world.time = 100 + gap - 1;
   think(s.world, ai);
-  assert.strictEqual(trained(), 1, '間隔內不出兵');
+  assert.strictEqual(trained(), 1, '間隔內不訓練');
   s.world.time = 100 + gap;
   think(s.world, ai);
   assert.strictEqual(trained(), 2);
   assert.ok(barracks.queue.some(q => q.type) && stable.queue.some(q => q.type), '兩座都輪到');
 });
 
-test('AI 出兵間隔：簡單最長、困難不限', () => {
+test('AI 訓練間隔：簡單與和平世界最長、困難不限', () => {
   const gap = key => RTS.ai.config(key).trainGap;
   assert.ok(gap('easy') > gap('normal') && gap('normal') > gap('hard'));
   assert.strictEqual(gap('hard'), 0);
-  assert.strictEqual(gap('peaceful'), gap('normal'));
+  assert.strictEqual(gap('peaceful'), gap('easy'));
 });
 
 test('AI 科技：兵力達 techSaveAt 後，出兵不花掉下一個研究的資源', () => {

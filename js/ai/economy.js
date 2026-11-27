@@ -232,7 +232,7 @@
     }
     // 相對於比重人數最少的兵種優先；沒看到敵軍時各兵種大致平均
     function need(type) { return (count(type) + 1) / enemy.weight(type); }
-    // 同樣能剋制敵軍時，最缺人的建築先出兵；有出兵間隔時才不會永遠輪到第一座
+    // 同樣能剋制敵軍時，最缺人的建築先訓練；有訓練間隔時才不會永遠輪到第一座
     function lack(b) {
       return Math.min.apply(null, [Infinity].concat(RTS.data.buildings[b.type].trains.filter(wanted).map(need)));
     }

@@ -86,10 +86,10 @@ slowTest('三種難度對不動的玩家都能分出勝負', () => {
   }
 });
 
-slowTest('和平世界：選單第一項，只關掉進攻；電腦照常發展但永遠不出兵', () => {
+slowTest('和平世界：選單第一項，不進攻、守軍訓練較慢；電腦照常發展', () => {
   assert.strictEqual(RTS.data.difficultyOrder[0], 'peaceful', '放在簡單左邊');
   const entry = RTS.data.difficulties.peaceful;
-  assert.deepStrictEqual(entry, { ai: { attack: false } });
+  assert.deepStrictEqual(entry, { ai: { attack: false, trainGap: 50 } });
   assert.strictEqual(RTS.ai.create(AI_ID, 'peaceful').difficulty, 'peaceful');
   const log = simulate(7, 'peaceful');
   assert.strictEqual(log.firstAttack, null, '不應進攻');

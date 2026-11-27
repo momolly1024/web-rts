@@ -422,7 +422,7 @@
       easy: {
         ai: {
           thinkInterval: 2.5, graceTime: 600, villagerTarget: 9, attackSize: 4, waveGrowth: 1,
-          attackSizeMax: 8, waveInterval: 180, maxBarracks: 1, trainGap: 35, techSaveAt: 10,
+          attackSizeMax: 8, waveInterval: 180, maxBarracks: 1, trainGap: 50, techSaveAt: 10,
           blacksmith: { atArmy: 7, maxLevel: 1 },
           repair: { threshold: 0.4, workers: 1 },
           shelter: { radius: 6, minEnemies: 3, woundedBelow: 0 },
@@ -437,8 +437,8 @@
         }
       },
       normal: { ai: {} },
-      // 和平世界：電腦照常發展、會防守，但永遠不進攻
-      peaceful: { ai: { attack: false } },
+      // 和平世界：電腦照常發展、會防守，但永遠不進攻；訓練士兵比普通慢，守軍較少
+      peaceful: { ai: { attack: false, trainGap: 50 } },
       hard: {
         ai: {
           thinkInterval: 0.5, graceTime: 240, villagerTarget: 20, attackSize: 8, waveGrowth: 3,
