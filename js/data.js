@@ -445,7 +445,7 @@
       hard: {
         ai: {
           thinkInterval: 0.5, graceTime: 240, villagerTarget: 18, attackSize: 8, waveGrowth: 3,
-          attackSizeMax: 20, waveInterval: 55, armyMax: 26, maxBarracks: 3,
+          attackSizeMax: 20, waveInterval: 55, maxBarracks: 3, techSaveAt: 26,
           blacksmith: { atArmy: 5, maxLevel: 2 },
           repair: { threshold: 0.9, workers: 3 },
           shelter: { radius: 10, minEnemies: 2, woundedBelow: 0.5 },
@@ -473,10 +473,11 @@
       waveGrowth: 1,
       attackSizeMax: 10,
       waveInterval: 100,     // 兩波之間至少間隔（秒）
-      armyMax: 14,           // 軍隊人數上限（含訓練中）
-      // 後期成長（null 表示不成長）：開局 after 秒後，每 every 秒軍隊上限與單波上限各加 step 人，
-      // 分別最多到這裡的 armyMax、attackSizeMax。成長期間存錢升時代時，仍每 drip 秒補一名士兵
-      late: { after: 600, every: 60, step: 2, armyMax: 24, attackSizeMax: 16, drip: 30 },
+      armyMax: null,         // 軍隊人數上限（含訓練中）；null 表示和玩家一樣只受房屋限制
+      techSaveAt: 14,        // 軍隊達幾人後，有待研究的科技就先保留那筆資源，再繼續出兵
+      // 後期成長（null 表示不成長）：開局 after 秒後，每 every 秒單波上限加 step 人，
+      // 最多到這裡的 attackSizeMax。成長期間存錢升時代時，仍每 drip 秒補一名士兵
+      late: { after: 600, every: 60, step: 2, attackSizeMax: 16, drip: 30 },
       defendRadius: 11,
       maxBarracks: 2,
       blacksmith: { atArmy: 6, maxLevel: 2 },  // 軍隊達幾人後投資科技、最多研究到幾級
@@ -489,7 +490,7 @@
       // 經濟建設：幾人採同一資源且離收取建築遠就蓋收集建築、村民達幾人蓋磨坊、農田上限、
       // 預付重種保持幾次、村民達幾人開始研究經濟科技、經濟科技最多研究到幾級
       economy: { campAt: 3, millAt: 9, maxFarms: 12, reseedBuffer: 2, techAt: 12, techLevel: 2 },
-      // 升時代：村民達 at[目前時代] 人、軍隊達 army[目前時代] 人才開始準備（存錢期間不訓練；封建取第一波人數，城堡取軍隊上限，滿編才存錢），最多升到 maxAge（at 不可超過 villagerTarget）
+      // 升時代：村民達 at[目前時代] 人、軍隊達 army[目前時代] 人才開始準備（存錢期間不訓練；封建取第一波人數，城堡要較大的兵力），最多升到 maxAge（at 不可超過 villagerTarget）
       age: { at: [12, 14], army: [6, 14], maxAge: 2 },
       // 封建後蓋幾座箭塔、城堡時代最多幾台攻城槌、是否研究兵種升級
       military: { towers: 1, rams: 2, tiers: true },

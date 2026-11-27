@@ -102,6 +102,28 @@
     }
   }
 
+  // 下一個經濟科技要存到多少（含研究後要留的量）；沒有待研究的回傳 null
+  function pendingCost(ctx) {
+    var cfg = ctx.cfg.economy;
+    if (ctx.villagers.length < cfg.techAt) return null;
+    for (var i = 0; i < TECH_ORDER.length; i++) {
+      var track = TECH_ORDER[i];
+      var level = RTS.research.level(ctx.world, ctx.pid, track);
+      var next = RTS.data.upgrades[track].levels[level];
+      if (!next || level >= cfg.techLevel) continue;
+      var ready = ctx.buildings.some(function (b) {
+        if (!b.complete || b.queue.length) return false;
+        var r = RTS.research.check(ctx.world, b, track);
+        return r.ok || r.reason === 'notEnoughResources';
+      });
+      if (!ready) continue;
+      var keep = {};
+      Object.keys(next.cost).forEach(function (k) { keep[k] = next.cost[k] + TECH_SPARE; });
+      return keep;
+    }
+    return null;
+  }
+
   function develop(ctx) {
     var cfg = ctx.cfg.economy;
     camps(ctx, cfg);
@@ -109,5 +131,5 @@
     research(ctx, cfg);
   }
 
-  AI.camps = { develop: develop, spotNear: spotNear };
+  AI.camps = { develop: develop, spotNear: spotNear, pendingCost: pendingCost };
 })();

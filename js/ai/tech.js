@@ -5,6 +5,7 @@
   var AI = RTS.ai || (RTS.ai = {});
 
   var ORDER = ['meleeAttack', 'rangedAttack', 'meleeArmor', 'rangedArmor'];
+  var UNIT_LINES = ['swordLine', 'archerLine', 'cavalryLine'];
 
   // 先把所有項目的第一級做完，再做第二級
   function nextTrack(ctx, maxLevel) {
@@ -51,7 +52,7 @@
   // 兵種升級：在對應的生產建築研究，排在出兵前面（研究期間該建築不出兵）
   function upgradeUnits(ctx) {
     if (!ctx.cfg.military.tiers) return;
-    ['swordLine', 'archerLine', 'cavalryLine'].forEach(function (track) {
+    UNIT_LINES.forEach(function (track) {
       var b = ctx.buildings.filter(function (e) {
         var r = RTS.data.buildings[e.type].researches;
         return e.complete && !e.queue.length && r && r.indexOf(track) >= 0;
@@ -60,5 +61,30 @@
     });
   }
 
-  AI.tech = { develop: develop };
+  // 現在就能研究、頂多缺資源的話回傳花費（建築要完工且閒著）
+  function costOf(ctx, track) {
+    var b = ctx.buildings.filter(function (e) {
+      var r = RTS.data.buildings[e.type].researches;
+      return e.complete && !e.queue.length && r && r.indexOf(track) >= 0;
+    })[0];
+    if (!b) return null;
+    var r = RTS.research.check(ctx.world, b, track);
+    if (!r.ok && r.reason !== 'notEnoughResources') return null;
+    return RTS.data.upgrades[track].levels[RTS.research.level(ctx.world, ctx.pid, track)].cost;
+  }
+
+  // 軍隊達 techSaveAt 人後，替下一個研究保留資源，免得全花在出兵上
+  function reserve(ctx) {
+    if (ctx.army.length < ctx.cfg.techSaveAt) return null;
+    var cfg = ctx.cfg.blacksmith;
+    var tracks = cfg ? [nextTrack(ctx, cfg.maxLevel)] : [];
+    if (ctx.cfg.military.tiers) tracks = tracks.concat(UNIT_LINES);
+    for (var i = 0; i < tracks.length; i++) {
+      var cost = tracks[i] && costOf(ctx, tracks[i]);
+      if (cost) return cost;
+    }
+    return AI.camps.pendingCost(ctx);
+  }
+
+  AI.tech = { develop: develop, reserve: reserve };
 })();

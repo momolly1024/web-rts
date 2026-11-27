@@ -156,10 +156,12 @@
     });
   }
 
-  // 正在替新主堡存錢時，不花掉保留的資源
+  // 正在替新主堡或下一個研究存錢時，不花掉保留的資源
   function eatsReserve(ctx, cost) {
-    var res = ctx.world.players[ctx.pid].res, keep = ctx.reserve;
-    return !!keep && Object.keys(cost).some(function (k) { return keep[k] && res[k] - cost[k] < keep[k]; });
+    var res = ctx.world.players[ctx.pid].res;
+    return [ctx.reserve, ctx.techReserve].some(function (keep) {
+      return !!keep && Object.keys(cost).some(function (k) { return keep[k] && res[k] - cost[k] < keep[k]; });
+    });
   }
 
   function countType(list, type) {
@@ -216,6 +218,7 @@
     trainers.forEach(function (b) { training += b.queue.length; queued = queued.concat(b.queue); });
     function count(type) { return countType(ctx.army, type) + countType(queued, type); }
     var enemy = AI.counter.tally(ctx);
+    ctx.techReserve = AI.tech.reserve(ctx);
     function wanted(type) {
       if (!RTS.civs.allows(ctx.world, ctx.pid, type)) return false;
       // 長槍兵、標槍兵是專門剋制用的：看到對應的敵軍才訓練，人數不超過對方
@@ -230,7 +233,7 @@
     trainers.slice().sort(function (a, b) { return best(b) - best(a); }).forEach(function (b) {
       if (b.queue.length >= 2 || (saving && !drip)) return;
       var sheltered = inside.length - countType(inside, 'villager');
-      if (ctx.army.length + sheltered + training >= cfg.armyMax) return;
+      if (cfg.armyMax !== null && ctx.army.length + sheltered + training >= cfg.armyMax) return;
       // 相對於比重人數最少的兵種優先；沒看到敵軍時各兵種大致平均
       function need(type) { return (count(type) + 1) / enemy.weight(type); }
       var picks = RTS.data.buildings[b.type].trains.filter(wanted).sort(function (x, y) { return need(x) - need(y); });

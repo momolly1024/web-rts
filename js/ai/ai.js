@@ -19,7 +19,6 @@
     var add = steps * late.step;
     return Object.assign({}, cfg, {
       growing: true,
-      armyMax: Math.min(late.armyMax, cfg.armyMax + add),
       attackSizeMax: Math.min(late.attackSizeMax, cfg.attackSizeMax + add)
     });
   }

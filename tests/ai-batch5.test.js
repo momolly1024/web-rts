@@ -193,18 +193,18 @@ slowTest('AI 擴張：整局中蓋好第二座主堡', () => {
   }
 });
 
-test('AI 後期成長：普通難度 10 分鐘後每分鐘增兵，到上限為止', () => {
+test('AI 後期成長：普通難度 10 分鐘後每分鐘單波加人，到上限為止', () => {
   const cfg = RTS.ai.config('normal'), late = cfg.late;
   const at = time => {
     const c = RTS.ai.effective(cfg, time);
-    return [c.armyMax, c.attackSizeMax];
+    return c.attackSizeMax;
   };
-  const base = [cfg.armyMax, cfg.attackSizeMax];
+  const base = cfg.attackSizeMax;
   assert.deepStrictEqual(at(0), base);
   assert.deepStrictEqual(at(late.after + late.every - 1), base);
-  assert.deepStrictEqual(at(late.after + late.every), [base[0] + late.step, base[1] + late.step]);
-  assert.deepStrictEqual(at(99999), [late.armyMax, late.attackSizeMax]);
-  assert.strictEqual(cfg.armyMax, base[0], '不改動原本的設定');
+  assert.deepStrictEqual(at(late.after + late.every), base + late.step);
+  assert.deepStrictEqual(at(99999), late.attackSizeMax);
+  assert.strictEqual(cfg.attackSizeMax, base, '不改動原本的設定');
 });
 
 test('AI 後期成長：簡單與困難不隨時間改變', () => {
@@ -214,15 +214,34 @@ test('AI 後期成長：簡單與困難不隨時間改變', () => {
   }
 });
 
-test('AI 後期成長：普通難度後期超過原上限仍繼續出兵', () => {
-  for (const [time, expected] of [[0, 0], [2000, 1]]) {
-    const s = setup({ army: RTS.data.ai.armyMax });
+test('AI 軍隊上限：普通與困難不設限，簡單維持 10 人', () => {
+  for (const [difficulty, trains] of [['easy', false], ['normal', true], ['hard', true]]) {
+    const s = setup({ army: 30 });
+    for (let i = 0; i < 6; i++) RTS.world.addBuilding(s.world, 'house', AI_ID, 1 + i * 3, 18, true);
     const b = RTS.world.addBuilding(s.world, 'barracks', AI_ID, 14, 8, true);
     RTS.world.addBuilding(s.world, 'townCenter', AI_ID, 26, 12, true);
     s.world.players[AI_ID].upgrades.age = 2;
-    s.world.time = time;
+    think(s.world, RTS.ai.create(AI_ID, difficulty));
+    assert.strictEqual(b.queue.length > 0, trains, difficulty);
+  }
+});
+
+test('AI 科技：兵力達 techSaveAt 後，出兵不花掉下一個研究的資源', () => {
+  const at = RTS.data.ai.techSaveAt;
+  // 劍士要食物與黃金；食物只比鐵匠鋪第一級研究（食物 100）多一點
+  for (const [army, trains] of [[at - 1, true], [at, false]]) {
+    const s = setup({ army, resources: { food: 110, wood: 0, gold: 1000, stone: 0 } });
+    for (let i = 0; i < 6; i++) RTS.world.addBuilding(s.world, 'house', AI_ID, 1 + i * 3, 18, true);
+    const b = RTS.world.addBuilding(s.world, 'barracks', AI_ID, 14, 8, true);
+    const smith = RTS.world.addBuilding(s.world, 'blacksmith', AI_ID, 20, 8, true);
+    smith.queue.push({ research: 'rangedArmor', level: 0, progress: 0 });   // 鐵匠鋪忙碌時不保留
     think(s.world, RTS.ai.create(AI_ID));
-    assert.strictEqual(Math.min(b.queue.length, 1), expected, 'time ' + time);
+    assert.ok(b.queue.length > 0, '研究中照常出兵 army ' + army);
+    b.queue.length = smith.queue.length = 0;
+    s.world.players[AI_ID].res.food = 90;                  // 不夠研究，夠不夠出兵看保留
+    const ai = RTS.ai.create(AI_ID);
+    think(s.world, ai);
+    assert.strictEqual(b.queue.length > 0, trains, 'army ' + army);
   }
 });
 
@@ -260,7 +279,7 @@ test('AI 後期成長：存錢升時代期間，後期每隔一段時間補一�
   const drip = RTS.data.ai.late.drip;
   for (const [time, expected] of [[0, [0, 0, 0]], [2000, [1, 1, 2]]]) {
     // 食物不夠升城堡（700），但夠訓練
-    const s = setup({ army: RTS.data.ai.armyMax, resources: { food: 500, wood: 1000, gold: 1000, stone: 0 } });
+    const s = setup({ army: RTS.data.ai.age.army[1], resources: { food: 500, wood: 1000, gold: 1000, stone: 0 } });
     const b = RTS.world.addBuilding(s.world, 'barracks', AI_ID, 14, 8, true);
     for (const [type, x] of [['lumberCamp', 20], ['blacksmith', 24], ['stable', 28]]) {
       RTS.world.addBuilding(s.world, type, AI_ID, x, 14, true);
@@ -288,7 +307,7 @@ test('AI 升時代：存錢期間不研究花食物或黃金的科技', () => {
   assert.strictEqual(RTS.ai.age.holds(ctx(false), { food: 100 }), false);
   for (const [food, expected] of [[500, 0], [5000, 1]]) {
     // 食物 500 不夠升城堡（700）但夠研究鐵匠鋪；5000 則直接升時代，之後照常研究
-    const s = setup({ army: RTS.data.ai.armyMax, resources: { food, wood: 1000, gold: 1000, stone: 0 } });
+    const s = setup({ army: RTS.data.ai.age.army[1], resources: { food, wood: 1000, gold: 1000, stone: 0 } });
     const smith = RTS.world.addBuilding(s.world, 'blacksmith', AI_ID, 14, 8, true);
     for (const [type, x] of [['lumberCamp', 20], ['barracks', 24], ['stable', 28]]) {
       RTS.world.addBuilding(s.world, type, AI_ID, x, 14, true);
@@ -299,8 +318,8 @@ test('AI 升時代：存錢期間不研究花食物或黃金的科技', () => {
   }
 });
 
-// 整局：電腦對上不動的玩家，15 分鐘時軍隊應超過原上限
-slowTest('AI 後期成長：整局中 15 分鐘時軍隊超過原上限', () => {
+// 整局：電腦對上不動的玩家，15 分鐘時軍隊應超過升城堡門檻
+slowTest('AI 後期成長：整局中 15 分鐘時軍隊超過升城堡門檻', () => {
   for (const seed of [7, 2024]) {
     const world = RTS.game.create(seed);
     RTS.world.list(world, e => e.kind === 'building' && e.owner === 0)[0].hp = 1e9;
@@ -316,7 +335,7 @@ slowTest('AI 後期成長：整局中 15 分鐘時軍隊超過原上限', () => 
       if (!castle && RTS.research.age(world, AI_ID) >= 2) castle = Math.round(world.time);
     }
     console.log(`      seed ${seed} 15 分鐘內軍隊最多 ${peak} 人，升城堡於 ${castle || '未升'} 秒`);
-    assert.ok(peak > RTS.data.ai.armyMax, `seed ${seed} peak ${peak}`);
+    assert.ok(peak > RTS.data.ai.age.army[1], `seed ${seed} peak ${peak}`);
     assert.ok(castle > 0, `seed ${seed} 15 分鐘內應升上城堡時代`);
   }
 });
