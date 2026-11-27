@@ -5,6 +5,8 @@ English | [繁體中文](README.zh-TW.md)
 An original medieval real-time strategy prototype: single player against the computer, plain
 JavaScript and HTML5 Canvas, no dependencies and no build step.
 
+**Play online:** https://momolly1024.github.io/web-rts/
+
 ## Run it
 
 Double-click `index.html` (`file://` works). A desktop browser such as Chrome or Edge with a
