@@ -348,7 +348,7 @@ sound off, and the choice is remembered.
 | Right-click | Move, gather, fish, hunt, attack, build, repair, deliver or shelter, depending on the target; with a training building selected, set its rally point |
 | Enter | Jump to the fight when under attack |
 | Arrow keys, WASD, mouse at the window edge (in fullscreen, keeps scrolling after the mouse moves onto another monitor) | Scroll |
-| Mouse wheel | Zoom (90%–130%, centred on the cursor) |
+| Mouse wheel | Zoom (70%–130%, centred on the cursor) |
 | H, T, L, N, M, C, O, Y | With villagers (Economy page): House, Town Center, Lumber Camp, Mining Camp, Mill, Farm, Pen, Market (Shift + click to keep placing) |
 | B, R, V, K, I, Z, U, J, E | With villagers (Military page): Barracks, Archery Range, Stable, Blacksmith, Arrow Tower, Stone Wall, Gate, Temple, Siege Workshop |
 | Q | While placing a building: rotate it 90 degrees. The yellow line marks the front, where trained units and garrisons come out. The direction is fixed once placed (walls have none; gates next to walls line up automatically) |

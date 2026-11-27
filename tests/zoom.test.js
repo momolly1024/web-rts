@@ -18,6 +18,10 @@ test('縮放：開局是 100%，只能在設定的各級之間', () => {
   assert.strictEqual(cam.scale, base * levels[0]);
 });
 
+test('縮放：可以縮小到 70%、80%、90%，放大到 130%', () => {
+  assert.deepStrictEqual(RTS.data.zoom.levels, [0.7, 0.8, 0.9, 1, 1.1, 1.2, 1.3]);
+});
+
 test('縮放：游標指到的地面位置不動', () => {
   const cam = camera(), before = RTS.camera.screenToWorld(cam, 900, 250);
   for (const steps of [1, 1, 1, -1, -1, -1, -1]) {
