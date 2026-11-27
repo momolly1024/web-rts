@@ -247,7 +247,7 @@
     'hint.enemySheep': '這是敵方的羊，無法指揮',
     'hint.enemyTownDown': '敵方主堡被毀，還剩 {count} 座',
     'hint.sheepClaimed': '認領到綿羊：點選牠，右鍵點地面即可帶走',
-    'hint.placement': '選擇建地：左鍵放置（Shift 可連續放置），右鍵或 Esc 取消',
+    'hint.placement': '選擇建地：左鍵放置（Shift 可連續放置），Q 轉向，右鍵或 Esc 取消',
     'hint.wallStart': '石牆：左鍵點起點（右鍵或 Esc 取消）',
     'hint.wallEnd': '石牆：左鍵點終點，沿線放工地（Shift 可接著拉下一段）',
     'hint.attackMove': '攻擊移動：左鍵指定目的地，右鍵或 Esc 取消',

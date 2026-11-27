@@ -66,7 +66,7 @@
           hotkey: def.hotkey, cost: costText(def.cost),
           enabled: !reason, reason: reason, active: app.placement === type,
           hidden: data.buildPages[page].indexOf(type) < 0 || ageLocked(reason),
-          run: function () { app.placement = type; app.mode = null; app.wallStart = null; }
+          run: function () { app.placement = type; app.placeDir = 0; app.mode = null; app.wallStart = null; }
         });
       });
     }

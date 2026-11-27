@@ -173,7 +173,7 @@
       var check = RTS.construction.canPlace(world, pid, c.building, tx, ty);
       if (!check.ok) return check;
       if (!RTS.world.pay(world, pid, def.cost)) return fail('notEnoughResources');
-      var b = RTS.construction.place(world, pid, c.building, tx, ty);
+      var b = RTS.construction.place(world, pid, c.building, tx, ty, c.dir);
       workers.forEach(function (u) { assignJob(u, 'build', b); });
       return { ok: true, action: 'build', buildingId: b.id };
     },

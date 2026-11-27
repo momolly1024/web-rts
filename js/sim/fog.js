@@ -40,6 +40,7 @@
     if (e.kind === 'node') s.amount = e.amount;
     else {
       s.complete = e.complete;
+      s.dir = e.dir;
       s.progress = e.progress;
       s.hp = e.hp;
       s.maxHp = e.maxHp;

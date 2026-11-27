@@ -350,6 +350,7 @@ sound off, and the choice is remembered.
 | Mouse wheel | Zoom (90%–130%, centred on the cursor) |
 | H, T, L, N, M, C, O, Y | With villagers (Economy page): House, Town Center, Lumber Camp, Mining Camp, Mill, Farm, Pen, Market (Shift + click to keep placing) |
 | B, R, V, K, I, Z, U, J, E | With villagers (Military page): Barracks, Archery Range, Stable, Blacksmith, Arrow Tower, Stone Wall, Gate, Temple, Siege Workshop |
+| Q | While placing a building: rotate it 90 degrees. The yellow line marks the front, where trained units and garrisons come out. The direction is fixed once placed (walls have none; gates next to walls line up automatically) |
 | Tab | With villagers: switch the build menu between Economy and Military (hotkeys work on both) |
 | Q, E, R | Town Center: Villager, Handcarts, next age. Barracks: Swordsman Q, Archer E, Spearman F. Archery Range: Skirmisher Q, Longbowman E. Stable Q: Cavalry. Lumber Camp Q: Keen axes. Mining Camp: Gold digging, Stone cutting |
 | Q, E, X | Mill: Rich harvest, queue a reseed, cancel one reseed |
@@ -440,7 +441,9 @@ js/view/                Rendering and input
   depth.js              Draw order, click and box-selection hit tests
   sprites.js            Original vector art: resources and units
   sprites-civ.js        Building styles of each civilization
+  sprites-parts.js      Building art primitives and four-way rotation
   sprites-buildings.js  Building and construction-site art
+  sprites-economy.js    Economy building art
   sprites-animals.js    Animal art
   minimap.js            Minimap
   groups.js             Control groups
@@ -468,8 +471,8 @@ Code comments and test names are written in Traditional Chinese.
 
 - **New text**: add the same key to `zh-TW.js` and `en.js`. Simulation errors are returned as
   codes and shown through `error.<code>`.
-- **New building art**: describe it in `sprites-buildings.js` with footprint coordinates plus a
-  height, and register its wall height (click area) and top (health bar) in `depth.js`. Draw order
+- **New building art**: describe it in `sprites-buildings.js` or `sprites-economy.js` as facing 0 (front on the
+  lower left), with footprint coordinates plus a height (use `layers` for overlapping parts), and register its wall height (click area) and top (health bar) in `depth.js`. Draw order
   sorts by footprint center, which is only guaranteed for square footprints.
 - **Changing the view**: the projection lives in `project` / `unproject` in `camera.js`; check the
   building art and draw order along with it.

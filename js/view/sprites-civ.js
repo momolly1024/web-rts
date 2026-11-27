@@ -72,13 +72,13 @@
     },
     // 鐵岩：冷灰石牆、平頂城垛
     ironrock: {
-      wall: '#7e8893', amount: 0.6,
+      wall: '#7e8893', amount: 0.6, symmetric: true,
       gable: function (draw, r, z, rise, roof, shade) { keep(draw, r, z, rise, { color: roof, dark: shade }); },
       spire: function (draw, r, z, rise, c) { keep(draw, r, z, rise, c); }
     },
     // 金原：沙色牆面、茅草圓頂，簷口隊色寬帶與頂飾
     goldplain: {
-      wall: '#e2c276', amount: 0.4,
+      wall: '#e2c276', amount: 0.4, symmetric: true,
       gable: function (draw, r, z, rise, roof) { thatched(draw, r, z, rise, roof); },
       spire: function (draw, r, z, rise, c) { thatched(draw, r, z, rise, c.color); }
     }

@@ -47,7 +47,7 @@
     var e = add(world, {
       kind: 'building', type: type, owner: owner, x: tx, y: ty, w: def.size, h: def.size,
       maxHp: def.hp, hp: complete ? def.hp : def.hp * 0.1,
-      progress: complete ? 1 : 0, complete: !!complete, queue: [], builders: 0
+      progress: complete ? 1 : 0, complete: !!complete, queue: [], builders: 0, dir: 0
     });
     if (def.walkable) RTS.map.setFloor(world.map, e, e.id);
     else RTS.map.setOccupant(world.map, e, e.id);

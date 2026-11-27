@@ -70,8 +70,8 @@
     } else if (e.kind === 'building') {
       local(ctx, cam, e.x, e.y, function () {
         var civ = world ? world.players[e.owner].civ : null;
-        var axis = e.type === 'gate' && world ? RTS.construction.gateAxis(world, e.x, e.y) : 'x';
-        if (e.complete) RTS.sprites.building(ctx, e.type, e.w, players[e.owner], e, civ, axis);
+        var axis = e.type === 'gate' && world ? RTS.construction.gateAxis(world, e.x, e.y, e.dir) : 'x';
+        if (e.complete) RTS.sprites.building(ctx, e.type, e.w, players[e.owner], e, civ, axis, e.dir);
         else RTS.sprites.construction(ctx, e.w, e.progress);
       });
     } else if (e.kind === 'animal') {
@@ -228,14 +228,28 @@
     ctx.fillStyle = ok ? 'rgba(90,220,90,0.4)' : 'rgba(230,60,40,0.55)';
     ctx.fill();
     ctx.globalAlpha = 0.6;
-    var axis = type === 'gate' ? RTS.construction.gateAxis(app.world, spot.tx, spot.ty) : 'x';
+    var dir = app.placeDir;
+    var axis = type === 'gate' ? RTS.construction.gateAxis(app.world, spot.tx, spot.ty, dir) : 'x';
     local(ctx, cam, spot.tx, spot.ty, function () {
-      RTS.sprites.buildings[type](ctx, size, RTS.data.players[app.human], null, axis);
+      RTS.sprites.building(ctx, type, size, RTS.data.players[app.human], null, null, axis, dir);
     });
     ctx.globalAlpha = 1;
     path(ctx, RTS.camera.quad(cam, spot.tx, spot.ty, size, size));
     ctx.strokeStyle = ok ? '#c9ffb8' : '#ffb0a0';
     ctx.lineWidth = 2;
+    ctx.stroke();
+    if (!RTS.data.buildings[type].gate) doorMark(ctx, cam, spot, size, dir);
+  }
+
+  // 放置時標出正門那一邊（單位出來的方向），轉到背面時也看得出朝向
+  function doorMark(ctx, cam, spot, size, dir) {
+    var q = RTS.camera.quad(cam, spot.tx, spot.ty, size, size);
+    var i = [2, 1, 0, 3][dir], a = q[i], b = q[(i + 1) % 4];
+    ctx.beginPath();
+    ctx.moveTo(a.x, a.y);
+    ctx.lineTo(b.x, b.y);
+    ctx.strokeStyle = '#ffe14a';
+    ctx.lineWidth = 5;
     ctx.stroke();
   }
 

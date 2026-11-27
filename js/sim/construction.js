@@ -18,13 +18,14 @@
   }
 
   // 城門順著哪個方向的牆：上下相接的牆比左右多時為 'y'，否則為 'x'（單獨或斜線牆也是 'x'）
-  function gateAxis(world, tx, ty) {
+  function gateAxis(world, tx, ty, dir) {
     var alongX = 0, alongY = 0;
     if (isWallOrGate(world, tx - 1, ty)) alongX++;
     if (isWallOrGate(world, tx + 1, ty)) alongX++;
     if (isWallOrGate(world, tx, ty - 1)) alongY++;
     if (isWallOrGate(world, tx, ty + 1)) alongY++;
-    return alongY > alongX ? 'y' : 'x';
+    if (alongX !== alongY) return alongY > alongX ? 'y' : 'x';
+    return dir % 2 ? 'y' : 'x';      // 沒有相鄰的牆或兩向一樣多時，照城門自己的朝向
   }
 
   // 城牆一條線上的格子（八方向的直線，斜線也連得起來）
@@ -70,10 +71,11 @@
     return has ? null : { ok: false, reason: 'needsMill' };
   }
 
-  function place(world, owner, type, tx, ty) {
+  function place(world, owner, type, tx, ty, dir) {
     var old = type === 'gate' && ownWallAt(world, owner, tx, ty);
     if (old) RTS.world.remove(world, old);      // 城門取代城牆，牆不退款
     var b = RTS.world.addBuilding(world, type, owner, tx, ty, false);
+    b.dir = ((dir | 0) % 4 + 4) % 4;
     world.entities.forEach(function (u) {
       if (u.w === undefined) RTS.move.rescue(world, u);
     });

@@ -45,16 +45,24 @@
     return true;
   }
 
-  // 建築外圍最靠近地圖中央的空格
+  // 各朝向（b.dir 0～3）正門所在的那一側
+  var DOORS = [{ x: 0, y: 1 }, { x: 1, y: 0 }, { x: 0, y: -1 }, { x: -1, y: 0 }];
+
+  // 建築外圍的空格：同一圈內先找正門那一側，再取離正門最近的
   function spawnTile(world, b) {
-    var map = world.map, cx = map.width / 2, cy = map.height / 2;
+    var map = world.map, door = DOORS[b.dir || 0];
+    var cx = b.x + (b.w - 1) / 2 + door.x * (b.w + 1) / 2, cy = b.y + (b.h - 1) / 2 + door.y * (b.h + 1) / 2;
+    function inFront(x, y) {
+      if (door.x) return door.x > 0 ? x >= b.x + b.w : x < b.x;
+      return door.y > 0 ? y >= b.y + b.h : y < b.y;
+    }
     for (var r = 1; r <= 4; r++) {
       var best = null, bestD = Infinity;
       for (var y = b.y - r; y < b.y + b.h + r; y++) {
         for (var x = b.x - r; x < b.x + b.w + r; x++) {
           var onRing = x === b.x - r || y === b.y - r || x === b.x + b.w + r - 1 || y === b.y + b.h + r - 1;
           if (!onRing || !RTS.map.isWalkable(map, x, y)) continue;
-          var d = RTS.util.dist(x, y, cx, cy);
+          var d = RTS.util.dist(x, y, cx, cy) + (inFront(x, y) ? 0 : map.width + map.height);
           if (d < bestD) { bestD = d; best = { x: x, y: y }; }
         }
       }

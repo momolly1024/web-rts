@@ -247,7 +247,7 @@
     'hint.enemySheep': 'That sheep belongs to the enemy',
     'hint.enemyTownDown': 'Enemy Town Center destroyed, {count} left',
     'hint.sheepClaimed': 'Sheep claimed: select it and right-click the ground to move it',
-    'hint.placement': 'Pick a site: left-click to place (Shift to keep placing), right-click or Esc to cancel',
+    'hint.placement': 'Pick a site: left-click to place (Shift to keep placing), Q to rotate, right-click or Esc to cancel',
     'hint.wallStart': 'Stone wall: left-click the start (right-click or Esc to cancel)',
     'hint.wallEnd': 'Stone wall: left-click the end to lay sites along the line (Shift to keep going)',
     'hint.attackMove': 'Attack move: left-click a destination, right-click or Esc to cancel',

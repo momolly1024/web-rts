@@ -74,7 +74,7 @@
     } else if (app.placement) {
       var spot = placementTile(app);
       var r = RTS.actions.issue(app, {
-        type: 'build', unitIds: units, building: app.placement, tx: spot.tx, ty: spot.ty
+        type: 'build', unitIds: units, building: app.placement, tx: spot.tx, ty: spot.ty, dir: app.placeDir
       });
       if (r.ok && !shift) app.placement = null;
     } else {
@@ -157,6 +157,10 @@
     var idle = RTS.groups.idleKey(ev.code, ev.shiftKey);
     if (idle) { ev.preventDefault(); app.selectIdle(idle); return; }
     var key = ev.code === 'Backspace' ? 'Delete' : ev.code.replace(/^Key/, '');    // Mac 鍵盤沒有 Delete 鍵
+    if (key === 'Q' && app.placement && app.placement !== 'wall') {     // 放置時轉向
+      app.placeDir = (app.placeDir + 1) % 4;
+      return;
+    }
     var action = RTS.actions.list(app).filter(function (a) { return a.hotkey === key; })[0];
     if (!action) return;
     if (key === 'Tab') ev.preventDefault();        // 切換建造選單頁，不讓瀏覽器移動焦點

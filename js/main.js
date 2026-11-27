@@ -9,7 +9,7 @@
 
   var app = {
     human: 0, world: null, ai: null, cam: null,
-    selection: [], placement: null, mode: null, drag: null,
+    selection: [], placement: null, placeDir: 0, mode: null, drag: null,
     mouse: { x: 0, y: 0, inside: false, overCanvas: false },
     keys: {}, paused: true,
     chosenDifficulty: RTS.data.defaultDifficulty,   // 下一局要用的難度
