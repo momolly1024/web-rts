@@ -16,13 +16,18 @@
   var NODE_HALF = 0.42;
   // 建築圖形最高處（屋頂、旗子）高出占地中心的高度，血條畫在它上面
   var TOP = {
-    townCenter: 3.4, house: 2.0, blacksmith: 2.0, barracks: 2.5,
+    house: 2.0, blacksmith: 2.0, barracks: 2.5,
     lumberCamp: 1.8, miningCamp: 1.9, mill: 2.6, farm: 0.6, market: 2.0, pen: 1.3,
     archeryRange: 2.2, stable: 2.6, tower: 3.1, wall: 1.3, gate: 1.5, temple: 2.6, siegeWorkshop: 2.2
   };
 
-  function topOf(e) {
-    return e.complete ? TOP[e.type] || e.h : Math.max(e.h / 2, 1.2);
+  // 主堡各時代的高度不同
+  var TOWN_TOP = [3.5, 4.0, 5.1];
+
+  function topOf(e, age) {
+    if (!e.complete) return Math.max(e.h / 2, 1.2);
+    if (e.type === 'townCenter') return TOWN_TOP[age || 0];
+    return TOP[e.type] || e.h;
   }
 
   // 占地中心的 x + y。單位與建築、正方形占地彼此之間，比中心值即得正確的前後關係

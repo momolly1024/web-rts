@@ -35,7 +35,7 @@
     return false;
   }
 
-  function snapshot(e) {
+  function snapshot(world, e) {
     var s = { id: e.id, kind: e.kind, type: e.type, owner: e.owner, x: e.x, y: e.y, w: e.w, h: e.h, ghost: true };
     if (e.kind === 'node') s.amount = e.amount;
     else {
@@ -45,6 +45,7 @@
       s.hp = e.hp;
       s.maxHp = e.maxHp;
       s.branch = e.branch;
+      s.age = RTS.research.age(world, e.owner);     // 主堡外觀跟著時代
     }
     return s;
   }
@@ -64,7 +65,7 @@
       if (!world.entities.has(id) && anyVisible(state, map.width, m)) fog.memory.delete(id);
     });
     fixed.forEach(function (e) {
-      if (e.owner !== pid && anyVisible(state, map.width, e)) fog.memory.set(e.id, snapshot(e));
+      if (e.owner !== pid && anyVisible(state, map.width, e)) fog.memory.set(e.id, snapshot(world, e));
     });
   }
 

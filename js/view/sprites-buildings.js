@@ -85,34 +85,6 @@
   }
 
   var buildings = {
-    townCenter: function (ctx, s, c) {
-      plot(ctx, s, '#8f815f');
-      // 主樓立在後方角落，大廳在前，正門前不放任何會遮擋的東西
-      var hall = [0.4, 0.75, s - 0.2, s - 0.5];
-      var v = hall[3], mid = (hall[0] + hall[2]) / 2;
-      P.layers([
-        // 深度微調：轉向後角樓與大廳深度相近時，角樓畫在上面
-        [0.62, 0.62, function () {
-          box(ctx, [0.12, 0.12, 1.12, 1.12], 0, 2.2, ['#c9c3b8', '#a8a297', '#a8a39a']);
-          spire(ctx, [0.03, 0.03, 1.21, 1.21], 2.2, 0.75, c.color, c.dark);
-          flag(ctx, 0.62, 0.62, 2.95, c.color);
-        }, 0.5],
-        [mid, (hall[1] + v) / 2, function () {
-          box(ctx, hall, 0, 1.15, ['#d3cdc1', '#a8a297', '#a8a39a']);
-          gable(ctx, [0.28, 0.63, s - 0.08, s - 0.38], 1.15, 0.85, c.color, c.dark, '#bdb7ac');
-          // 正門石框與雙扇木門、門兩側與山牆面的窗
-          onLeft(ctx, v, mid - 0.5, mid + 0.5, 0, 0.98, '#8d877d');
-          onLeft(ctx, v, mid - 0.38, mid + 0.38, 0, 0.86, '#4a3220');
-          if (P.front()) edge(ctx, [mid, v, 0], [mid, v, 0.86], '#2b1d12', 0.05);
-          [mid - 0.88, mid + 0.66].forEach(function (u) { onLeft(ctx, v, u, u + 0.22, 0.4, 0.75, '#3a4a5c'); });
-          onRight(ctx, hall[2], (hall[1] + v) / 2 - 0.2, (hall[1] + v) / 2 + 0.2, 0.4, 0.8, '#3a4a5c');
-        }],
-        // 門前石階
-        [mid, v + 0.14, function () {
-          box(ctx, [mid - 0.55, v, mid + 0.55, v + 0.28], 0, 0.08, ['#8d877d', '#77726a', '#bdb7ac']);
-        }]
-      ]);
-    },
     house: function (ctx, s, c) {
       plot(ctx, s, '#8f815f');
       var r = [0.25, 0.3, s - 0.25, s - 0.3];
@@ -309,11 +281,11 @@
     edge(ctx, [far, far, 0.2], [far, m, 1.2], '#5c4326', 0.06);
   }
 
-  // 依擁有者的文明與朝向畫完工建築；axis 只有城門用到。石牆各向相同、城門由 axis 決定方向，都不旋轉
-  function draw(ctx, type, s, c, e, civ, axis, dir) {
+  // 依擁有者的文明與朝向畫完工建築；axis 只有城門用到、age（擁有者的時代）只有主堡用到。石牆各向相同、城門由 axis 決定方向，都不旋轉
+  function draw(ctx, type, s, c, e, civ, axis, dir, age) {
     var def = RTS.data.buildings[type];
     style = RTS.civStyle.of(civ);
-    P.withTurn(def.line || def.gate ? 0 : dir || 0, s, function () { buildings[type](ctx, s, c, e, axis); });
+    P.withTurn(def.line || def.gate ? 0 : dir || 0, s, function () { buildings[type](ctx, s, c, e, axis, age); });
     style = null;
   }
 

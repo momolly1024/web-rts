@@ -88,6 +88,7 @@ your current and future units of that class (villagers are unaffected).
 - Feudal unlocks the Blacksmith, Market, Archery Range, Stable, Spearmen, Skirmishers and Handcarts, plus level 2
   economy upgrades and level 1 Blacksmith upgrades.
 - Castle unlocks level 3 economy upgrades and level 2 Handcarts and Blacksmith upgrades.
+- The Town Center changes with the age: a timber hall with a wooden lookout (Dark), a stone hall with a corner tower (Feudal), then paved ground, a tall keep and two side towers (Castle).
 - The top bar shows your age; select the Town Center to see what the next age needs.
 - Counters: cavalry beat archers, archers beat spearmen, spearmen beat cavalry, skirmishers beat
   archers; swordsmen beat archers and skirmishers up close and also beat spearmen.
@@ -444,6 +445,7 @@ js/view/                Rendering and input
   sprites-parts.js      Building art primitives and four-way rotation
   sprites-buildings.js  Building and construction-site art
   sprites-economy.js    Economy building art
+  sprites-towncenter.js Town Center art for each age
   sprites-animals.js    Animal art
   minimap.js            Minimap
   groups.js             Control groups

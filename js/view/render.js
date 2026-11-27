@@ -60,6 +60,12 @@
     ctx.stroke();
   }
 
+  // 建築擁有者的時代；記憶中的舊樣貌用最後看到時的時代
+  function ageOf(world, e) {
+    if (!world) return 0;
+    return e.ghost ? e.age : RTS.research.age(world, e.owner);
+  }
+
   function drawEntity(ctx, cam, e, world) {
     var players = RTS.data.players;
     if (e.kind === 'node') {
@@ -71,7 +77,7 @@
       local(ctx, cam, e.x, e.y, function () {
         var civ = world ? world.players[e.owner].civ : null;
         var axis = e.type === 'gate' && world ? RTS.construction.gateAxis(world, e.x, e.y, e.dir) : 'x';
-        if (e.complete) RTS.sprites.building(ctx, e.type, e.w, players[e.owner], e, civ, axis, e.dir);
+        if (e.complete) RTS.sprites.building(ctx, e.type, e.w, players[e.owner], e, civ, axis, e.dir, ageOf(world, e));
         else RTS.sprites.construction(ctx, e.w, e.progress);
       });
     } else if (e.kind === 'animal') {
@@ -117,10 +123,10 @@
     return { x: p.x, y: p.y - height * cam.scale };
   }
 
-  function healthBar(ctx, cam, e) {
+  function healthBar(ctx, cam, world, e) {
     var unit = e.w === undefined;
     var width = cam.scale * (unit ? 0.7 : e.w * 0.8);
-    var top = above(cam, e, unit ? 0.78 : RTS.depth.topOf(e) + 0.15);
+    var top = above(cam, e, unit ? 0.78 : RTS.depth.topOf(e, unit ? 0 : ageOf(world, e)) + 0.15);
     var ratio = Math.max(0, e.hp / e.maxHp);
     ctx.fillStyle = '#1c1a17';
     ctx.fillRect(top.x - width / 2 - 1, top.y - 1, width + 2, 6);
@@ -133,8 +139,8 @@
   }
 
   // 建築內有避難單位時，在屋頂上方標人數
-  function garrisonBadge(ctx, cam, b) {
-    var p = above(cam, b, RTS.depth.topOf(b) + 0.55);
+  function garrisonBadge(ctx, cam, world, b) {
+    var p = above(cam, b, RTS.depth.topOf(b, ageOf(world, b)) + 0.55);
     ctx.fillStyle = '#14202b';
     ctx.beginPath();
     ctx.arc(p.x, p.y, 10, 0, Math.PI * 2);
@@ -231,7 +237,8 @@
     var dir = app.placeDir;
     var axis = type === 'gate' ? RTS.construction.gateAxis(app.world, spot.tx, spot.ty, dir) : 'x';
     local(ctx, cam, spot.tx, spot.ty, function () {
-      RTS.sprites.building(ctx, type, size, RTS.data.players[app.human], null, null, axis, dir);
+      RTS.sprites.building(ctx, type, size, RTS.data.players[app.human], null, null, axis, dir,
+        RTS.research.age(app.world, app.human));
     });
     ctx.globalAlpha = 1;
     path(ctx, RTS.camera.quad(cam, spot.tx, spot.ty, size, size));
@@ -280,10 +287,10 @@
       ctx.globalAlpha = 1;
     });
     flat.concat(visible).forEach(function (e) {
-      if (e.kind !== 'node' && !e.ghost && (selected.has(e.id) || e.hp < e.maxHp)) healthBar(ctx, cam, e);
+      if (e.kind !== 'node' && !e.ghost && (selected.has(e.id) || e.hp < e.maxHp)) healthBar(ctx, cam, world, e);
     });
     visible.forEach(function (e) {
-      if (e.owner === app.human && e.garrison && e.garrison.length) garrisonBadge(ctx, cam, e);
+      if (e.owner === app.human && e.garrison && e.garrison.length) garrisonBadge(ctx, cam, world, e);
     });
     app.selection.forEach(function (id) {
       var b = RTS.world.get(world, id);
