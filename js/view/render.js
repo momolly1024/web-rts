@@ -236,7 +236,7 @@
     var ghost = { kind: 'building', type: type, x: spot.tx, y: spot.ty, w: area.w, h: area.h };
     RTS.depth.slices(ghost).forEach(function (s) {
       local(ctx, cam, s.x, s.y, function () {
-        RTS.sprites.building(ctx, type, s.w, RTS.data.players[app.human], null, null, s.part, dir,
+        RTS.sprites.building(ctx, type, s.w, RTS.data.players[app.human], null, app.world.players[app.human].civ, s.part, dir,
           RTS.research.age(app.world, app.human));
       });
     });
@@ -311,5 +311,5 @@
     }
   }
 
-  RTS.render = { draw: draw };
+  RTS.render = { draw: draw, placement: drawPlacement };
 })();
