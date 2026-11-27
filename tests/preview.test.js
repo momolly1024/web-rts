@@ -1,4 +1,4 @@
-// 放置預覽：用自己種族的建築樣式
+// 放置預覽：用自己民族的建築樣式
 'use strict';
 const assert = require('assert');
 const path = require('path');
@@ -6,7 +6,7 @@ const { RTS, arena, root, scripts } = require('./helpers');
 
 scripts.filter(s => /view\/(sprites[\w-]*|render)\.js$/.test(s)).forEach(s => require(path.join(root, s)));
 
-test('放置預覽：建築套用自己的種族樣式', () => {
+test('放置預覽：建築套用自己的民族樣式', () => {
   const world = arena(40);
   world.players[0].civ = 'ironrock';
   world.players[1].civ = 'greenwood';

@@ -328,17 +328,17 @@ The default follows the browser language (Traditional Chinese for any `zh` local
 English). Your choice is saved in `localStorage`. Where that is unavailable (some browsers under
 `file://`, or private mode) switching still works but is not remembered.
 
-## Races
+## Peoples
 
 Choose one on the start screen or in the Restart dialog (Random by default). The computer always
-picks at random, and both are shown at the top left of the battlefield. Each race has its
+picks at random, and both are shown at the top left of the battlefield. Each people has its
 own building style, emblem and top bar color; team colors (blue and red) stay on every roof.
 
-| Race | Bonuses | Weakness | Unique unit (Feudal Age) |
+| People | Bonuses | Weakness | Unique unit (Feudal Age) |
 |------|------|------|------|
-| Sylvans (timber, steep roofs) | Wood gathering +30%; ranged units range +1 | Cavalry health -20 | Ranger (Archery Range, F): fast, far-sighted archer |
-| Dwarves (stone, battlements) | Gold and stone gathering +30%; melee armor +2; Arrow Tower range +2 | Villager speed -10% | Stoneguard (Barracks, C): slow, heavily armored infantry |
-| Centaurs (thatched domes) | Farm food +120; villager speed +20%; Cavalry and Lancer health +40 | Ranged units range -0.5 | Lancer (Stable, R): fastest rider, strong against archers and villagers |
+| Greenwood (timber, steep roofs) | Wood gathering +30%; ranged units range +1 | Cavalry health -20 | Ranger (Archery Range, F): fast, far-sighted archer |
+| Ironrock (stone, battlements) | Gold and stone gathering +30%; melee armor +2; Arrow Tower range +2 | Villager speed -10% | Stoneguard (Barracks, C): slow, heavily armored infantry |
+| Meadowland (thatched domes) | Farm food +120; villager speed +20%; Cavalry and Lancer health +40 | Ranged units range -0.5 | Lancer (Stable, R): fastest rider, strong against archers and villagers |
 
 ## Sound
 
@@ -407,7 +407,7 @@ js/sim/                 Simulation (no DOM, no display text)
   map.js                Tile grid, walkability, free-tile search
   pathfind.js           A* pathfinding
   world.js              Entities, resources, population and queries
-  civs.js               Race bonuses
+  civs.js               Bonuses of each people
   mapgen.js             Symmetric random maps
   movement.js           Path following, re-planning, spreading out
   gather.js             Gathering and delivery
@@ -447,7 +447,7 @@ js/view/                Rendering and input
   camera.js             The only place that converts world and screen coordinates (isometric)
   depth.js              Draw order, click and box-selection hit tests
   sprites.js            Original vector art: resources and units
-  sprites-civ.js        Building styles of each race
+  sprites-civ.js        Building styles of each people
   sprites-parts.js      Building art primitives and four-way rotation
   sprites-buildings.js  Building and construction-site art
   sprites-economy.js    Economy building art
@@ -463,7 +463,7 @@ js/view/                Rendering and input
   upgrade-info.js       Research names and effect descriptions
   actions.js            Command buttons and selection details
   tooltip.js            Hover box for command buttons
-  civ-picker.js         Race cards, emblems, on-field label and top bar color
+  civ-picker.js         Cards for each people, emblems, on-field label and top bar color
   sound-events.js       Which sounds the current frame should make
   sound.js              Synthesized sound effects and the on/off setting
   hud.js                Top bar, panel, dialogs
