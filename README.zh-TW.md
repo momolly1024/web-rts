@@ -4,6 +4,8 @@
 
 原創的中世紀即時戰略原型：單機對電腦，純 JavaScript + HTML5 Canvas，零相依、免建置。
 
+**線上遊玩：** https://momolly1024.github.io/web-rts/
+
 ## 開始遊戲
 
 雙擊 `index.html`（`file://` 即可）。建議使用桌面版 Chrome 或 Edge，需要滑鼠與鍵盤。
