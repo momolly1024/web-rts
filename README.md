@@ -27,7 +27,7 @@ mouse and keyboard is recommended.
 | Building | Cost | Purpose |
 |------|------|------|
 | Town Center | 300 wood, 100 gold | Trains villagers, receives every resource, researches Handcarts, +5 population |
-| House | 50 wood | +5 population (total limit 50) |
+| House | 50 wood | +5 population (no overall limit) |
 | Barracks | 150 wood | Trains swordsmen, archers and spearmen (Feudal) |
 | Archery Range (Feudal) | 150 wood | Trains skirmishers and longbowmen; researches the longbowman upgrade |
 | Stable (Feudal) | 150 wood | Trains cavalry |
@@ -303,7 +303,7 @@ Listed when a match ends. The sheep line always shows; the others only when earn
 | Demolition Crew | Raze 10 enemy buildings |
 | Moving Up | Reach the Castle Age |
 | Second Home | End with 2 finished Town Centers |
-| Full House | Train up to the population limit of 50 |
+| Full House | Train your population up to 50 |
 | Labor Violation | Take down 10 enemy villagers |
 | Boar Snack | Lose a villager to a wild boar |
 | Shepherd's Betrayal | Slaughter 5 of your own sheep |

@@ -163,7 +163,7 @@
         e.queue.forEach(function (q) { if (q.type) queued += RTS.data.units[q.type].pop; });     // 研究與改建不佔人口
       }
     });
-    return { used: used, queued: queued, cap: Math.min(cap, RTS.data.POP_MAX) };
+    return { used: used, queued: queued, cap: cap };
   }
 
   RTS.world = {

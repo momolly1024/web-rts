@@ -184,7 +184,7 @@
     });
 
     var housePending = ctx.buildings.some(function (b) { return b.type === 'house' && !b.complete; });
-    var needHouse = pop.cap - pop.used - pop.queued <= 2 && pop.cap < RTS.data.POP_MAX && !housePending;
+    var needHouse = pop.cap - pop.used - pop.queued <= 2 && !housePending;
     if (needHouse) startBuilding(ctx, 'house');
 
     var barracks = countType(ctx.buildings, 'barracks');

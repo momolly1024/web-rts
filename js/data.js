@@ -7,7 +7,6 @@
   RTS.data = {
     TICK: 0.05,            // 固定時間步長（秒）
     MAP_SIZE: 64,
-    POP_MAX: 50,
     QUEUE_MAX: 5,
     START_VILLAGERS: 4,
     START_RESOURCES: { food: 200, wood: 200, gold: 100, stone: 0 },
@@ -316,12 +315,13 @@
       'lumberCamp', 'miningCamp', 'mill', 'farm', 'market', 'pen', 'archeryRange', 'stable',
       'tower', 'wall', 'gate', 'temple', 'siegeWorkshop'],
 
+    // 人口沒有上限，房屋蓋多少就加多少
     // 成就：「贏過了幾 % 的玩家」用的對照表 [數量, 百分比]。沒有真實玩家資料，這是估計值，可自行調整
     achievements: {
       // 其他成就的門檻：blitz、pacifist 為秒數，hoarder 為結束時四種資源總和，其餘為次數
       need: {
         blitz: 600, slayer: 30, razer: 10, expander: 2, merciless: 10, boarSnack: 1, butcher: 5,
-        demolisher: 3, merchant: 10, hoarder: 2000, pacifist: 300
+        demolisher: 3, merchant: 10, hoarder: 2000, pacifist: 300, fullHouse: 50
       },
       sheep: [[0, 0], [1, 10], [2, 25], [4, 45], [6, 62], [8, 75], [10, 84], [12, 90], [15, 95], [20, 98], [30, 99]]
     },

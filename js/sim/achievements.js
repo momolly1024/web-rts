@@ -35,10 +35,10 @@
     if (villager) bump(world, killer, 'villagerKills');
   }
 
-  // 訓練完成：記士兵數，以及人口是否到過總上限
+  // 訓練完成：記士兵數，以及人口是否到過「客滿」成就的門檻
   function trained(world, pid, type) {
     if (RTS.data.units[type].military) bump(world, pid, 'soldiers');
-    if (RTS.world.population(world, pid).used >= RTS.data.POP_MAX) bump(world, pid, 'fullHouse');
+    if (RTS.world.population(world, pid).used >= RTS.data.achievements.need.fullHouse) bump(world, pid, 'fullHouse');
   }
 
   // 依 data.js 的估計對照表內插出「贏過了幾 % 的玩家」
@@ -66,7 +66,7 @@
     if (RTS.research.age(world, pid) >= RTS.data.ages.length - 1) add('castle');
     var towns = RTS.world.buildingsOf(world, pid, 'townCenter').filter(function (b) { return b.complete; }).length;
     reach('expander', towns);
-    if (stat(world, pid, 'fullHouse')) add('fullHouse', RTS.data.POP_MAX);
+    if (stat(world, pid, 'fullHouse')) add('fullHouse', need.fullHouse);
 
     reach('merciless', stat(world, pid, 'villagerKills'));
     reach('boarSnack', stat(world, pid, 'boarDeaths'));

@@ -298,9 +298,7 @@
     }
     if (e.complete && e.owner === human && def.trains.length) {
       var pop = RTS.world.population(app.world, human);
-      if (pop.used + pop.queued >= pop.cap) {
-        lines.push(t(pop.cap >= RTS.data.POP_MAX ? 'error.popMax' : 'error.popCap'));
-      }
+      if (pop.used + pop.queued >= pop.cap) lines.push(t('error.popCap'));
     }
     if (def.garrison && e.owner === human) {
       lines.push(t('info.garrison', { count: RTS.garrison.count(e), max: def.garrison.capacity }));
