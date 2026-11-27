@@ -109,8 +109,17 @@ test('AI 經濟建設：沒有野外食物時蓋磨坊與農田並派人耕作',
   assert.ok(ok, '應有村民在種田');
 });
 
+// 存錢升時代期間不研究經濟科技，所以要跑到升上城堡時代之後；玩家不動才跑得到那麼久
 slowTest('AI 經濟建設：資源有餘時研究經濟科技', () => {
-  const g = longGame(7);
+  const world = RTS.game.create(7);
+  const target = RTS.world.buildingsOf(world, 0, 'townCenter')[0];
+  target.hp = target.maxHp = 1e9;
+  const ai = RTS.ai.create(1);
   const tracks = ['woodcutting', 'farmYield', 'goldMining', 'handcart', 'stoneMining'];
-  assert.ok(g.upgrades.some(u => tracks.some(t => u[t])), JSON.stringify(g.upgrades));
+  const upgrades = world.players[1].upgrades;
+  for (let i = 0; i < 30000 && !tracks.some(t => upgrades[t]); i++) {
+    ai.update(world, RTS.data.TICK);
+    RTS.game.step(world);
+  }
+  assert.ok(tracks.some(t => upgrades[t]), JSON.stringify(upgrades));
 });

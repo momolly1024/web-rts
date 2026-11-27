@@ -22,6 +22,7 @@
       var branches = RTS.data.buildings[b.type].branches;
       if (!branches || b.branch || b.queue.length || !b.complete) return;
       var cost = branches.damage.cost, res = ctx.world.players[ctx.pid].res;
+      if (AI.age.holds(ctx, cost)) return;
       if (Object.keys(cost).every(function (k) { return res[k] >= cost[k] * 2; })) {
         ctx.issue({ type: 'branch', buildingId: b.id, branch: 'damage' });
       }
@@ -38,8 +39,13 @@
       return;
     }
     var smith = smiths[0], track = nextTrack(ctx, cfg.maxLevel);
-    if (track && smith.complete && !smith.queue.length) ctx.issue({ type: 'research', buildingId: smith.id, track: track });
+    if (track && smith.complete && !smith.queue.length) research(ctx, smith, track);
     upgradeUnits(ctx);
+  }
+
+  function research(ctx, b, track) {
+    var next = RTS.data.upgrades[track].levels[RTS.research.level(ctx.world, ctx.pid, track)];
+    if (next && !AI.age.holds(ctx, next.cost)) ctx.issue({ type: 'research', buildingId: b.id, track: track });
   }
 
   // 兵種升級：在對應的生產建築研究，排在出兵前面（研究期間該建築不出兵）
@@ -50,7 +56,7 @@
         var r = RTS.data.buildings[e.type].researches;
         return e.complete && !e.queue.length && r && r.indexOf(track) >= 0;
       })[0];
-      if (b && RTS.research.check(ctx.world, b, track).ok) ctx.issue({ type: 'research', buildingId: b.id, track: track });
+      if (b && RTS.research.check(ctx.world, b, track).ok) research(ctx, b, track);
     });
   }
 

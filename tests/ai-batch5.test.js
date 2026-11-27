@@ -280,6 +280,25 @@ test('AI 後期成長：存錢升時代期間，後期每隔一段時間補一�
   }
 });
 
+test('AI 升時代：存錢期間不研究花食物或黃金的科技', () => {
+  const ctx = saving => ({ state: { saving } });
+  assert.strictEqual(RTS.ai.age.holds(ctx(true), { food: 100 }), true);
+  assert.strictEqual(RTS.ai.age.holds(ctx(true), { wood: 50, gold: 40 }), true);
+  assert.strictEqual(RTS.ai.age.holds(ctx(true), { wood: 100, stone: 50 }), false);
+  assert.strictEqual(RTS.ai.age.holds(ctx(false), { food: 100 }), false);
+  for (const [food, expected] of [[500, 0], [5000, 1]]) {
+    // 食物 500 不夠升城堡（700）但夠研究鐵匠鋪；5000 則直接升時代，之後照常研究
+    const s = setup({ army: RTS.data.ai.armyMax, resources: { food, wood: 1000, gold: 1000, stone: 0 } });
+    const smith = RTS.world.addBuilding(s.world, 'blacksmith', AI_ID, 14, 8, true);
+    for (const [type, x] of [['lumberCamp', 20], ['barracks', 24], ['stable', 28]]) {
+      RTS.world.addBuilding(s.world, type, AI_ID, x, 14, true);
+    }
+    s.world.players[AI_ID].upgrades.age = 1;
+    think(s.world, RTS.ai.create(AI_ID));
+    assert.strictEqual(smith.queue.length, expected, '食物 ' + food);
+  }
+});
+
 // 整局：電腦對上不動的玩家，15 分鐘時軍隊應超過原上限
 slowTest('AI 後期成長：整局中 15 分鐘時軍隊超過原上限', () => {
   for (const seed of [7, 2024]) {
@@ -298,5 +317,6 @@ slowTest('AI 後期成長：整局中 15 分鐘時軍隊超過原上限', () => 
     }
     console.log(`      seed ${seed} 15 分鐘內軍隊最多 ${peak} 人，升城堡於 ${castle || '未升'} 秒`);
     assert.ok(peak > RTS.data.ai.armyMax, `seed ${seed} peak ${peak}`);
+    assert.ok(castle > 0, `seed ${seed} 15 分鐘內應升上城堡時代`);
   }
 });

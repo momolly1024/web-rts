@@ -93,7 +93,7 @@
       var next = RTS.data.upgrades[track].levels[level];
       if (!next || level >= cfg.techLevel) continue;
       var spare = Object.keys(next.cost).every(function (k) { return res[k] - next.cost[k] >= TECH_SPARE; });
-      if (!spare) continue;
+      if (!spare || AI.age.holds(ctx, next.cost)) continue;
       var at = ctx.buildings.filter(function (b) {
         var r = RTS.data.buildings[b.type].researches;
         return b.complete && !b.queue.length && r && r.indexOf(track) >= 0;

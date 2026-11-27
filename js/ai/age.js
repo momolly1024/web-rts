@@ -31,5 +31,10 @@
     ctx.state.saving = true;
   }
 
-  AI.age = { develop: develop };
+  // 存錢升時代期間，花食物或黃金的研究先不做，否則一直存不到
+  function holds(ctx, cost) {
+    return !!ctx.state.saving && !!(cost.food || cost.gold);
+  }
+
+  AI.age = { develop: develop, holds: holds };
 })();
