@@ -421,8 +421,8 @@
     difficulties: {
       easy: {
         ai: {
-          thinkInterval: 2.5, graceTime: 600, villagerTarget: 9, attackSize: 4, waveGrowth: 1,
-          attackSizeMax: 8, waveInterval: 180, maxBarracks: 1, trainGap: 50, techSaveAt: 10,
+          thinkInterval: 2.5, graceTime: 420, villagerTarget: 9, attackSize: 4, waveGrowth: 1,
+          attackSizeMax: 8, waveInterval: 170, maxBarracks: 1, trainGap: 30, techSaveAt: 10,
           blacksmith: { atArmy: 7, maxLevel: 1 },
           repair: { threshold: 0.4, workers: 1 },
           shelter: { radius: 6, minEnemies: 3, woundedBelow: 0 },
@@ -463,19 +463,19 @@
     ai: {
       attack: true,          // false 時永遠不發動進攻（和平世界）
       thinkInterval: 1.0,
-      graceTime: 360,        // 開局緩衝（秒），此前 AI 不進攻
+      graceTime: 390,        // 開局緩衝（秒），此前 AI 不進攻
       villagerTarget: 14,
       gatherRatio: { food: 0.42, wood: 0.32, gold: 0.18, stone: 0.08 },   // 封建以後也採石材（箭塔）
       gatherRatioDark: { food: 0.45, wood: 0.35, gold: 0.2 },  // 黑暗時代用不到石材
-      attackSize: 6,         // 第一波人數
+      attackSize: 5,         // 第一波人數
       waveGrowth: 1,
-      attackSizeMax: 10,
-      waveInterval: 100,     // 兩波之間至少間隔（秒）
-      trainGap: 8,           // 兩次訓練士兵至少隔幾秒（全部建築合計，0 表示不限）；軍隊人數不設上限
+      attackSizeMax: 9,
+      waveInterval: 140,     // 兩波之間至少間隔（秒）
+      trainGap: 18,          // 兩次訓練士兵至少隔幾秒（全部建築合計，0 表示不限）；軍隊人數不設上限
       techSaveAt: 14,        // 軍隊達幾人後，有待研究的科技就先保留那筆資源，再繼續出兵
       // 後期成長（null 表示不成長）：開局 after 秒後，每 every 秒單波上限加 step 人，
       // 最多到這裡的 attackSizeMax。成長期間存錢升時代時，仍每 drip 秒補一名士兵
-      late: { after: 600, every: 60, step: 2, attackSizeMax: 16, drip: 30 },
+      late: { after: 900, every: 60, step: 2, attackSizeMax: 13, drip: 30 },
       defendRadius: 11,
       maxBarracks: 2,
       blacksmith: { atArmy: 6, maxLevel: 2 },  // 軍隊達幾人後投資科技、最多研究到幾級

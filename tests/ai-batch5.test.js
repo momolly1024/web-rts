@@ -247,11 +247,11 @@ test('AI 訓練間隔：所有建築合計，間隔內只出一名；下次輪�
   assert.ok(barracks.queue.some(q => q.type) && stable.queue.some(q => q.type), '兩座都輪到');
 });
 
-test('AI 訓練間隔：簡單與和平世界最長、困難不限', () => {
+test('AI 訓練間隔：愈難愈短、困難不限，和平世界最長', () => {
   const gap = key => RTS.ai.config(key).trainGap;
   assert.ok(gap('easy') > gap('normal') && gap('normal') > gap('hard'));
   assert.strictEqual(gap('hard'), 0);
-  assert.strictEqual(gap('peaceful'), gap('easy'));
+  assert.ok(gap('peaceful') > gap('easy'));
 });
 
 test('AI 科技：兵力達 techSaveAt 後，出兵不花掉下一個研究的資源', () => {

@@ -254,14 +254,14 @@ no extra resources or combat stats, and it can act only through the same command
 
 | Parameter (`js/data.js`) | Easy | Normal | Hard |
 |------|------|------|------|
-| Grace period `graceTime` (s) | 600 | 360 | 240 |
+| Grace period `graceTime` (s) | 420 | 390 | 240 |
 | Think interval `thinkInterval` (s) | 2.5 | 1.0 | 0.5 |
 | Villager target `villagerTarget` | 9 | 14 | 20 |
-| First wave `attackSize` | 4 | 6 | 8 |
+| First wave `attackSize` | 4 | 5 | 8 |
 | Growth per wave `waveGrowth` | 1 | 1 | 3 |
-| Largest wave `attackSizeMax` | 8 | 10 | 20 |
-| Minimum gap between waves `waveInterval` (s) | 180 | 100 | 55 |
-| Gap between trained soldiers `trainGap` (s, 0 = none) | 50 | 8 | 0 |
+| Largest wave `attackSizeMax` | 8 | 9 | 20 |
+| Minimum gap between waves `waveInterval` (s) | 170 | 140 | 55 |
+| Gap between trained soldiers `trainGap` (s, 0 = none) | 30 | 18 | 0 |
 | Barracks limit `maxBarracks` | 1 | 2 | 3 |
 | Army size before research / top level `blacksmith` | 7 / 1 | 6 / 2 | 5 / 2 |
 | Repair below / workers `repair` | 40% / 1 | 70% / 2 | 90% / 3 |
@@ -278,7 +278,7 @@ The computer has no army limit on any difficulty: like you, it is limited only b
 Once its army reaches `techSaveAt` (10 on Easy, 14 on Normal and Peaceful, 26 on Hard), it sets aside the cost of a pending research before training more.
 
 On Normal (and Peaceful, which shares its base settings) attacks grow in long matches:
-after 10 minutes the largest wave gains 2 per minute, up to 16 (`ai.late` in
+after 15 minutes the largest wave gains 2 per minute, up to 13 (`ai.late` in
 `js/data.js`). Easy and Hard do not change over time. While saving for the Castle Age late in a match it still adds one soldier every 30 seconds (`ai.late.drip`).
 
 When you destroy an enemy Town Center and they still have another, a message says how many are left.
