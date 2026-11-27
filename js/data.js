@@ -246,13 +246,13 @@
       },
       // 石牆：一格，拖一條線一次放多格
       wall: {
-        cost: { stone: 5 }, size: 1, hp: 600, buildTime: 5, age: 1,
+        cost: { stone: 5 }, size: 1, hp: 600, buildTime: 3, age: 1,
         pop: 0, vision: 1, trains: [], dropoff: false, hotkey: 'Z', line: true,
         armorType: 'building', armor: { melee: 4, pierce: 6 }
       },
       // 城門：length 格長、1 格厚，整段自己人可通過、別人不行；可蓋在空地或直接取代自己的城牆
       gate: {
-        cost: { stone: 60 }, size: 1, length: 4, hp: 1600, buildTime: 20, age: 1,
+        cost: { stone: 60 }, size: 1, length: 4, hp: 1600, buildTime: 12, age: 1,
         pop: 0, vision: 2, trains: [], dropoff: false, hotkey: 'U', gate: true, walkable: true,
         armorType: 'building', armor: { melee: 4, pierce: 6 }
       },
