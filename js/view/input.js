@@ -172,12 +172,6 @@
     if (action.enabled) action.run(); else app.notify(action.reason);
   }
 
-  // F11 或網頁全螢幕
-  function isFullscreen() {
-    return window.matchMedia('(display-mode: fullscreen)').matches ||
-      (window.innerWidth >= window.screen.width && window.innerHeight >= window.screen.height);
-  }
-
   // 滑出視窗時，把游標位置貼到離離開點最近的那一側邊緣
   function edgeAfterLeave(x, y, w, h) {
     var px = RTS.util.clamp(x, 0, w - 1), py = RTS.util.clamp(y, 0, h - 1);
@@ -190,11 +184,11 @@
     return { x: px, y: py };
   }
 
-  // 一般視窗：滑出去就停止邊緣捲動。全螢幕（多螢幕時滑到隔壁螢幕）：繼續朝那一側捲，
-  // 滑回來或點其他視窗（blur）才停
+  // 滑出視窗後繼續朝那一側捲，滑回來或點其他視窗（blur）才停。
+  // 視窗本來就沒有焦點時不捲：之後不會再有 blur，會一路捲到地圖邊緣
   function leaveWindow(app, ev) {
     var m = app.mouse;
-    if (!isFullscreen()) { m.inside = false; return; }
+    if (!document.hasFocus()) { m.inside = false; return; }
     var p = edgeAfterLeave(ev.clientX, ev.clientY, app.cam.viewW, app.cam.viewH);
     m.x = p.x;
     m.y = p.y;
