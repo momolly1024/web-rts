@@ -37,7 +37,7 @@ function simulate(seed, difficulty) {
   const ai = RTS.ai.create(AI_ID, difficulty);
   const target = RTS.world.buildingsOf(world, 0, 'townCenter')[0];
   target.hp = target.maxHp = 1e9;
-  const log = { firstAttack: null, firstWave: 0, firstDamage: null, peakArmy: 0, trained: new Set() };
+  const log = { firstAttack: null, firstWave: 0, firstDamage: null, peakArmy: 0, overCap: 0, trained: new Set() };
   for (let i = 0; i < HORIZON / RTS.data.TICK; i++) {
     ai.update(world, RTS.data.TICK);
     RTS.game.step(world);
@@ -45,6 +45,8 @@ function simulate(seed, difficulty) {
     const army = RTS.world.unitsOf(world, AI_ID).filter(u => RTS.data.units[u.type].military);
     army.forEach(u => log.trained.add(u.id));
     log.peakArmy = Math.max(log.peakArmy, army.length);
+    // 上限會隨時間成長（後期成長），要用當下的上限檢查
+    if (army.length > RTS.ai.effective(RTS.ai.config(difficulty), world.time).armyMax) log.overCap++;
     if (log.firstAttack === null && ai.state.waves > 0) {
       log.firstAttack = Math.round(world.time);
       log.firstWave = Object.keys(ai.state.wave).length;
@@ -65,7 +67,7 @@ for (const seed of SEEDS) {
       assert.ok(log.firstAttack !== null && log.firstDamage !== null, '應進攻並打到玩家 ' + info);
       assert.ok(log.firstAttack >= cfg.graceTime, '緩衝期內不可進攻 ' + info);
       assert.strictEqual(log.firstWave, cfg.attackSize, info);
-      assert.ok(log.peakArmy <= cfg.armyMax, info);
+      assert.strictEqual(log.overCap, 0, '兵力不可超過當下上限 ' + info);
       return log;
     });
     for (const field of ['firstAttack', 'firstDamage']) {
