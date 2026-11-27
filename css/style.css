@@ -53,7 +53,7 @@ button:disabled, button[aria-disabled="true"] { opacity: 0.45; cursor: not-allow
 #difficulty b { color: var(--brass); }
 #topbar nav { display: flex; gap: 8px; }
 #topbar nav button { white-space: nowrap; }
-#topbar dd, #clock { white-space: nowrap; }
+#topbar dt, #topbar dd, #clock { white-space: nowrap; }
 #civ-badge {
   position: fixed; top: 56px; left: 8px; padding: 2px 8px; font-size: 13px;
   background: rgba(20, 32, 43, 0.88); border-radius: 3px;
@@ -200,7 +200,8 @@ h2 { font-size: 22px; color: var(--brass); }
   #topbar dl { gap: 14px; }
 }
 
-@media (max-width: 1200px) {
+/* 資源名稱不折行：放不下時先縮間距，再隱藏名稱只留色塊 */
+@media (max-width: 1460px) {
   #topbar { gap: 12px; padding: 0 10px; }
   #topbar dl { gap: 10px; }
   #topbar dd { min-width: 2.4em; font-size: 16px; }
@@ -209,10 +210,13 @@ h2 { font-size: 22px; color: var(--brass); }
   #age .prefix { display: none; }
 }
 
+@media (max-width: 1150px) {
+  #topbar dt { font-size: 0; }
+}
+
 @media (max-width: 1040px) {
   #minimap { width: 170px; height: 102px; }
   #toast { bottom: 300px; max-width: calc(100% - 32px); }
-  #topbar dt { font-size: 0; }
   #difficulty .prefix { display: none; }
   #topbar { gap: 10px; }
   #panel { grid-template-columns: minmax(230px, 1.3fr) minmax(80px, 0.35fr) minmax(0, 2fr); gap: 10px; }

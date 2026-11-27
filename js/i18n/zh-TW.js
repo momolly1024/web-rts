@@ -293,7 +293,7 @@
     'help.orderKeys': '右鍵',
     'help.orderText': '依目標移動、採集、釣魚（村民點水面）、攻擊、施工、修理、交付；選生產建築時設定集結點',
     'help.scrollKeys': '方向鍵／WASD',
-    'help.scrollText': '捲動畫面（滑鼠移到視窗邊緣也可以）',
+    'help.scrollText': '捲動畫面（滑鼠移到視窗邊緣也可以）；滾輪縮放',
     'help.groupKeys': 'Ctrl／Alt + 數字',
     'help.groupText': '設定部隊編號；按數字選取，連按兩下跳到該處',
     'help.tip': '相剋：騎兵剋弓箭手、弓箭手剋長槍兵、長槍兵剋騎兵、標槍兵剋弓箭手。',

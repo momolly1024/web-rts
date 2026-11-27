@@ -1,10 +1,12 @@
-// 滑鼠與鍵盤：選取、右鍵指令、建築放置、鏡頭捲動、快捷鍵。
+// 滑鼠與鍵盤：選取、右鍵指令、建築放置、鏡頭捲動與縮放、快捷鍵。
 (function () {
   'use strict';
   var RTS = globalThis.RTS || (globalThis.RTS = {});
 
   var SCROLL_SPEED = 720;   // 像素／秒
   var EDGE = 10;
+  var WHEEL_STEP = 50;      // 累積多少滾動量換一級（觸控板一次只送很小的量）
+  var WHEEL_LINE = 33;      // 以「行」回報滾動量的瀏覽器，一行換算的像素
   var SCROLL_KEYS = {
     ArrowUp: [0, -1], ArrowDown: [0, 1], ArrowLeft: [-1, 0], ArrowRight: [1, 0],
     KeyW: [0, -1], KeyS: [0, 1], KeyA: [-1, 0], KeyD: [1, 0]
@@ -190,6 +192,19 @@
     m.inside = true;
   }
 
+  // 滾輪往上放大、往下縮小；一次事件最多換一級。Ctrl + 滾輪留給瀏覽器
+  function wheel(app, ev) {
+    if (ev.ctrlKey) return;
+    ev.preventDefault();
+    if (app.hud.overlay()) return;
+    var delta = ev.deltaY * (ev.deltaMode === 1 ? WHEEL_LINE : 1);
+    if (delta * app.wheel < 0) app.wheel = 0;     // 反向時重新累積
+    app.wheel = (app.wheel || 0) + delta;
+    if (Math.abs(app.wheel) < WHEEL_STEP) return;
+    RTS.camera.zoomAt(app.cam, app.wheel < 0 ? 1 : -1, ev.clientX, ev.clientY);
+    app.wheel = 0;
+  }
+
   function bind(app, canvas) {
     var m = app.mouse;
     window.addEventListener('mousemove', function (ev) {
@@ -220,6 +235,7 @@
       finishSelection(app, app.drag, ev.shiftKey);
       app.drag = null;
     });
+    canvas.addEventListener('wheel', function (ev) { wheel(app, ev); }, { passive: false });
     canvas.addEventListener('dblclick', function (ev) {
       var e = pick(app, ev.clientX, ev.clientY);
       if (e && e.w === undefined && e.owner === app.human) {
@@ -255,5 +271,5 @@
   }
 
   RTS.input = { bind: bind, scroll: scroll, placementTile: placementTile, pick: pick,
-    edgeAfterLeave: edgeAfterLeave, leaveWindow: leaveWindow };
+    edgeAfterLeave: edgeAfterLeave, leaveWindow: leaveWindow, wheel: wheel };
 })();

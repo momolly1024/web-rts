@@ -19,7 +19,11 @@
   }
 
   function create(mapW, mapH) {
-    return { x: 0, y: 0, viewW: 800, viewH: 600, scale: SCALE, mapW: mapW, mapH: mapH };
+    var zoom = RTS.data.zoom;
+    return {
+      x: 0, y: 0, viewW: 800, viewH: 600, scale: SCALE * zoom.levels[zoom.start], level: zoom.start,
+      mapW: mapW, mapH: mapH
+    };
   }
 
   function worldToScreen(cam, wx, wy) {
@@ -68,6 +72,19 @@
     clamp(cam);
   }
 
+  // 放大（steps > 0）或縮小幾級，螢幕上 (sx, sy) 指到的地面位置不動
+  function zoomAt(cam, steps, sx, sy) {
+    var levels = RTS.data.zoom.levels;
+    var level = RTS.util.clamp(cam.level + steps, 0, levels.length - 1);
+    if (level === cam.level) return;
+    var scale = SCALE * levels[level];
+    cam.x += sx / cam.scale - sx / scale;
+    cam.y += sy / cam.scale - sy / scale;
+    cam.level = level;
+    cam.scale = scale;
+    clamp(cam);
+  }
+
   function resize(cam, w, h) {
     cam.viewW = w;
     cam.viewH = h;
@@ -96,6 +113,6 @@
   RTS.camera = {
     project: project, unproject: unproject, create: create,
     worldToScreen: worldToScreen, screenToWorld: screenToWorld, quad: quad, focusPoint: focusPoint,
-    pan: pan, centerOn: centerOn, resize: resize, visibleTiles: visibleTiles, onScreen: onScreen
+    pan: pan, centerOn: centerOn, zoomAt: zoomAt, resize: resize, visibleTiles: visibleTiles, onScreen: onScreen
   };
 })();

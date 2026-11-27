@@ -293,7 +293,7 @@
     'help.orderKeys': 'Right-click',
     'help.orderText': 'Move, gather, fish (villagers on water), attack, build, repair or deliver; with a training building selected, set its rally point',
     'help.scrollKeys': 'Arrows / WASD',
-    'help.scrollText': 'Scroll the view (or move the mouse to the window edge)',
+    'help.scrollText': 'Scroll the view (or move the mouse to the window edge); mouse wheel zooms',
     'help.groupKeys': 'Ctrl / Alt + digit',
     'help.groupText': 'Set a group; press the digit to select it, twice to jump there',
     'help.tip': 'Counters: cavalry beat archers, archers beat spearmen, spearmen beat cavalry, skirmishers beat archers.',
