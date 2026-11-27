@@ -33,7 +33,7 @@ mouse and keyboard is recommended.
 | Stable (Feudal) | 150 wood | Trains cavalry |
 | Arrow Tower (Feudal) | 25 wood, 125 stone | One tile; shoots enemy units within 7 tiles |
 | Stone Wall (Feudal) | 5 stone per tile | Blocks the way; click the start, then the end, to lay a whole line |
-| Gate (Feudal) | 30 stone | Your units pass, enemies cannot; can replace a tile of your own wall |
+| Gate (Feudal) | 60 stone | 4 tiles long; your units pass, enemies cannot; can replace your own wall |
 | Temple (Castle) | 175 wood | Trains healers |
 | Siege Workshop (Castle) | 200 wood | Trains battering rams |
 | Blacksmith | 130 wood | Researches attack and armor |
@@ -99,8 +99,9 @@ your current and future units of that class (villagers are unaffected).
   tower for Stronger towers: +3 attack and +1 range for all your towers.
 - **Stone walls**: with villagers press Z, click the start and then the end; a site goes on every tile
   of the line (as far as your stone lasts) and villagers build them from the nearest one.
-- **Gates**: press U and place one on open ground or on a tile of your own wall to replace it. Your
-  units walk through; enemies cannot.
+- **Gates**: press U to place one, 4 tiles long and 1 thick. Near walls it lines up with them;
+  otherwise Q switches between the two directions. It fits on open ground or over your own walls
+  (walls under it are replaced, with no refund). Your units can walk through any part; enemies cannot.
 - An army that cannot reach its target because of walls attacks the enemy building in its way.
 - **Battering rams** only attack buildings and healers cannot attack, so right-clicking an enemy unit
   does nothing for them.

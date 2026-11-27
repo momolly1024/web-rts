@@ -10,7 +10,7 @@
   var WALL = {
     townCenter: 1.7, house: 1.0, blacksmith: 1.0, barracks: 1.1,
     lumberCamp: 0.9, miningCamp: 0.9, mill: 1.0, farm: 0.05, market: 1.0, pen: 0.5,
-    archeryRange: 1.0, stable: 1.1, tower: 2.2, wall: 0.9, gate: 1.2, temple: 1.2, siegeWorkshop: 1.1
+    archeryRange: 1.0, stable: 1.1, tower: 2.2, wall: 0.9, gate: 1.3, temple: 1.2, siegeWorkshop: 1.1
   };
   var NODE = { tree: 0.95, berry: 0.4, gold: 0.4, rock: 0.45, carcass: 0.3 };
   var NODE_HALF = 0.42;
@@ -18,7 +18,7 @@
   var TOP = {
     house: 2.0, blacksmith: 2.0, barracks: 2.5,
     lumberCamp: 1.8, miningCamp: 1.9, mill: 2.6, farm: 0.6, market: 2.0, pen: 1.3,
-    archeryRange: 2.2, stable: 2.6, tower: 3.1, wall: 1.3, gate: 1.5, temple: 2.6, siegeWorkshop: 2.2
+    archeryRange: 2.2, stable: 2.6, tower: 3.1, wall: 1.3, gate: 1.7, temple: 2.6, siegeWorkshop: 2.2
   };
 
   // 主堡各時代的高度不同
@@ -33,6 +33,20 @@
   // 占地中心的 x + y。單位與建築、正方形占地彼此之間，比中心值即得正確的前後關係
   function key(e) {
     return e.w === undefined ? e.x + e.y : e.x + e.y + (e.w + e.h) / 2;
+  }
+
+  // 長條建築（城門）拆成一格一段分別排序與繪製，單位在它前後的遮擋才會正確
+  function slices(e) {
+    var def = e.kind === 'building' && RTS.data.buildings[e.type];
+    if (!def || !def.length) return [e];
+    var axis = e.w >= e.h ? 'x' : 'y', count = Math.max(e.w, e.h), out = [];
+    for (var i = 0; i < count; i++) {
+      out.push(Object.assign({}, e, {
+        x: e.x + (axis === 'x' ? i : 0), y: e.y + (axis === 'y' ? i : 0), w: 1, h: 1,
+        part: { axis: axis, index: i, count: count }
+      }));
+    }
+    return out;
   }
 
   // 由遠到近排序（原地排序並回傳）
@@ -106,7 +120,7 @@
   }
 
   RTS.depth = {
-    NODE_SCALE: NODE_SCALE, topOf: topOf, key: key, sort: sort, inView: inView,
+    NODE_SCALE: NODE_SCALE, topOf: topOf, key: key, slices: slices, sort: sort, inView: inView,
     unitAnchor: unitAnchor, hits: hits, pick: pick, ownInRect: ownInRect
   };
 })();

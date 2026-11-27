@@ -23,9 +23,14 @@
 
   function placementTile(app) {
     if (!app.placement || !app.mouse.overCanvas) return null;
-    var size = RTS.data.buildings[app.placement].size;
     var w = RTS.camera.screenToWorld(app.cam, app.mouse.x, app.mouse.y);
-    return { tx: Math.round(w.x - size / 2), ty: Math.round(w.y - size / 2) };
+    var dir = app.placeDir || 0;
+    // 城門附近有牆時順著牆擺，否則照玩家按 Q 選的方向
+    if (RTS.data.buildings[app.placement].gate) {
+      dir = RTS.construction.gateAxis(app.world, Math.floor(w.x), Math.floor(w.y), dir) === 'y' ? 1 : 0;
+    }
+    var area = RTS.world.footprint(app.placement, dir);
+    return { tx: Math.round(w.x - area.w / 2), ty: Math.round(w.y - area.h / 2), dir: dir };
   }
 
   function pick(app, sx, sy) {
@@ -74,7 +79,7 @@
     } else if (app.placement) {
       var spot = placementTile(app);
       var r = RTS.actions.issue(app, {
-        type: 'build', unitIds: units, building: app.placement, tx: spot.tx, ty: spot.ty, dir: app.placeDir
+        type: 'build', unitIds: units, building: app.placement, tx: spot.tx, ty: spot.ty, dir: spot.dir
       });
       if (r.ok && !shift) app.placement = null;
     } else {

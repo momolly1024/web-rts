@@ -17,13 +17,16 @@
     return !!gate && gate.type === 'gate';
   }
 
-  // 城門順著哪個方向的牆：上下相接的牆比左右多時為 'y'，否則為 'x'（單獨或斜線牆也是 'x'）
+  // 放在 (tx, ty) 附近的城門該順著哪個方向：兩軸各看半個門長再多一格內的牆與門，
+  // 上下較多為 'y'、左右較多為 'x'
   function gateAxis(world, tx, ty, dir) {
-    var alongX = 0, alongY = 0;
-    if (isWallOrGate(world, tx - 1, ty)) alongX++;
-    if (isWallOrGate(world, tx + 1, ty)) alongX++;
-    if (isWallOrGate(world, tx, ty - 1)) alongY++;
-    if (isWallOrGate(world, tx, ty + 1)) alongY++;
+    var alongX = 0, alongY = 0, reach = Math.floor(RTS.data.buildings.gate.length / 2) + 1;
+    for (var d = 1; d <= reach; d++) {
+      if (isWallOrGate(world, tx - d, ty)) alongX++;
+      if (isWallOrGate(world, tx + d, ty)) alongX++;
+      if (isWallOrGate(world, tx, ty - d)) alongY++;
+      if (isWallOrGate(world, tx, ty + d)) alongY++;
+    }
     if (alongX !== alongY) return alongY > alongX ? 'y' : 'x';
     return dir % 2 ? 'y' : 'x';      // 沒有相鄰的牆或兩向一樣多時，照城門自己的朝向
   }
@@ -43,10 +46,10 @@
   }
 
   // 預覽與指令共用同一套判斷
-  function canPlace(world, owner, type, tx, ty) {
-    var size = RTS.data.buildings[type].size, map = world.map;
-    for (var y = ty; y < ty + size; y++) {
-      for (var x = tx; x < tx + size; x++) {
+  function canPlace(world, owner, type, tx, ty, dir) {
+    var area = RTS.world.footprint(type, dir | 0), map = world.map;
+    for (var y = ty; y < ty + area.h; y++) {
+      for (var x = tx; x < tx + area.w; x++) {
         if (!RTS.map.inBounds(map, x, y)) return { ok: false, reason: 'outOfMap' };
         if (RTS.fog.tile(world, owner, x, y) === RTS.fog.UNEXPLORED) return { ok: false, reason: 'unexplored' };
         var free = RTS.map.isWalkable(map, x, y) && !RTS.map.floorAt(map, x, y);
@@ -56,7 +59,7 @@
     var enemy = false;
     world.entities.forEach(function (u) {
       if (u.kind === 'unit' && u.owner !== owner && RTS.fog.sees(world, owner, u) &&
-          u.x >= tx && u.x < tx + size && u.y >= ty && u.y < ty + size) enemy = true;
+          u.x >= tx && u.x < tx + area.w && u.y >= ty && u.y < ty + area.h) enemy = true;
     });
     return enemy ? { ok: false, reason: 'enemyUnit' } : { ok: true };
   }
@@ -72,10 +75,16 @@
   }
 
   function place(world, owner, type, tx, ty, dir) {
-    var old = type === 'gate' && ownWallAt(world, owner, tx, ty);
-    if (old) RTS.world.remove(world, old);      // 城門取代城牆，牆不退款
-    var b = RTS.world.addBuilding(world, type, owner, tx, ty, false);
-    b.dir = ((dir | 0) % 4 + 4) % 4;
+    if (type === 'gate') {                      // 城門取代占地內的城牆，牆不退款
+      var area = RTS.world.footprint(type, dir | 0);
+      for (var y = ty; y < ty + area.h; y++) {
+        for (var x = tx; x < tx + area.w; x++) {
+          var old = ownWallAt(world, owner, x, y);
+          if (old) RTS.world.remove(world, old);
+        }
+      }
+    }
+    var b = RTS.world.addBuilding(world, type, owner, tx, ty, false, dir);
     world.entities.forEach(function (u) {
       if (u.w === undefined) RTS.move.rescue(world, u);
     });

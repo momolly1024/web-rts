@@ -215,26 +215,35 @@
       });
       onLeft(ctx, s - 0.08, 0.35, 0.65, 0.35, 0.5, c.color);
     },
-    // 城門：兩側石柱夾著木門，門上掛己方顏色。axis 為牆延伸的方向（見 construction.gateAxis），
-    // 'x' 時石柱在 u 兩端、門在左前立面；'y' 時石柱在 v 兩端、門在右前立面
-    gate: function (ctx, s, c, e, axis) {
-      var pillar = ['#a59a87', '#857b6b', '#9a907e'];
-      face(ctx, [[0.05, 0.05, 0], [s - 0.05, 0.05, 0], [s - 0.05, s - 0.05, 0], [0.05, s - 0.05, 0]], '#8f815f', false);
-      if (axis === 'y') {
-        box(ctx, [0.05, 0.05, s - 0.05, 0.3], 0, 1.2, pillar);
-        box(ctx, [0.05, s - 0.3, s - 0.05, s - 0.05], 0, 1.2, pillar);
-      } else {
-        box(ctx, [0.05, 0.05, 0.3, s - 0.05], 0, 1.2, pillar);
-        box(ctx, [s - 0.3, 0.05, s - 0.05, s - 0.05], 0, 1.2, pillar);
+    // 城門：一次畫一段（一格）。兩端是石塔，中間是木門與門楣，門中央掛己方顏色。
+    // part = { axis, index, count }；axis 'x' 時門面在左前立面、'y' 時在右前立面
+    gate: function (ctx, s, c, e, part) {
+      var along = part.axis === 'y';
+      var first = part.index === 0, last = part.index === part.count - 1, half = part.count / 2;
+      // a 沿著牆、t 橫越牆厚
+      function area(a0, t0, a1, t1) { return along ? [t0, a0, t1, a1] : [a0, t0, a1, t1]; }
+      function front(t, a0, a1, z0, z1, fill) { (along ? onRight : onLeft)(ctx, t, a0, a1, z0, z1, fill); }
+      function tower(a0, a1) {
+        box(ctx, area(a0, 0.05, a1, 0.95), 0, 1.4, ['#a59a87', '#857b6b', '#9a907e']);
+        [a0, a1 - 0.2].forEach(function (a) {
+          box(ctx, area(a, 0.7, a + 0.2, 0.9), 1.4, 1.58, ['#b3a895', '#93897a', '#a59a87']);
+        });
       }
-      box(ctx, [0.05, 0.05, s - 0.05, s - 0.05], 0.95, 1.2, ['#b3a895', '#93897a', '#a59a87']);
-      if (axis === 'y') {
-        onRight(ctx, s - 0.05, 0.3, s - 0.3, 0, 0.95, '#6b4a2b');
-        onRight(ctx, s - 0.05, 0.42, s - 0.42, 0.55, 0.85, c.color);
-      } else {
-        onLeft(ctx, s - 0.05, 0.3, s - 0.3, 0, 0.95, '#6b4a2b');
-        onLeft(ctx, s - 0.05, 0.42, s - 0.42, 0.55, 0.85, c.color);
+      function door(a0, a1) {
+        front(0.82, a0, a1, 0, 0.95, '#6b4a2b');
+        for (var a = a0 + 0.25; a < a1 - 0.05; a += 0.25) front(0.82, a, a + 0.03, 0.03, 0.92, '#553a21');
+        box(ctx, area(a0, 0.1, a1, 0.9), 0.95, 1.2, ['#b3a895', '#93897a', '#a59a87']);
       }
+      face(ctx, [[0, 0.05], [1, 0.05], [1, 0.95], [0, 0.95]].map(function (p) {
+        return along ? [p[1], p[0], 0] : [p[0], p[1], 0];
+      }), '#8f815f', false);
+      if (first) { tower(0.05, 0.7); door(0.7, 1); return; }
+      if (last) { door(0, 0.3); tower(0.3, 0.95); return; }
+      door(0, 1);
+      // 門縫與跨在兩扇門中央的隊旗
+      if (part.index === half) front(0.82, 0, 0.05, 0, 0.95, '#2b1d10');
+      if (part.index === half - 1) front(0.9, 0.55, 1, 0.98, 1.17, c.color);
+      if (part.index === half) front(0.9, 0, 0.45, 0.98, 1.17, c.color);
     },
     // 修道院：白牆、圓頂、鐘
     temple: function (ctx, s, c) {
@@ -281,11 +290,11 @@
     edge(ctx, [far, far, 0.2], [far, m, 1.2], '#5c4326', 0.06);
   }
 
-  // 依擁有者的文明與朝向畫完工建築；axis 只有城門用到、age（擁有者的時代）只有主堡用到。石牆各向相同、城門由 axis 決定方向，都不旋轉
-  function draw(ctx, type, s, c, e, civ, axis, dir, age) {
+  // 依擁有者的文明與朝向畫完工建築；part 只有城門用到、age（擁有者的時代）只有主堡用到。石牆各向相同、城門由 part 決定方向，都不旋轉
+  function draw(ctx, type, s, c, e, civ, part, dir, age) {
     var def = RTS.data.buildings[type];
     style = RTS.civStyle.of(civ);
-    P.withTurn(def.line || def.gate ? 0 : dir || 0, s, function () { buildings[type](ctx, s, c, e, axis, age); });
+    P.withTurn(def.line || def.gate ? 0 : dir || 0, s, function () { buildings[type](ctx, s, c, e, part, age); });
     style = null;
   }
 

@@ -170,7 +170,7 @@
       var missing = RTS.construction.missingRequirement(world, pid, c.building);
       if (missing) return missing;
       var tx = Math.floor(c.tx), ty = Math.floor(c.ty);
-      var check = RTS.construction.canPlace(world, pid, c.building, tx, ty);
+      var check = RTS.construction.canPlace(world, pid, c.building, tx, ty, c.dir);
       if (!check.ok) return check;
       if (!RTS.world.pay(world, pid, def.cost)) return fail('notEnoughResources');
       var b = RTS.construction.place(world, pid, c.building, tx, ty, c.dir);

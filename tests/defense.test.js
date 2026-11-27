@@ -43,11 +43,11 @@ test('石牆：拉一條線一次放多格工地、扣石材，村民依序蓋�
   assert.strictEqual(RTS.commands.issue(w, 0, { type: 'buildWall', unitIds: [v.id], x0: 18, y0: 5, x1: 18, y1: 9 }).reason, 'needsFeudal');
 });
 
-// 一道貫穿地圖的牆，中間一格是 owner 的城門
+// 一道貫穿地圖的牆，中間一段是 owner 的城門
 function walled(owner = 0) {
   const w = field(24);
-  for (let y = 0; y < 24; y++) if (y !== 12) RTS.world.addBuilding(w, 'wall', 0, 12, y, true);
-  const gate = RTS.world.addBuilding(w, 'gate', owner, 12, 12, true);
+  for (let y = 0; y < 24; y++) if (y < 11 || y > 14) RTS.world.addBuilding(w, 'wall', 0, 12, y, true);
+  const gate = RTS.world.addBuilding(w, 'gate', owner, 12, 11, true, 1);    // 占 y 11..14
   return { w, gate };
 }
 
@@ -85,7 +85,7 @@ test('城門順著相鄰的城牆或城門轉向；單獨一座維持左右向',
   RTS.world.addBuilding(w, 'wall', 0, 15, 10, true);
   RTS.world.addBuilding(w, 'wall', 0, 17, 10, true);
   assert.strictEqual(RTS.construction.gateAxis(w, 16, 10), 'x', '左右有牆');
-  RTS.world.addBuilding(w, 'gate', 1, 20, 9, true);
+  RTS.world.addBuilding(w, 'gate', 1, 20, 6, true, 1);       // 直向占 y 6..9
   assert.strictEqual(RTS.construction.gateAxis(w, 20, 10), 'y', '相鄰的城門也算，不分主人');
   assert.strictEqual(RTS.construction.gateAxis(w, 5, 5), 'x', '沒有相鄰的牆');
 });

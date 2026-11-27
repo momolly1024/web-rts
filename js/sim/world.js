@@ -41,13 +41,21 @@
     return e;
   }
 
-  // complete=false 代表剛放下的工地
-  function addBuilding(world, type, owner, tx, ty, complete) {
+  // 建築占地。多數是 size 見方；有 length 的長條建築（城門）依朝向沿 x（偶數）或 y（奇數）延伸
+  function footprint(type, dir) {
     var def = RTS.data.buildings[type];
+    if (!def.length) return { w: def.size, h: def.size };
+    return dir % 2 ? { w: def.size, h: def.length } : { w: def.length, h: def.size };
+  }
+
+  // complete=false 代表剛放下的工地
+  function addBuilding(world, type, owner, tx, ty, complete, dir) {
+    var def = RTS.data.buildings[type];
+    var turn = ((dir | 0) % 4 + 4) % 4, area = footprint(type, turn);
     var e = add(world, {
-      kind: 'building', type: type, owner: owner, x: tx, y: ty, w: def.size, h: def.size,
+      kind: 'building', type: type, owner: owner, x: tx, y: ty, w: area.w, h: area.h,
       maxHp: def.hp, hp: complete ? def.hp : def.hp * 0.1,
-      progress: complete ? 1 : 0, complete: !!complete, queue: [], builders: 0, dir: 0
+      progress: complete ? 1 : 0, complete: !!complete, queue: [], builders: 0, dir: turn
     });
     if (def.walkable) RTS.map.setFloor(world.map, e, e.id);
     else RTS.map.setOccupant(world.map, e, e.id);
@@ -167,7 +175,7 @@
   }
 
   RTS.world = {
-    create: create, addNode: addNode, addBuilding: addBuilding, addUnit: addUnit, addAnimal: addAnimal,
+    create: create, addNode: addNode, addBuilding: addBuilding, footprint: footprint, addUnit: addUnit, addAnimal: addAnimal,
     remove: remove, get: get, list: list, unitsOf: unitsOf, buildingsOf: buildingsOf,
     defOf: defOf, center: center, distTo: distTo, nearest: nearest,
     canAfford: canAfford, pay: pay, refund: refund, population: population
