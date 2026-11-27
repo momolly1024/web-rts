@@ -7,8 +7,7 @@
   // 基準參數套上該難度的覆寫值；未知難度一律視為預設
   function config(difficulty) {
     var data = RTS.data;
-    var known = data.difficultyOrder.concat(data.hiddenDifficulties);
-    var key = known.indexOf(difficulty) >= 0 ? difficulty : data.defaultDifficulty;
+    var key = data.difficultyOrder.indexOf(difficulty) >= 0 ? difficulty : data.defaultDifficulty;
     return Object.assign({ difficulty: key }, data.ai, data.difficulties[key].ai);
   }
 
@@ -124,7 +123,7 @@
 
   AI.create = function (pid, difficulty) {
     var cfg = config(difficulty);
-    var state = { timer: 0, waves: 0, lastWave: 0, lastDrip: 0, wave: {}, assigned: {}, badNodes: {}, sites: {},
+    var state = { timer: 0, waves: 0, lastWave: 0, lastDrip: 0, lastTrain: -Infinity, wave: {}, assigned: {}, badNodes: {}, sites: {},
       campTry: {}, needFarm: false, mostTowns: 1, enemies: {},
       badPrey: {}, huntStart: 0, sightings: {}, lookTime: -60, scoutId: 0, route: null, heading: null, leg: 0, laps: 0 };
     return {

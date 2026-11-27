@@ -5,6 +5,7 @@ const { RTS } = require('./helpers');
 const AI_ID = 1;
 const SEEDS = [7, 2024, 31337, 5, 88, 404];
 const HORIZON = 900;     // 模擬秒數
+const ATTACKING = ['easy', 'normal', 'hard'];     // 和平世界以外、會進攻的難度
 
 test('普通難度就是基準參數，預設為普通', () => {
   const base = Object.assign({ difficulty: 'normal' }, RTS.data.ai);
@@ -57,7 +58,7 @@ function simulate(seed, difficulty) {
 
 for (const seed of SEEDS) {
   slowTest(`三種難度皆會進攻，強度順序 簡單 < 普通 < 困難（seed ${seed}）`, () => {
-    const [easy, normal, hard] = RTS.data.difficultyOrder.map(key => {
+    const [easy, normal, hard] = ATTACKING.map(key => {
       const log = simulate(seed, key);
       const info = key + ' ' + JSON.stringify(log);
       console.log('      ' + info);
@@ -77,7 +78,7 @@ for (const seed of SEEDS) {
 }
 
 slowTest('三種難度對不動的玩家都能分出勝負', () => {
-  for (const key of RTS.data.difficultyOrder) {
+  for (const key of ATTACKING) {
     const world = RTS.game.create(2024);
     const ai = RTS.ai.create(AI_ID, key);
     for (let i = 0; i < 30000 && !world.over; i++) { ai.update(world, RTS.data.TICK); RTS.game.step(world); }
@@ -85,8 +86,8 @@ slowTest('三種難度對不動的玩家都能分出勝負', () => {
   }
 });
 
-slowTest('和平世界：隱藏難度，只關掉進攻；電腦照常發展但永遠不出兵', () => {
-  assert.ok(RTS.data.difficultyOrder.indexOf('peaceful') < 0, '不在一般選單');
+slowTest('和平世界：選單第一項，只關掉進攻；電腦照常發展但永遠不出兵', () => {
+  assert.strictEqual(RTS.data.difficultyOrder[0], 'peaceful', '放在簡單左邊');
   const entry = RTS.data.difficulties.peaceful;
   assert.deepStrictEqual(entry, { ai: { attack: false } });
   assert.strictEqual(RTS.ai.create(AI_ID, 'peaceful').difficulty, 'peaceful');

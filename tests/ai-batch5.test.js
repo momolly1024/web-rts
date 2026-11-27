@@ -214,16 +214,44 @@ test('AI 後期成長：簡單與困難不隨時間改變', () => {
   }
 });
 
-test('AI 軍隊上限：普通與困難不設限，簡單維持 10 人', () => {
-  for (const [difficulty, trains] of [['easy', false], ['normal', true], ['hard', true]]) {
+test('AI 軍隊人數不設上限：各難度兵很多時仍繼續出兵', () => {
+  for (const difficulty of RTS.data.difficultyOrder) {
     const s = setup({ army: 30 });
     for (let i = 0; i < 6; i++) RTS.world.addBuilding(s.world, 'house', AI_ID, 1 + i * 3, 18, true);
     const b = RTS.world.addBuilding(s.world, 'barracks', AI_ID, 14, 8, true);
     RTS.world.addBuilding(s.world, 'townCenter', AI_ID, 26, 12, true);
     s.world.players[AI_ID].upgrades.age = 2;
     think(s.world, RTS.ai.create(AI_ID, difficulty));
-    assert.strictEqual(b.queue.length > 0, trains, difficulty);
+    assert.ok(b.queue.length > 0, difficulty);
   }
+});
+
+test('AI 出兵間隔：所有建築合計，間隔內只出一名；下次輪到缺人的建築', () => {
+  const s = setup({ army: 6 });
+  for (let i = 0; i < 6; i++) RTS.world.addBuilding(s.world, 'house', AI_ID, 1 + i * 3, 18, true);
+  const barracks = RTS.world.addBuilding(s.world, 'barracks', AI_ID, 14, 8, true);
+  const stable = RTS.world.addBuilding(s.world, 'stable', AI_ID, 20, 8, true);
+  RTS.world.addBuilding(s.world, 'townCenter', AI_ID, 26, 12, true);
+  s.world.players[AI_ID].upgrades.age = 2;
+  const ai = RTS.ai.create(AI_ID, 'easy'), gap = RTS.ai.config('easy').trainGap;
+  const trained = () => barracks.queue.concat(stable.queue).filter(q => q.type).length;
+  s.world.time = 100;
+  think(s.world, ai);
+  assert.strictEqual(trained(), 1);
+  s.world.time = 100 + gap - 1;
+  think(s.world, ai);
+  assert.strictEqual(trained(), 1, '間隔內不出兵');
+  s.world.time = 100 + gap;
+  think(s.world, ai);
+  assert.strictEqual(trained(), 2);
+  assert.ok(barracks.queue.some(q => q.type) && stable.queue.some(q => q.type), '兩座都輪到');
+});
+
+test('AI 出兵間隔：簡單最長、困難不限', () => {
+  const gap = key => RTS.ai.config(key).trainGap;
+  assert.ok(gap('easy') > gap('normal') && gap('normal') > gap('hard'));
+  assert.strictEqual(gap('hard'), 0);
+  assert.strictEqual(gap('peaceful'), gap('normal'));
 });
 
 test('AI 科技：兵力達 techSaveAt 後，出兵不花掉下一個研究的資源', () => {

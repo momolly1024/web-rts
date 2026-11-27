@@ -416,25 +416,22 @@
     },
 
     // 難度：只能覆寫下方 ai 的行為參數，不得改資源或戰鬥數值。普通即基準值
-    difficultyOrder: ['easy', 'normal', 'hard'],
-    // 隱藏難度：在難度選單連點「困難」五次才出現
-    hiddenDifficulties: ['peaceful'],
-    secretClicks: 5,
+    difficultyOrder: ['peaceful', 'easy', 'normal', 'hard'],    // 選單順序
     defaultDifficulty: 'normal',
     difficulties: {
       easy: {
         ai: {
-          thinkInterval: 2.5, graceTime: 480, villagerTarget: 10, attackSize: 4, waveGrowth: 1,
-          attackSizeMax: 8, waveInterval: 150, armyMax: 10, maxBarracks: 1,
+          thinkInterval: 2.5, graceTime: 600, villagerTarget: 9, attackSize: 4, waveGrowth: 1,
+          attackSizeMax: 8, waveInterval: 180, maxBarracks: 1, trainGap: 35, techSaveAt: 10,
           blacksmith: { atArmy: 7, maxLevel: 1 },
           repair: { threshold: 0.4, workers: 1 },
           shelter: { radius: 6, minEnemies: 3, woundedBelow: 0 },
           hunt: { prey: false, range: 14, boarParty: 0 },
           scoutStart: 180,
-          economy: { campAt: 4, millAt: 11, maxFarms: 8, reseedBuffer: 1, techAt: 12, techLevel: 1 },
-          age: { at: [10, 99], army: [4, 10], maxAge: 1 },
-          military: { towers: 0, rams: 0, tiers: false },
-          expand: { towns: 1, minAge: 1, minVillagers: 10, minArmy: 6, extraVillagers: 0 },
+          economy: { campAt: 4, millAt: 8, maxFarms: 8, reseedBuffer: 1, techAt: 8, techLevel: 1 },
+          age: { at: [8, 9], army: [4, 18], maxAge: 2 },
+          military: { towers: 0, rams: 1, tiers: false },
+          expand: { towns: 1, minAge: 1, minVillagers: 9, minArmy: 6, extraVillagers: 0 },
           counter: { bias: 0, memory: 60 },
           late: null
         }
@@ -444,15 +441,16 @@
       peaceful: { ai: { attack: false } },
       hard: {
         ai: {
-          thinkInterval: 0.5, graceTime: 240, villagerTarget: 18, attackSize: 8, waveGrowth: 3,
-          attackSizeMax: 20, waveInterval: 55, maxBarracks: 3, techSaveAt: 26,
+          thinkInterval: 0.5, graceTime: 240, villagerTarget: 20, attackSize: 8, waveGrowth: 3,
+          attackSizeMax: 20, waveInterval: 55, maxBarracks: 3, trainGap: 0, techSaveAt: 26,
+          gatherRatio: { food: 0.52, wood: 0.26, gold: 0.16, stone: 0.06 },    // 兵出得快，要多派人採食物
           blacksmith: { atArmy: 5, maxLevel: 2 },
           repair: { threshold: 0.9, workers: 3 },
           shelter: { radius: 10, minEnemies: 2, woundedBelow: 0.5 },
           hunt: { prey: true, range: 20, boarParty: 4 },
           scoutStart: 45,
           economy: { campAt: 3, millAt: 8, maxFarms: 16, reseedBuffer: 3, techAt: 10, techLevel: 3 },
-          age: { at: [14, 17], army: [8, 26], maxAge: 2 },
+          age: { at: [13, 14], army: [8, 12], maxAge: 2 },
           military: { towers: 2, rams: 3, tiers: true },
           expand: { towns: 2, minAge: 1, minVillagers: 15, minArmy: 8, extraVillagers: 6 },
           counter: { bias: 3, memory: 150 },
@@ -473,7 +471,7 @@
       waveGrowth: 1,
       attackSizeMax: 10,
       waveInterval: 100,     // 兩波之間至少間隔（秒）
-      armyMax: null,         // 軍隊人數上限（含訓練中）；null 表示和玩家一樣只受房屋限制
+      trainGap: 8,           // 兩次訓練士兵至少隔幾秒（全部建築合計，0 表示不限）；軍隊人數不設上限
       techSaveAt: 14,        // 軍隊達幾人後，有待研究的科技就先保留那筆資源，再繼續出兵
       // 後期成長（null 表示不成長）：開局 after 秒後，每 every 秒單波上限加 step 人，
       // 最多到這裡的 attackSizeMax。成長期間存錢升時代時，仍每 drip 秒補一名士兵

@@ -79,6 +79,7 @@
     'difficulty.normal': '普通',
     'difficulty.hard': '困難',
     'difficulty.peaceful': '和平世界',
+    'difficulty.peacefulNote': '（不主動進攻）',
 
     'upgrade.meleeAttack': '近戰攻擊',
     'upgrade.rangedAttack': '遠程攻擊',

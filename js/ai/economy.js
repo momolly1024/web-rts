@@ -214,8 +214,8 @@
     var trainers = ctx.buildings.filter(function (b) {
       return b.complete && RTS.data.buildings[b.type].trains.some(function (u) { return RTS.data.units[u].military; });
     });
-    var training = 0, queued = [];
-    trainers.forEach(function (b) { training += b.queue.length; queued = queued.concat(b.queue); });
+    var queued = [];
+    trainers.forEach(function (b) { queued = queued.concat(b.queue); });
     function count(type) { return countType(ctx.army, type) + countType(queued, type); }
     var enemy = AI.counter.tally(ctx);
     ctx.techReserve = AI.tech.reserve(ctx);
@@ -230,19 +230,22 @@
     function best(b) {
       return Math.max.apply(null, [0].concat(RTS.data.buildings[b.type].trains.filter(wanted).map(enemy.weight)));
     }
-    trainers.slice().sort(function (a, b) { return best(b) - best(a); }).forEach(function (b) {
-      if (b.queue.length >= 2 || (saving && !drip)) return;
-      var sheltered = inside.length - countType(inside, 'villager');
-      if (cfg.armyMax !== null && ctx.army.length + sheltered + training >= cfg.armyMax) return;
-      // 相對於比重人數最少的兵種優先；沒看到敵軍時各兵種大致平均
-      function need(type) { return (count(type) + 1) / enemy.weight(type); }
+    // 相對於比重人數最少的兵種優先；沒看到敵軍時各兵種大致平均
+    function need(type) { return (count(type) + 1) / enemy.weight(type); }
+    // 同樣能剋制敵軍時，最缺人的建築先出兵；有出兵間隔時才不會永遠輪到第一座
+    function lack(b) {
+      return Math.min.apply(null, [Infinity].concat(RTS.data.buildings[b.type].trains.filter(wanted).map(need)));
+    }
+    function resting() { return ctx.world.time - ctx.state.lastTrain < cfg.trainGap; }
+    trainers.slice().sort(function (a, b) { return best(b) - best(a) || lack(a) - lack(b); }).forEach(function (b) {
+      if (b.queue.length >= 2 || (saving && !drip) || resting()) return;
       var picks = RTS.data.buildings[b.type].trains.filter(wanted).sort(function (x, y) { return need(x) - need(y); });
       for (var i = 0; i < picks.length; i++) {
         // 缺房屋時不把木材花在要木材的兵種上
         if (needHouse && RTS.data.units[picks[i]].cost.wood) continue;
         if (eatsReserve(ctx, RTS.data.units[picks[i]].cost)) continue;
         if (ctx.issue({ type: 'train', buildingId: b.id, unit: picks[i] }).ok) {
-          training++;
+          ctx.state.lastTrain = ctx.world.time;
           queued.push({ type: picks[i] });
           if (saving) { drip = false; ctx.state.lastDrip = ctx.world.time; }
           break;

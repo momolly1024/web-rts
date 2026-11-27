@@ -23,7 +23,7 @@ mouse and keyboard is recommended.
   Town Centers are gone (unfinished ones do not count).
 - The enemy waits for a grace period before attacking, and later waves grow. The grace period
   and army size depend on the difficulty.
-- Hidden difficulty "Peaceful World": click Hard five times in the difficulty list to reveal it.
+- "Peaceful (never attacks)" difficulty: the computer develops and defends but never attacks.
   The computer builds up and defends itself but never attacks.
 
 | Building | Cost | Purpose |
@@ -254,14 +254,14 @@ no extra resources or combat stats, and it can act only through the same command
 
 | Parameter (`js/data.js`) | Easy | Normal | Hard |
 |------|------|------|------|
-| Grace period `graceTime` (s) | 480 | 360 | 240 |
+| Grace period `graceTime` (s) | 600 | 360 | 240 |
 | Think interval `thinkInterval` (s) | 2.5 | 1.0 | 0.5 |
-| Villager target `villagerTarget` | 10 | 14 | 18 |
+| Villager target `villagerTarget` | 9 | 14 | 20 |
 | First wave `attackSize` | 4 | 6 | 8 |
 | Growth per wave `waveGrowth` | 1 | 1 | 3 |
 | Largest wave `attackSizeMax` | 8 | 10 | 20 |
-| Minimum gap between waves `waveInterval` (s) | 150 | 100 | 55 |
-| Army limit `armyMax` | 10 | none | none |
+| Minimum gap between waves `waveInterval` (s) | 180 | 100 | 55 |
+| Gap between trained soldiers `trainGap` (s, 0 = none) | 35 | 8 | 0 |
 | Barracks limit `maxBarracks` | 1 | 2 | 3 |
 | Army size before research / top level `blacksmith` | 7 / 1 | 6 / 2 | 5 / 2 |
 | Repair below / workers `repair` | 40% / 1 | 70% / 2 | 90% / 3 |
@@ -274,10 +274,10 @@ no extra resources or combat stats, and it can act only through the same command
 | Counter-picking strength `counter.bias` | 0 (even mix) | 1 | 3 |
 | Remembers enemies it saw `counter.memory` (s) | 60 | 100 | 150 |
 
-On Normal (including Peaceful World) and Hard the computer has no army limit: like you, it is limited only by its houses. Easy stops at 10 soldiers.
-Once its army reaches `techSaveAt` (14 on Normal, 26 on Hard), it sets aside the cost of a pending research before training more.
+The computer has no army limit on any difficulty: like you, it is limited only by its houses. How fast it trains is set by `trainGap`.
+Once its army reaches `techSaveAt` (10 on Easy, 14 on Normal and Peaceful, 26 on Hard), it sets aside the cost of a pending research before training more.
 
-On Normal (and Peaceful World, which shares its base settings) attacks grow in long matches:
+On Normal (and Peaceful, which shares its base settings) attacks grow in long matches:
 after 10 minutes the largest wave gains 2 per minute, up to 16 (`ai.late` in
 `js/data.js`). Easy and Hard do not change over time. While saving for the Castle Age late in a match it still adds one soldier every 30 seconds (`ai.late.drip`).
 
@@ -492,7 +492,7 @@ Code comments and test names are written in Traditional Chinese.
 ## Known limits
 
 - The AI does not use the Market, pens or demolition, and builds no walls, gates or temples (no
-  healers). It only prepares for the Castle Age with a full army, so rams show up in long games.
+  healers). It only prepares for the Castle Age once its army is large enough, so rams show up in long games.
 - Buildings do not change appearance with the age.
 - With villagers selected there are many build buttons; in a short window, Garrison and Stop need
   the panel scrolled (their hotkeys always work).

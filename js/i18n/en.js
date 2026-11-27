@@ -78,7 +78,8 @@
     'difficulty.easy': 'Easy',
     'difficulty.normal': 'Normal',
     'difficulty.hard': 'Hard',
-    'difficulty.peaceful': 'Peaceful World',
+    'difficulty.peaceful': 'Peaceful',
+    'difficulty.peacefulNote': ' (never attacks)',
 
     'upgrade.meleeAttack': 'Melee attack',
     'upgrade.rangedAttack': 'Ranged attack',
