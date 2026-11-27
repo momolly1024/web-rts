@@ -219,14 +219,26 @@
       });
       onLeft(ctx, s - 0.08, 0.35, 0.65, 0.35, 0.5, c.color);
     },
-    // 城門：兩側石柱夾著木門，門上掛己方顏色
-    gate: function (ctx, s, c) {
+    // 城門：兩側石柱夾著木門，門上掛己方顏色。axis 為牆延伸的方向（見 construction.gateAxis），
+    // 'x' 時石柱在 u 兩端、門在左前立面；'y' 時石柱在 v 兩端、門在右前立面
+    gate: function (ctx, s, c, e, axis) {
+      var pillar = ['#a59a87', '#857b6b', '#9a907e'];
       face(ctx, [[0.05, 0.05, 0], [s - 0.05, 0.05, 0], [s - 0.05, s - 0.05, 0], [0.05, s - 0.05, 0]], '#8f815f', false);
-      box(ctx, [0.05, 0.05, 0.3, s - 0.05], 0, 1.2, ['#a59a87', '#857b6b', '#9a907e']);
-      box(ctx, [s - 0.3, 0.05, s - 0.05, s - 0.05], 0, 1.2, ['#a59a87', '#857b6b', '#9a907e']);
+      if (axis === 'y') {
+        box(ctx, [0.05, 0.05, s - 0.05, 0.3], 0, 1.2, pillar);
+        box(ctx, [0.05, s - 0.3, s - 0.05, s - 0.05], 0, 1.2, pillar);
+      } else {
+        box(ctx, [0.05, 0.05, 0.3, s - 0.05], 0, 1.2, pillar);
+        box(ctx, [s - 0.3, 0.05, s - 0.05, s - 0.05], 0, 1.2, pillar);
+      }
       box(ctx, [0.05, 0.05, s - 0.05, s - 0.05], 0.95, 1.2, ['#b3a895', '#93897a', '#a59a87']);
-      onLeft(ctx, s - 0.05, 0.3, s - 0.3, 0, 0.95, '#6b4a2b');
-      onLeft(ctx, s - 0.05, 0.42, s - 0.42, 0.55, 0.85, c.color);
+      if (axis === 'y') {
+        onRight(ctx, s - 0.05, 0.3, s - 0.3, 0, 0.95, '#6b4a2b');
+        onRight(ctx, s - 0.05, 0.42, s - 0.42, 0.55, 0.85, c.color);
+      } else {
+        onLeft(ctx, s - 0.05, 0.3, s - 0.3, 0, 0.95, '#6b4a2b');
+        onLeft(ctx, s - 0.05, 0.42, s - 0.42, 0.55, 0.85, c.color);
+      }
     },
     // 修道院：白牆、圓頂、鐘
     temple: function (ctx, s, c) {
@@ -362,10 +374,10 @@
     edge(ctx, [far, far, 0.2], [far, m, 1.2], '#5c4326', 0.06);
   }
 
-  // 依擁有者的文明畫完工建築
-  function draw(ctx, type, s, c, e, civ) {
+  // 依擁有者的文明畫完工建築；axis 只有城門用到
+  function draw(ctx, type, s, c, e, civ, axis) {
     style = RTS.civStyle.of(civ);
-    buildings[type](ctx, s, c, e);
+    buildings[type](ctx, s, c, e, axis);
     style = null;
   }
 

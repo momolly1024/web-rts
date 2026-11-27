@@ -70,7 +70,8 @@
     } else if (e.kind === 'building') {
       local(ctx, cam, e.x, e.y, function () {
         var civ = world ? world.players[e.owner].civ : null;
-        if (e.complete) RTS.sprites.building(ctx, e.type, e.w, players[e.owner], e, civ);
+        var axis = e.type === 'gate' && world ? RTS.construction.gateAxis(world, e.x, e.y) : 'x';
+        if (e.complete) RTS.sprites.building(ctx, e.type, e.w, players[e.owner], e, civ, axis);
         else RTS.sprites.construction(ctx, e.w, e.progress);
       });
     } else if (e.kind === 'animal') {
@@ -227,8 +228,9 @@
     ctx.fillStyle = ok ? 'rgba(90,220,90,0.4)' : 'rgba(230,60,40,0.55)';
     ctx.fill();
     ctx.globalAlpha = 0.6;
+    var axis = type === 'gate' ? RTS.construction.gateAxis(app.world, spot.tx, spot.ty) : 'x';
     local(ctx, cam, spot.tx, spot.ty, function () {
-      RTS.sprites.buildings[type](ctx, size, RTS.data.players[app.human]);
+      RTS.sprites.buildings[type](ctx, size, RTS.data.players[app.human], null, axis);
     });
     ctx.globalAlpha = 1;
     path(ctx, RTS.camera.quad(cam, spot.tx, spot.ty, size, size));

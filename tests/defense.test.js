@@ -77,6 +77,19 @@ test('城門：可以直接蓋在自己的城牆上取代它；不能蓋在別�
   assert.strictEqual(RTS.world.get(w, r.buildingId).type, 'gate');
 });
 
+test('城門順著相鄰的城牆或城門轉向；單獨一座維持左右向', () => {
+  const w = field();
+  RTS.world.addBuilding(w, 'wall', 0, 10, 9, true);
+  RTS.world.addBuilding(w, 'wall', 0, 10, 11, true);
+  assert.strictEqual(RTS.construction.gateAxis(w, 10, 10), 'y', '上下有牆');
+  RTS.world.addBuilding(w, 'wall', 0, 15, 10, true);
+  RTS.world.addBuilding(w, 'wall', 0, 17, 10, true);
+  assert.strictEqual(RTS.construction.gateAxis(w, 16, 10), 'x', '左右有牆');
+  RTS.world.addBuilding(w, 'gate', 1, 20, 9, true);
+  assert.strictEqual(RTS.construction.gateAxis(w, 20, 10), 'y', '相鄰的城門也算，不分主人');
+  assert.strictEqual(RTS.construction.gateAxis(w, 5, 5), 'x', '沒有相鄰的牆');
+});
+
 test('被城牆擋住的軍隊會改打擋路的牆', () => {
   const { w } = walled(0);
   const s = unit(w, 'swordsman', 1, 8, 12);
